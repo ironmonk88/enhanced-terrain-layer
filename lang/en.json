@@ -1,0 +1,18 @@
+{
+  "TerrainLayer.ok": "OK",
+  "TerrainLayer.sf": "Terrain Grid",
+  "TerrainLayer.select": "Select Difficult Terrain",
+  "TerrainLayer.add": "Add Difficult Terrain",
+  "TerrainLayer.subtract": "Remove Difficult Terrain",
+  "TerrainLayer.fill": "Fill Grid",
+  "TerrainLayer.confirmFill": "This will mark every grid space as difficult terrain, overwriting any spots you've marked.",
+  "TerrainLayer.onoff": "Enable/Disable Terrain",
+  "TerrainLayer.reset": "Reset Terrain",
+  "TerrainLayer.confirmReset": "Are you sure? Terrain layer will be reset.",
+  "TerrainLayer.scale-s": "Terrain Icon Scale",
+  "TerrainLayer.scale-l": "The scale of the icons.",
+  "TerrainLayer.opacity-s": "Terrain Icon Opacity",
+  "TerrainLayer.opacity-l": "Opacity of the Icon and Number.",
+  "TerrainLayer.multiple-s": "Multiple Max",
+  "TerrainLayer.multiple-l": "Set how high multiple goes."
+}

@@ -1,0 +1,35 @@
+{
+  "name": "TerrainLayer",
+  "title": "Alternate Terrain Layer",
+  "description": "A base module based off Terrain Layer, that just changes a few things to make it look nicer",
+  "authors": [{"name":"Michael Weisner" }],
+  "version": "1.0.1",
+  "minimumCoreVersion": "0.6.6",
+  "compatibleCoreVersion":"0.7.5",
+  "scripts":[
+    
+  ],
+  "esmodules": [
+    "terrain.js",
+    "js/controls.js"
+  ],
+  "dependencies":[
+  ],
+  "languages": [
+    {
+      "lang": "en",
+      "name": "English",
+      "path": "lang/en.json"
+    },
+    {
+      "lang": "es",
+      "name": "Spanish",
+      "path": "lang/es.json"
+    }
+  ],
+  "socket":true,
+  "url":"https://github.com/ironmonk88/altterrainlayer",
+  "changelog":"https://raw.githubusercontent.com/ironmonk88/altterrainlayer/main/README.md",
+  "manifest" : "https://raw.githubusercontent.com/ironmonk88/altterrainlayer/main/module.json",
+  "download" : "https://github.com/ironmonk88/altterrainlayer/archive/1.0.1.zip"
+}
