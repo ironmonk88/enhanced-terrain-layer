@@ -39,5 +39,5 @@
 	"download": "https://github.com/ironmonk88/terrainlayer-v2/archive/1.0.10.zip",
 	"manifest": "https://github.com/ironmonk88/terrainlayer-v2/releases/latest/download/module.json",
 	"bugs": "https://github.com/ironmonk88/terrainlayer-v2/issues",
-	"allowBugReporter": true,
+	"allowBugReporter": true
 }
