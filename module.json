@@ -3,7 +3,7 @@
 	"title": "Terrain Layer v2",
 	"description": "A base module that adds a Terrain Layer to Foundry.  Used as a library for Rulers and other modules",
 	"authors": {"name":"IronMonk, ironmonk88#4075" },
-	"version": "1.0.9",
+	"version": "1.0.10",
 	"minimumCoreVersion": "0.6.6",
 	"compatibleCoreVersion":"0.7.9",
 	"scripts":[
@@ -36,7 +36,7 @@
 	"socket":true,
 	"url":"https://github.com/ironmonk88/terrainlayer-v2",
 	"changelog":"https://raw.githubusercontent.com/ironmonk88/terrainlayer-v2/main/README.md",
-	"download": "https://github.com/ironmonk88/terrainlayer-v2/archive/1.0.9.zip",
+	"download": "https://github.com/ironmonk88/terrainlayer-v2/archive/1.0.10.zip",
 	"manifest": "https://github.com/ironmonk88/terrainlayer-v2/releases/latest/download/module.json",
 	"bugs": "https://github.com/ironmonk88/terrainlayer-v2/issues",
 	"allowBugReporter": true,
