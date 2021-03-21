@@ -2,7 +2,7 @@
 	"name": "terrainlayer-v2",
 	"title": "Terrain Layer v2",
 	"description": "A base module that adds a Terrain Layer to Foundry.  Used as a library for Rulers and other modules",
-	"authors": {"name":"IronMonk, ironmonk88#4075" },
+	"authors": "name":"IronMonk, ironmonk88#4075",
 	"version": "1.0.10",
 	"minimumCoreVersion": "0.6.6",
 	"compatibleCoreVersion":"0.7.9",
