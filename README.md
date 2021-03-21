@@ -1,21 +1,29 @@
-# Difficult Terrain
-Adds a Terrain Layer to Foundry for use as a dependency for other modules that may want to incorporate Difficult Terrain into their modules. Does not currently work with GRIDLESS maps. As this is an Alpha, very open to feedback for features other module developers or users might like incorporated. Currently using the DnD5e Difficult Terrain 'Triangle' as an indicator.
+# Terrain Layer
+Adds a Terrain Layer to Foundry that can be used by other modules to calculate difficult terrain.
 
-Activate Terrain layer by selecting it from controls menu. 
-VISIBILITY TOGGLE - Set the visibility of the layer. Does not clear data.
-ADD MODE - Left click to add, right click to delete. Left click and drag to select multiple squares to add. Hold CTRL down while dragging to REMOVE squares. Select on a previously laid tile to cycle through the terrain modifier multiple. Currently only 2 and 3.
-REMOVE MODE - Left click to remove, click and drag to remove multiple.
-RESET TERRAIN - Clears terrain layer.
+## Installation
+Simply use the install module screen within the FoundryVTT setup
 
-This is still in very early stages still. Some ideas for the future of the mod include:
-* customizable tile icon:shape,color,opacity, and possibly using an image instead.
-* Impassable tiles and/or "dangerous" tiles. 
+## Usage & Current Features
+Currently you can draw a polygon onto the map to represent the terrain at that location.  You can then set how difficult that terrain is to move through, and what type of terrain it is, and if it affects ground based tokens or air based tokens.
 
-# Changelog
-0.0.7 - 7.6 update. Added some configurable options for Icon Scale, Opacity, and Multiples.
-0.0.6 - Fixed problem with hex grid and add warning message to unsupported gridless maps.
-0.0.5 - A whole lotta bugfixes.
-0.0.4 - Changes to Terrain layer now broadcast to players.
-0.0.3 - Fixed bug where multiple was being overwritten on scene load back to default 2
-0.0.2 - Realized Terrain Squares were getting painted over fog and sight layers. Fixed that right up.
-0.0.1 - Initial alpha release. Adds Terrain Layer to Foundry. GM can paint Difficult Terrain Squares on to map. Purely Aesthetic at this point, but my hope is that other module developers can use this as a dependency if needed to check the grid for places with difficult terrain. Plan on doing deep integration with ShowDragDistance and my future enhanced movement module.
+The Terrain Layer will also let you assign difficulty to measured templates.  You can use this for spells that set difficult terrain.  And it will also calculate other tokens so that when you're moving through another creatures square it will count as difficult terrain.
+
+Terrain Layer will show when a token is selected and dragged across the screen, staying out of sight until needed.  You can also set it so that it's always visible.
+
+You can also set blocks of Terrain to be shown or not shown, so if the difficult terrain is only temporary or conditional you can control it.
+
+## Credit
+The orginal idea came from the Terrain Layer module.  But in the process of re-developing it I realised that none of the original code remained.  This is why I branched out into a new module.  But I want to give credit to the original author Will Saunders.
+
+## Bug Reporting
+Please feel free to contact me on discord if you have any questions or concerns. ironmonk88#4075
+
+## Support
+
+If you feel like being generous, stop by my <a href="https://www.patreon.com/ironmonk">patreon</a>.  Not necessary but definitely appreciated.
+
+## License
+This Foundry VTT module, writen by Ironmonk, is licensed under [GNU GPLv3.0](https://www.gnu.org/licenses/gpl-3.0.en.html), supplemented by [Commons Clause](https://commonsclause.com/).
+
+This work is licensed under Foundry Virtual Tabletop [EULA - Limited License Agreement for module development v 0.1.6](http://foundryvtt.com/pages/license.html).

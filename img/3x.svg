@@ -1,0 +1,13 @@
+<svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 80 80" width="80" height="80">
+  <g transform="translate(0,0)" style="touch-action: none;" fill="#ffffff" fill-opacity="0.7">
+    <path d="M0 0L20 0 L0 20 z"/>
+	<path d="M80 0L80 20 L20 80 L0 80 L0 60 L60 0 z"/>
+	<path d="M80 80L60 80 L80 60 z"/>
+  </g>
+  <g stroke="#ffffff" stroke-opacity="1" stroke-width="2">
+	<line x1="0" y1="20" x2="20" y2="0" />
+	<line x1="0" y1="60" x2="60" y2="0" />
+	<line x1="20" y1="80" x2="80" y2="20" />
+	<line x1="60" y1="80" x2="80" y2="60" />
+  </g>
+</svg>

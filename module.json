@@ -1,35 +1,43 @@
 {
-  "name": "TerrainLayer",
-  "title": "Alternate Terrain Layer",
-  "description": "A base module that adds a Terrain Layer to Foundry to paint difficult terrain squares and to be used as a dependency for other mods who might integrate it with their functionality.",
-  "authors": [{"name":"Will Saunders","email":"willsaunders1014@gmail.com" }, {"name":"Michael Weisner" }],
-  "version": "1.0.1",
-  "minimumCoreVersion": "0.6.6",
-  "compatibleCoreVersion":"0.7.9",
-  "scripts":[
-    
-  ],
-  "esmodules": [
-    "terrain.js",
-    "js/controls.js"
-  ],
-  "dependencies":[
-  ],
-  "languages": [
-    {
-      "lang": "en",
-      "name": "English",
-      "path": "lang/en.json"
-    },
-    {
-      "lang": "es",
-      "name": "Spanish",
-      "path": "lang/es.json"
-    }
-  ],
-  "socket":true,
-  "url":"https://github.com/ironmonk88/TerrainLayer",
-  "changelog":"https://raw.githubusercontent.com/ironmonk88/TerrainLayer/main/README.md",
-  "manifest" : "https://raw.githubusercontent.com/ironmonk88/TerrainLayer/main/module.json",
-  "download" : "https://github.com/ironmonk88/TerrainLayer/archive/1.0.1.zip"
+	"name": "terrainlayer-v2",
+	"title": "Terrain Layer v2",
+	"description": "A base module that adds a Terrain Layer to Foundry.  Used as a library for Rulers and other modules",
+	"authors": {"name":"IronMonk, ironmonk88#4075" },
+	"version": "1.0.9",
+	"minimumCoreVersion": "0.6.6",
+	"compatibleCoreVersion":"0.7.9",
+	"scripts":[
+	],
+	"esmodules": [
+		"terrain-main.js",
+		"js/controls.js",
+		"js/settings.js"
+	],
+	"dependencies":[
+	],
+	"styles": [ "css/terrainlayer.css" ],
+	"languages": [
+	{
+	  "lang": "en",
+	  "name": "English",
+	  "path": "lang/en.json"
+	},
+	{
+	  "lang": "es",
+	  "name": "Spanish",
+	  "path": "lang/es.json"
+	},
+	{
+	  "lang": "zh-tw",
+	  "name": "正體中文",
+	  "path": "lang/zh-tw.json"
+	}
+	],
+	"socket":true,
+	"url":"https://github.com/ironmonk88/terrainlayer-v2",
+	"changelog":"https://raw.githubusercontent.com/ironmonk88/terrainlayer-v2/main/README.md",
+	"download": "https://github.com/ironmonk88/terrainlayer-v2/archive/1.0.9.zip",
+	"manifest": "https://github.com/ironmonk88/terrainlayer-v2/releases/latest/download/module.json",
+	"bugs": "https://github.com/ironmonk88/terrainlayer-v2/issues",
+	"allowBugReporter": true,
 }

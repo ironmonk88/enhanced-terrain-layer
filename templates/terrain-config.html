@@ -1,0 +1,62 @@
+<form autocomplete="off" onsubmit="event.preventDefault();">
+    <p class="notes">
+        {{localize "TerrainLayerV2.Configure"}}
+    </p>
+    <div class="form-group">
+        <label for="x">X-Position <span class="units">(pixels)</span></label>
+        <input type="text" name="x" value="{{object.x}}" data-dtype="Number" />
+    </div>
+
+    <div class="form-group">
+        <label for="y">Y-Position <span class="units">(pixels)</span></label>
+        <input type="text" name="y" value="{{object.y}}" data-dtype="Number" />
+    </div>
+
+    <div class="form-group">
+        <label for="width">Width <span class="units">(pixels)</span></label>
+        <input type="text" name="width" value="{{object.width}}" data-dtype="Number" />
+    </div>
+
+    <div class="form-group">
+        <label for="height">Height <span class="units">(pixels)</span></label>
+        <input type="text" name="height" value="{{object.height}}" data-dtype="Number" />
+    </div>
+
+    <div class="form-group">
+        <label for="multiple">{{localize "TerrainLayerV2.Cost"}}</label>
+        <div class="form-fields">
+            <input type="range" name="multiple" data-dtype="Number" value="{{object.multiple}}" min="0" max="4" step="1">
+            <span class="range-value">{{object.multiple}}</span>
+        </div>
+    </div>
+
+    <div class="form-group">
+        <label for="terraintype">{{localize "TerrainLayerV2.TerrainType"}}</label>
+        <select name="terraintype">
+            {{#each terraintype}}
+            <option value="{{this.id}}">{{this.text}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="terraintype">{{localize "TerrainLayerV2.Environment"}}</label>
+        <select name="environment">
+            {{#each environment}}
+            <option value="{{this.id}}">{{this.text}}</option>
+            {{/each}}
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="hidden">Hidden</label>
+        <input type="checkbox" name="hidden" {{#if object.hidden}} checked{{/if}} data-dtype="Boolean">
+    </div>
+
+    <div class="form-group">
+        <label for="locked">Locked</label>
+        <input type="checkbox" name="locked" {{#if object.locked}} checked{{/if}} data-dtype="Boolean">
+    </div>
+
+    <button type="submit" name="submit" value="1"><i class="far fa-save"></i> {{localize "TerrainLayerV2.UpdateTerrain"}}</button>
+</form>
