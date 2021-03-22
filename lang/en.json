@@ -17,5 +17,5 @@
   "TerrainLayerV2.opacity.name": "Terrain Icon Opacity",
   "TerrainLayerV2.opacity.hint": "Opacity of the Icon and Number.",
   "TerrainLayerV2.showText.name": "Show Text",
-  "TerrainLayerV2.showtext.hint": "Show the text of how difficult the terrain is."
+  "TerrainLayerV2.showText.hint": "Show the text of how difficult the terrain is."
 }

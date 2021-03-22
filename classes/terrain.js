@@ -1,5 +1,4 @@
-import { log, setting } from "./terrainlayer.js";
-import { makeid } from '../terrain-main.js';
+import { makeid, log, setting } from '../terrain-main.js';
 
 export class Terrain extends PlaceableObject {
     constructor(...args) {
@@ -779,6 +778,7 @@ export class Terrain extends PlaceableObject {
             //updates['flags.terrainlayer-v2.terrain' + this.data._id + '.multiple'] = data.multiple;
             let key = `flags.terrainlayer-v2.terrain${this.data._id}`;
             await canvas.scene.update({ [key]: objectdata }, { diff: false });
+		canvas.terrain._costGrid = null;
         }
         //await canvas.scene.setFlag("terrainlayer-v2", "terrain" + this.data._id, objectdata, {diff: false});
         //if the multiple has changed then update the image

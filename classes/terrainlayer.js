@@ -1,23 +1,7 @@
 import { Terrain } from './terrain.js';
 import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
-import { makeid } from '../terrain-main.js';
-
-export let debug = (...args) => {
-    if (debugEnabled > 1) console.log("DEBUG: terrainlayer | ", ...args);
-};
-export let log = (...args) => console.log("terrainlayer | ", ...args);
-export let warn = (...args) => {
-    if (debugEnabled > 0) console.warn("terrainlayer | ", ...args);
-};
-export let error = (...args) => console.error("terrainlayer | ", ...args);
-export let i18n = key => {
-    return game.i18n.localize(key);
-};
-
-export let setting = key => {
-    return game.settings.get("TerrainLayer", key);
-};
+import { makeid, log, error, i18n, setting } from '../terrain-main.js';
 
 export let terraintype = key => {
     return TerrainLayer.terraintype;
@@ -30,7 +14,7 @@ export let environment = key => {
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
         super();
-        this.showterrain = game.settings.get("TerrainLayerV2", "showterrain");
+        this.showterrain = game.settings.get("terrainlayer-v2", "showterrain");
         this.defaultmultiple = 2;
     }
 
@@ -107,7 +91,10 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let terrain of this.placeables) {
                 const testX = (gx + hx) - terrain.data.x;
                 const testY = (gy + hy) - terrain.data.y;
-                if (terrain.multiple != 1 && terrain.shape.contains(testX, testY)) {
+                if (terrain.multiple != 1 &&
+                    !options.ignore?.includes(terrain.environment) &&
+                    !((terrain.terraintype == 'ground' && options.elevation > 0) || (terrain.terraintype == 'air' && options.elevation <= 0)) &&
+                    terrain.shape.contains(testX, testY)) {
                     cost = Math.max(terrain.cost(options), cost);
                 }
             }
@@ -116,22 +103,29 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let measure of canvas.templates.placeables) {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
-                let measMult = measure.getFlag('terrainlayer-v2', 'multiple');
-                if (measMult && measure.shape.contains(testX, testY)) {
+				let measMult = measure.getFlag('TerrainLayer', 'multiple');													  
+                let measType = measure.getFlag('terrainlayer-v2', 'terraintype') || 'ground';
+                let measEnv = measure.getFlag('terrainlayer-v2', 'environment') || '';
+                if (measMult &&
+                    !options.ignore?.includes(measEnv) &&
+                    !((measType == 'ground' && options.elevation > 0) || (measType == 'air' && options.elevation <= 0)) &&
+                    measure.shape.contains(testX, testY)) {
                     cost = Math.max(measMult, cost);
                 }
             }
 
-            //get the cost for walking through another creatures square
-            for (let token of canvas.tokens.placeables) {
-                if (!token.data.hidden && (options.elevation == undefined || token.data.elevation == options.elevation)) {
-                    const testX = (gx + hx);
-                    const testY = (gy + hy);
-                    if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
-                        cost = Math.max(2, cost);
-                    }
-                }
-            }
+			if (setting("tokens-cause-difficult")) {
+				//get the cost for walking through another creatures square
+				for (let token of canvas.tokens.placeables) {
+					if (!token.data.hidden && (options.elevation == undefined || token.data.elevation == options.elevation)) {
+						const testX = (gx + hx);
+						const testY = (gy + hy);
+						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
+							cost = Math.max(2, cost);
+						}
+					}
+				}
+			}
 
             total += cost || 1;
         }

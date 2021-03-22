@@ -22,6 +22,14 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean
 	});
+	game.settings.register(modulename, 'tokens-cause-difficult', {
+		name: "TerrainLayerV2.tokens-cause-difficult.name",
+		hint: "TerrainLayerV2.tokens-cause-difficult.hint",
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean
+	});
 	game.settings.register(modulename, 'showterrain', {
 		scope: "world",
 		config: false,

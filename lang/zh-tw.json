@@ -14,5 +14,5 @@
   "TerrainLayerV2.opacity.name": "地形圖示的不透明度",
   "TerrainLayerV2.opacity.hint": "圖示和數字的不透明度。",
   "TerrainLayerV2.showText.name": "顯示文字",
-  "TerrainLayerV2.showtext.hint": "顯示有關地形難度的文字。"
+  "TerrainLayerV2.showText.hint": "顯示有關地形難度的文字。"
 }
