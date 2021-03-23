@@ -1,18 +1,18 @@
 {
-  "TerrainLayerV2.tool": "地形網格",
-  "TerrainLayerV2.select": "選擇困難地形",
-  "TerrainLayerV2.add": "添加困難地形",
-  "TerrainLayerV2.onoff": "啟用/禁用地形",
-  "TerrainLayerV2.reset": "重置地形",
-  "TerrainLayerV2.IncreaseCost": "增加Cost",
-  "TerrainLayerV2.DecreaseCost": "降低Cost",
-  "TerrainLayerV2.Cost": "Cost",
-  "TerrainLayerV2.Configure": "配置此場景的地形。",
-  "TerrainLayerV2.Configuration": "地形設定",
-  "TerrainLayerV2.UpdateTerrain": "更新地形",
+  "EnhancedTerrainLayer.tool": "地形網格",
+  "EnhancedTerrainLayer.select": "選擇困難地形",
+  "EnhancedTerrainLayer.add": "添加困難地形",
+  "EnhancedTerrainLayer.onoff": "啟用/禁用地形",
+  "EnhancedTerrainLayer.reset": "重置地形",
+  "EnhancedTerrainLayer.IncreaseCost": "增加Cost",
+  "EnhancedTerrainLayer.DecreaseCost": "降低Cost",
+  "EnhancedTerrainLayer.Cost": "Cost",
+  "EnhancedTerrainLayer.Configure": "配置此場景的地形。",
+  "EnhancedTerrainLayer.Configuration": "地形設定",
+  "EnhancedTerrainLayer.UpdateTerrain": "更新地形",
 
-  "TerrainLayerV2.opacity.name": "地形圖示的不透明度",
-  "TerrainLayerV2.opacity.hint": "圖示和數字的不透明度。",
-  "TerrainLayerV2.showText.name": "顯示文字",
-  "TerrainLayerV2.showText.hint": "顯示有關地形難度的文字。"
+  "EnhancedTerrainLayer.opacity.name": "地形圖示的不透明度",
+  "EnhancedTerrainLayer.opacity.hint": "圖示和數字的不透明度。",
+  "EnhancedTerrainLayer.showText.name": "顯示文字",
+  "EnhancedTerrainLayer.showText.hint": "顯示有關地形難度的文字。"
 }

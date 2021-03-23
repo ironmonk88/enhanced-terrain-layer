@@ -8,8 +8,8 @@ export class TerrainConfig extends FormApplication {
         return mergeObject(super.defaultOptions, {
             id: "terrain-config",
             classes: ["sheet", "terrain-sheet"],
-            title: i18n("TerrainLayerV2.Configuration"),
-            template: "modules/terrainlayer-v2/templates/terrain-config.html",
+            title: i18n("EnhancedTerrainLayer.Configuration"),
+            template: "modules/enhanced-terrain-layer/templates/terrain-config.html",
             width: 400,
             submitOnChange: true
         });

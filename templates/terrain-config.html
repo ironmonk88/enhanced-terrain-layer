@@ -1,6 +1,6 @@
 <form autocomplete="off" onsubmit="event.preventDefault();">
     <p class="notes">
-        {{localize "TerrainLayerV2.Configure"}}
+        {{localize "EnhancedTerrainLayer.Configure"}}
     </p>
     <div class="form-group">
         <label for="x">X-Position <span class="units">(pixels)</span></label>
@@ -23,7 +23,7 @@
     </div>
 
     <div class="form-group">
-        <label for="multiple">{{localize "TerrainLayerV2.Cost"}}</label>
+        <label for="multiple">{{localize "EnhancedTerrainLayer.Cost"}}</label>
         <div class="form-fields">
             <input type="range" name="multiple" data-dtype="Number" value="{{object.multiple}}" min="0" max="4" step="1">
             <span class="range-value">{{object.multiple}}</span>
@@ -31,7 +31,7 @@
     </div>
 
     <div class="form-group">
-        <label for="terraintype">{{localize "TerrainLayerV2.TerrainType"}}</label>
+        <label for="terraintype">{{localize "EnhancedTerrainLayer.TerrainType"}}</label>
         <select name="terraintype">
             {{#each terraintype}}
             <option value="{{this.id}}">{{this.text}}</option>
@@ -40,7 +40,7 @@
     </div>
 
     <div class="form-group">
-        <label for="terraintype">{{localize "TerrainLayerV2.Environment"}}</label>
+        <label for="terraintype">{{localize "EnhancedTerrainLayer.Environment"}}</label>
         <select name="environment">
             {{#each environment}}
             <option value="{{this.id}}">{{this.text}}</option>
@@ -58,5 +58,5 @@
         <input type="checkbox" name="locked" {{#if object.locked}} checked{{/if}} data-dtype="Boolean">
     </div>
 
-    <button type="submit" name="submit" value="1"><i class="far fa-save"></i> {{localize "TerrainLayerV2.UpdateTerrain"}}</button>
+    <button type="submit" name="submit" value="1"><i class="far fa-save"></i> {{localize "EnhancedTerrainLayer.UpdateTerrain"}}</button>
 </form>

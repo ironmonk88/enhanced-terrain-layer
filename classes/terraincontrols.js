@@ -9,7 +9,7 @@ export class TerrainLayerToolBar extends FormApplication {
             classes: ['form'],
             left: 98,
             popOut: false,
-            template: 'modules/terrainlayer-v2/templates/terrain-controls.html',
+            template: 'modules/enhanced-terrain-layer/templates/terrain-controls.html',
             id: 'terrainlayer-config',
             title: game.i18n.localize('Default Terrain Cost'),
             closeOnSubmit: false,

@@ -1,9 +1,9 @@
 export const registerSettings = function () {
-	let modulename = "terrainlayer-v2";
+	let modulename = "enhanced-terrain-layer";
 
 	game.settings.register(modulename, 'opacity', {
-		name: "TerrainLayerV2.opacity.name",
-		hint: "TerrainLayerV2.opacity.hint",
+		name: "EnhancedTerrainLayer.opacity.name",
+		hint: "EnhancedTerrainLayer.opacity.hint",
 		scope: "world",
 		config: true,
 		default: 1,
@@ -15,16 +15,16 @@ export const registerSettings = function () {
 		}
 	});
 	game.settings.register(modulename, 'showText', {
-		name: "TerrainLayerV2.showText.name",
-		hint: "TerrainLayerV2.showText.hint",
+		name: "EnhancedTerrainLayer.showText.name",
+		hint: "EnhancedTerrainLayer.showText.hint",
 		scope: "world",
 		config: true,
 		default: false,
 		type: Boolean
 	});
 	game.settings.register(modulename, 'tokens-cause-difficult', {
-		name: "TerrainLayerV2.tokens-cause-difficult.name",
-		hint: "TerrainLayerV2.tokens-cause-difficult.hint",
+		name: "EnhancedTerrainLayer.tokens-cause-difficult.name",
+		hint: "EnhancedTerrainLayer.tokens-cause-difficult.hint",
 		scope: "world",
 		config: true,
 		default: false,

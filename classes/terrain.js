@@ -96,7 +96,7 @@ export class Terrain extends PlaceableObject {
             let object = canvas.terrain.createObject(d);
             object._onCreate(options, userId);
             canvas.scene.data.terrain.push(d);
-            canvas.scene.setFlag('terrainlayer-v2', 'terrain' + d._id, d);
+            canvas.scene.setFlag('enhanced-terrain-layer', 'terrain' + d._id, d);
             Hooks.callAll(`createTerrain`, canvas.terrain, d, options, userId);
             return d;
         });
@@ -115,7 +115,7 @@ export class Terrain extends PlaceableObject {
         }*/
 
         //canvas.scene.data.terrain.push(data);
-        //await canvas.scene.setFlag('terrainlayer-v2', 'terrain' + data._id, data);
+        //await canvas.scene.setFlag('enhanced-terrain-layer', 'terrain' + data._id, data);
 
         //return this;
     }
@@ -156,7 +156,7 @@ export class Terrain extends PlaceableObject {
         this.clear();
 
         let mult = Math.clamped(this.data.multiple, 0.5, 4);
-        this.texture = (mult != 1 ? await loadTexture(`modules/terrainlayer-v2/img/${mult}x.svg`) : null);
+        this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${mult}x.svg`) : null);
 
         // Create the inner Terrain container
         this._createTerrain();
@@ -772,15 +772,15 @@ export class Terrain extends PlaceableObject {
         delete this.data.id; //remove the id if I've accidentally added it.  We should be using _id
         if (options.save === true) {
             //update the data and save it to the scene
-            let objectdata = duplicate(canvas.scene.getFlag("terrainlayer-v2", `terrain${this.data._id}`));
+            let objectdata = duplicate(canvas.scene.getFlag("enhanced-terrain-layer", `terrain${this.data._id}`));
             mergeObject(objectdata, this.data);
             //let updates = {};
-            //updates['flags.terrainlayer-v2.terrain' + this.data._id + '.multiple'] = data.multiple;
-            let key = `flags.terrainlayer-v2.terrain${this.data._id}`;
+            //updates['flags.enhanced-terrain-layer.terrain' + this.data._id + '.multiple'] = data.multiple;
+            let key = `flags.enhanced-terrain-layer.terrain${this.data._id}`;
             await canvas.scene.update({ [key]: objectdata }, { diff: false });
 		canvas.terrain._costGrid = null;
         }
-        //await canvas.scene.setFlag("terrainlayer-v2", "terrain" + this.data._id, objectdata, {diff: false});
+        //await canvas.scene.setFlag("enhanced-terrain-layer", "terrain" + this.data._id, objectdata, {diff: false});
         //if the multiple has changed then update the image
         if (data.multiple != undefined) {
             this.draw();
@@ -790,10 +790,10 @@ export class Terrain extends PlaceableObject {
     }
 
     async delete(options) {
-        let layerdata = duplicate(this.scene.getFlag("terrainlayer-v2", "data"));
+        let layerdata = duplicate(this.scene.getFlag("enhanced-terrain-layer", "data"));
         let idx = layerdata.findIndex(t => { return t._id == this.id });
         layerdata.splice(idx, 1);
-        await this.scene.setFlag("terrainlayer-v2", "data", layerdata);
+        await this.scene.setFlag("enhanced-terrain-layer", "data", layerdata);
         return this;
     }
 }

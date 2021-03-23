@@ -3,20 +3,20 @@ import { TerrainHUD } from './classes/terrainhud.js';
 import { registerSettings } from "./js/settings.js";
 
 export let debug = (...args) => {
-	if (debugEnabled > 1) console.log("DEBUG: terrainlayer-v2 | ", ...args);
+	if (debugEnabled > 1) console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
 };
-export let log = (...args) => console.log("terrainlayer-v2 | ", ...args);
+export let log = (...args) => console.log("Enhanced Terrain Layer | ", ...args);
 export let warn = (...args) => {
-	if (debugEnabled > 0) console.warn("terrainlayer-v2 | ", ...args);
+	if (debugEnabled > 0) console.warn("Enhanced Terrain Layer | ", ...args);
 };
-export let error = (...args) => console.error("terrainlayer-v2 | ", ...args);
+export let error = (...args) => console.error("Enhanced Terrain Layer | ", ...args);
 
 export let i18n = key => {
 	return game.i18n.localize(key);
 };
 
 export let setting = key => {
-	return game.settings.get("terrainlayer-v2", key);
+	return game.settings.get("enhanced-terrain-layer", key);
 };
 
 function registerLayer() {
@@ -46,7 +46,7 @@ Hooks.on('canvasInit', () => {
 });
 
 Hooks.on('init', () => {
-	game.socket.on('module.terrainlayer-v2', async (data) => {
+	game.socket.on('module.enhanced-terrain-layer', async (data) => {
 		console.log(data);
 		canvas.terrain[data.action].apply(canvas.terrain, data.arguments);
 	});
@@ -92,7 +92,7 @@ Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
 	let widthRow = $('input[name="width"]', html).parent();
 	let tlrow = $('<div>').addClass('form-group')
 		.append($('<label>').html('Movement Cost'))
-		.append($('<input>').attr('type', 'number').attr('name', 'flags.terrainlayer-v2.multiple').attr('data-type', 'Number').val(config.object.getFlag('terrainlayer-v2', 'multiple')))
+		.append($('<input>').attr('type', 'number').attr('name', 'flags.enhanced-terrain-layer.multiple').attr('data-type', 'Number').val(config.object.getFlag('enhanced-terrain-layer', 'multiple')))
 		.insertAfter(widthRow);
 
 	let height = $(html).height();

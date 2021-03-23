@@ -6,7 +6,7 @@ export class TerrainHUD extends BasePlaceableHUD {
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "terrain-hud",
-            template: "modules/terrainlayer-v2/templates/terrain-hud.html"
+            template: "modules/enhanced-terrain-layer/templates/terrain-hud.html"
         });
     }
 

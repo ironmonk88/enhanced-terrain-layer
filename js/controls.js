@@ -4,7 +4,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 	const isGM = game.user.isGM;
 	controls.push({
 		name: 'terrain',
-		title: game.i18n.localize('TerrainLayerV2.tool'),
+		title: game.i18n.localize('EnhancedTerrainLayer.tool'),
 		icon: 'fas fa-mountain',
 		visible: isGM && (canvas?.grid?.type !== 0),
 		layer: 'TerrainLayer',
@@ -12,27 +12,27 @@ Hooks.on('getSceneControlButtons', (controls) => {
 		tools: [
 			{
 				name: 'select',
-				title: game.i18n.localize('TerrainLayerV2.select'),
+				title: game.i18n.localize('EnhancedTerrainLayer.select'),
 				icon: 'fas fa-expand'
 			},
 			{
 				name: 'addterrain',
-				title: game.i18n.localize('TerrainLayerV2.add'),
+				title: game.i18n.localize('EnhancedTerrainLayer.add'),
 				icon: 'fas fa-marker'
 			},
 			{
 				name: 'terraintoggle',
-				title: game.i18n.localize('TerrainLayerV2.onoff'),
+				title: game.i18n.localize('EnhancedTerrainLayer.onoff'),
 				icon: 'fas fa-eye',
 				onClick: () => {
 					canvas.terrain.toggle(null, true);
 				},
-				active: (canvas?.terrain?.showterrain || game.settings.get("terrainlayer-v2", "showterrain")),
+				active: (canvas?.terrain?.showterrain || game.settings.get("enhanced-terrain-layer", "showterrain")),
 				toggle: true
 			},
 			{
 				name: 'clearterrain',
-				title: game.i18n.localize('TerrainLayerV2.reset'),
+				title: game.i18n.localize('EnhancedTerrainLayer.reset'),
 				icon: 'fas fa-trash',
 				visible: isGM,
 				onClick: () => {

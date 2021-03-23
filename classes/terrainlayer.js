@@ -14,7 +14,7 @@ export let environment = key => {
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
         super();
-        this.showterrain = game.settings.get("terrainlayer-v2", "showterrain");
+        this.showterrain = game.settings.get("enhanced-terrain-layer", "showterrain");
         this.defaultmultiple = 2;
     }
 
@@ -104,8 +104,8 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
 				let measMult = measure.getFlag('TerrainLayer', 'multiple');													  
-                let measType = measure.getFlag('terrainlayer-v2', 'terraintype') || 'ground';
-                let measEnv = measure.getFlag('terrainlayer-v2', 'environment') || '';
+                let measType = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
+                let measEnv = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
                 if (measMult &&
                     !options.ignore?.includes(measEnv) &&
                     !((measType == 'ground' && options.elevation > 0) || (measType == 'air' && options.elevation <= 0)) &&
@@ -156,15 +156,15 @@ export class TerrainLayer extends PlaceablesLayer {
 
     async draw() {
         canvas.scene.data.terrain = [];
-        let tlv2 = canvas.scene.data.flags['terrainlayer-v2'];
-        if (tlv2) {
-            for (let [k, v] of Object.entries(tlv2)) {
+        let etl = canvas.scene.data.flags['enhanced-terrain-layer'];
+        if (etl) {
+            for (let [k, v] of Object.entries(etl)) {
                 if (k.startsWith('terrain')) {
                     if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined)
                         if (v.points != undefined)
                             canvas.scene.data.terrain.push(v);
                     else
-                            await canvas.scene.unsetFlag('terrainlayer-v2', k);
+                            await canvas.scene.unsetFlag('enhanced-terrain-layer', k);
                 }
             };
         }
@@ -234,9 +234,9 @@ export class TerrainLayer extends PlaceablesLayer {
         this.showterrain = show;
         canvas.terrain.visible = this.showterrain;
         if (game.user.isGM) {
-            game.settings.set("terrainlayer-v2", "showterrain", this.showterrain);
+            game.settings.set("enhanced-terrain-layer", "showterrain", this.showterrain);
             if (emit)
-                game.socket.emit('module.terrainlayer-v2', { action: 'toggle', arguments: [this.showterrain] })
+                game.socket.emit('module.enhanced-terrain-layer', { action: 'toggle', arguments: [this.showterrain] })
         }
     }
 
@@ -284,7 +284,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
         let flags = {};
         for (let u of updates) {
-            let key = `flags.terrainlayer-v2.terrain${u._id}`;
+            let key = `flags.enhanced-terrain-layer.terrain${u._id}`;
             flags[key] = u;
         }
 
@@ -303,7 +303,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 terrain.update(update, { save: false });
         }
         if (game.user.isGM) {
-            game.socket.emit('module.terrainlayer-v2', { action: 'updateTerrain', arguments: [data]});
+            game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data]});
         }
     }
 
@@ -322,11 +322,11 @@ export class TerrainLayer extends PlaceablesLayer {
             object._onDelete(options, game.user.id);
             object.destroy({ children: true });
             canvas.scene.data.terrain.findSplice(t => { return t._id == id; });
-            let key = `flags.terrainlayer-v2.-=terrain${id}`;
+            let key = `flags.enhanced-terrain-layer.-=terrain${id}`;
             updates[key] = null;
 
             if (game.user.isGM)
-                game.socket.emit('module.terrainlayer-v2', { action: 'deleteTerrain', arguments: [id] });
+                game.socket.emit('module.enhanced-terrain-layer', { action: 'deleteTerrain', arguments: [id] });
         }
 
         if (!options.isUndo)
@@ -437,7 +437,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 preview.constructor.create(createData).then(d => {
                     d._creating = true;
                     if (game.user.isGM) {
-                        game.socket.emit('module.terrainlayer-v2', { action: 'createTerrain', arguments: [createData] });
+                        game.socket.emit('module.enhanced-terrain-layer', { action: 'createTerrain', arguments: [createData] });
                     }
                 });
             }
@@ -531,7 +531,7 @@ export class TerrainLayer extends PlaceablesLayer {
             return Terrain.create(data).then(d => {
                 d._creating = true;
                 if (game.user.isGM) {
-                    game.socket.emit('module.terrainlayer-v2', { action: 'createTerrain', arguments: [data] });
+                    game.socket.emit('module.enhanced-terrain-layer', { action: 'createTerrain', arguments: [data] });
                 }
             });
         });

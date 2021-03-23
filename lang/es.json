@@ -1,8 +1,8 @@
 {
-  "TerrainLayerV2.tool": "Cuadrícula del Terreno",
-  "TerrainLayerV2.select": "Seleccionar Terreno Dificil",
-  "TerrainLayerV2.add": "Añadir Terreno Dificil",
-  "TerrainLayerV2.onoff": "Habilitar/Inhabilitar Terreno",
-  "TerrainLayerV2.reset": "Reajustar Terreno"
+  "EnhancedTerrainLayer.tool": "Cuadrícula del Terreno",
+  "EnhancedTerrainLayer.select": "Seleccionar Terreno Dificil",
+  "EnhancedTerrainLayer.add": "Añadir Terreno Dificil",
+  "EnhancedTerrainLayer.onoff": "Habilitar/Inhabilitar Terreno",
+  "EnhancedTerrainLayer.reset": "Reajustar Terreno"
 }
   
