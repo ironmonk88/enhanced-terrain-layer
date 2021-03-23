@@ -103,7 +103,7 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let measure of canvas.templates.placeables) {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
-				let measMult = measure.getFlag('TerrainLayer', 'multiple');													  
+                let measMult = measure.getFlag('enhanced-terrain-layer', 'multiple');													  
                 let measType = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
                 let measEnv = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
                 if (measMult &&

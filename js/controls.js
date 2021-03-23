@@ -6,7 +6,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 		name: 'terrain',
 		title: game.i18n.localize('EnhancedTerrainLayer.tool'),
 		icon: 'fas fa-mountain',
-		visible: isGM && (canvas?.grid?.type !== 0),
+		visible: isGM,
 		layer: 'TerrainLayer',
 		activeTool: 'select',
 		tools: [
