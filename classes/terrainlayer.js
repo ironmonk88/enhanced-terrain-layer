@@ -47,7 +47,7 @@ export class TerrainLayer extends PlaceablesLayer {
         return [{ id: 'ground', text: 'Ground' }, { id: 'air', text: 'Air Only' }, { id: 'both', text: 'Air & Ground' }];
     }
 
-    static get environment() {
+    static environment() {
         return [
             { id: '', text: '' },
             { id: 'arctic', text: 'Arctic' },
