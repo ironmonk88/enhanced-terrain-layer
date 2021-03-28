@@ -71,8 +71,8 @@ export class Terrain extends PlaceableObject {
         return this.data.multiple || Terrain.defaults.multiple;
     }
 
-    get type() {
-        return this.data.type || Terrain.defaults.type;
+    get terraintype() {
+        return this.data.terraintype || Terrain.defaults.terraintype;
     }
 
     static async create(data, options) {

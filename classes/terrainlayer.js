@@ -96,7 +96,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = (gy + hy) - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.environment) &&
-                    !((terrain.terraintype == 'ground' && elevation > 0) || (terrain.terraintype == 'air' && elevation <= 0)) &&
+                    !((terrain.data.terraintype == 'ground' && elevation > 0) || (terrain.data.terraintype == 'air' && elevation <= 0)) &&
                     terrain.shape.contains(testX, testY)) {
                     cost = Math.max(terrain.cost(options), cost);
                 }
@@ -143,7 +143,7 @@ export class TerrainLayer extends PlaceablesLayer {
         let terrains = this.placeables.filter(t => {
             const testX = (gx + hx) - t.data.x;
             const testY = (gy + hy) - t.data.y;
-            return terrain.shape.contains(testX, testY);
+            return t.shape.contains(testX, testY);
         });
 
         return terrains;
