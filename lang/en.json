@@ -17,5 +17,7 @@
   "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",
   "EnhancedTerrainLayer.showText.name": "Show Text",
-  "EnhancedTerrainLayer.showText.hint": "Show the text of how difficult the terrain is."
+  "EnhancedTerrainLayer.showText.hint": "Show the text of how difficult the terrain is.",
+  "EnhancedTerrainLayer.tokens-cause-difficult.name": "Tokens cause difficult Terrain",
+  "EnhancedTerrainLayer.tokens-cause-difficult.hint": "When a token is dragged over another token, it's considered difficult terrain."
 }

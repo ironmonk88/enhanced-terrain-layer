@@ -8,7 +8,7 @@ export let terraintype = key => {
 };
 
 export let environment = key => {
-    return TerrainLayer.environment;
+    return TerrainLayer.environment();
 };
 
 export class TerrainLayer extends PlaceablesLayer {
@@ -87,13 +87,16 @@ export class TerrainLayer extends PlaceablesLayer {
             let cost = 0;
             let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x);
 
+            let elevation = (options.elevation === false ? null : options.elevation || options?.token?.data?.elevation);
+            let tokenId = options.tokenId || options?.token?.id;
+
             //get the cost for the terrain layer
             for (let terrain of this.placeables) {
                 const testX = (gx + hx) - terrain.data.x;
                 const testY = (gy + hy) - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.environment) &&
-                    !((terrain.terraintype == 'ground' && options.elevation > 0) || (terrain.terraintype == 'air' && options.elevation <= 0)) &&
+                    !((terrain.terraintype == 'ground' && elevation > 0) || (terrain.terraintype == 'air' && elevation <= 0)) &&
                     terrain.shape.contains(testX, testY)) {
                     cost = Math.max(terrain.cost(options), cost);
                 }
@@ -108,7 +111,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 let measEnv = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
                 if (measMult &&
                     !options.ignore?.includes(measEnv) &&
-                    !((measType == 'ground' && options.elevation > 0) || (measType == 'air' && options.elevation <= 0)) &&
+                    !((measType == 'ground' && elevation > 0) || (measType == 'air' && elevation <= 0)) &&
                     measure.shape.contains(testX, testY)) {
                     cost = Math.max(measMult, cost);
                 }
@@ -117,7 +120,7 @@ export class TerrainLayer extends PlaceablesLayer {
 			if (setting("tokens-cause-difficult")) {
 				//get the cost for walking through another creatures square
 				for (let token of canvas.tokens.placeables) {
-					if (!token.data.hidden && (options.elevation == undefined || token.data.elevation == options.elevation)) {
+					if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation)) {
 						const testX = (gx + hx);
 						const testY = (gy + hy);
 						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
