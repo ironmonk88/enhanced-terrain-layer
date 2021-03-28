@@ -1,3 +1,6 @@
+#Version 1.0.16
+Fixed an issue with ignoring environment
+
 #Version 1.0.15
 Fixed and issue with elevation
 

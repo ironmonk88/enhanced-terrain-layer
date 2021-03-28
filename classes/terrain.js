@@ -75,6 +75,10 @@ export class Terrain extends PlaceableObject {
         return this.data.terraintype || Terrain.defaults.terraintype;
     }
 
+    get environment() {
+        return this.data.environment;
+    }
+
     static async create(data, options) {
 
         //super.create(data, options);
