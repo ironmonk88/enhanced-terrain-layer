@@ -98,3 +98,7 @@ Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
 	let height = $(html).height();
 	$(html).css({height: height + 30});
 })
+
+Hooks.on('canvasReady', () => {
+	canvas.terrain._costGrid = null;
+});
