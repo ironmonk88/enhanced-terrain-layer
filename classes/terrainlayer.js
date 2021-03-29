@@ -4,11 +4,11 @@ import { TerrainHUD } from './terrainhud.js';
 import { makeid, log, error, i18n, setting } from '../terrain-main.js';
 
 export let terraintype = key => {
-    return TerrainLayer.terraintype;
+    return canvas.terrain.terraintype();
 };
 
 export let environment = key => {
-    return TerrainLayer.environment();
+    return canvas.terrain.environment();
 };
 
 export class TerrainLayer extends PlaceablesLayer {
@@ -43,11 +43,11 @@ export class TerrainLayer extends PlaceablesLayer {
         return [0.5, 1, 2, 3, 4];
     }
 
-    static get terraintype() {
+    terraintype() {
         return [{ id: 'ground', text: 'Ground' }, { id: 'air', text: 'Air Only' }, { id: 'both', text: 'Air & Ground' }];
     }
 
-    static environment() {
+    environment() {
         return [
             { id: '', text: '' },
             { id: 'arctic', text: 'Arctic' },
@@ -87,7 +87,7 @@ export class TerrainLayer extends PlaceablesLayer {
             let cost = 0;
             let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x);
 
-            let elevation = (options.elevation === false ? null : options.elevation || options?.token?.data?.elevation);
+            let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
             let tokenId = options.tokenId || options?.token?.id;
 
             //get the cost for the terrain layer

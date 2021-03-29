@@ -1,3 +1,8 @@
+#Version 1.0.17
+Added function to try and copy old data from TerrainLayer
+
+Changed the way environment and terraintype are handled to better override
+
 #Version 1.0.16
 Fixed an issue with ignoring environment
 
