@@ -99,6 +99,7 @@ export class TerrainLayer extends PlaceablesLayer {
                     !((terrain.data.terraintype == 'ground' && elevation > 0) || (terrain.data.terraintype == 'air' && elevation <= 0)) &&
                     terrain.shape.contains(testX, testY)) {
                     cost = Math.max(terrain.cost(options), cost);
+		    if (cost > 1 && options.reduce?.includes(terrain.environment)) {cost -= 1};
                 }
             }
 
@@ -114,6 +115,7 @@ export class TerrainLayer extends PlaceablesLayer {
                     !((measType == 'ground' && elevation > 0) || (measType == 'air' && elevation <= 0)) &&
                     measure.shape.contains(testX, testY)) {
                     cost = Math.max(measMult, cost);
+		    if (cost > 1 && options.reduce?.includes(measEnv)) {cost -= 1};
                 }
             }
 
