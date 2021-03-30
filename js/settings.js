@@ -20,7 +20,10 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: false,
-		type: Boolean
+		type: Boolean,
+		onChange: () => {
+			canvas.terrain.refresh();
+		}
 	});
 	game.settings.register(modulename, 'tokens-cause-difficult', {
 		name: "EnhancedTerrainLayer.tokens-cause-difficult.name",

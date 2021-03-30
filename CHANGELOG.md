@@ -3,6 +3,12 @@ Added function to try and copy old data from TerrainLayer
 
 Changed the way environment and terraintype are handled to better override
 
+Added verbose option
+
+Added reduce functionality
+
+Added refresh when show text is changed
+
 #Version 1.0.16
 Fixed an issue with ignoring environment
 

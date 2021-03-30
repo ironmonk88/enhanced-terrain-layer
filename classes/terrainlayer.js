@@ -676,4 +676,10 @@ export class TerrainLayer extends PlaceablesLayer {
         object.destroy({ children: true });
         canvas.scene.data.terrain.findSplice(t => { return t._id == id; });
     }
+
+    refresh() {
+        for (let terrain of this.placeables) {
+            terrain.refresh();
+        }
+    }
 }
