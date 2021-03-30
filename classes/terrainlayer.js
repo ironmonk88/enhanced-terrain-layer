@@ -107,11 +107,15 @@ export class TerrainLayer extends PlaceablesLayer {
 
         let calculate = options.calculate || 'maximum';
         let calculateFn = function (cost, total) { return cost; };
-        switch (calculate) {
-            case 'maximum':
-                calculateFn = function (cost, total) { return Math.max(cost, total); }; break;
-            case 'additive':
-                calculateFn = function (cost, total) { return cost + total; }; break;
+        if (typeof calculate == 'function')
+            calculateFn = calculate;
+        else {
+            switch (calculate) {
+                case 'maximum':
+                    calculateFn = function (cost, total) { return Math.max(cost, total); }; break;
+                case 'additive':
+                    calculateFn = function (cost, total) { return cost + total; }; break;
+            }
         }
 
         for (let pt of pts) {
@@ -138,7 +142,7 @@ export class TerrainLayer extends PlaceablesLayer {
                         detail.reduce = reduce;
                         terraincost = reduceFn(terraincost, reduce);
                     }
-                    cost = calculateFn(terraincost, cost);
+                    cost = calculateFn(terraincost, cost, terrain);
                     detail.total = cost;
 
                     details.push(detail);
@@ -165,7 +169,7 @@ export class TerrainLayer extends PlaceablesLayer {
                         terraincost = reduceFn(terraincost, reduce);
                     }
 
-                    cost = calculateFn(terraincost, cost);
+                    cost = calculateFn(terraincost, cost, measure);
                     detail.total = cost;
 
                     details.push(detail);
@@ -189,7 +193,7 @@ export class TerrainLayer extends PlaceablesLayer {
                                 terraincost = reduceFn(terraincost, reduce);
                             }
 
-                            cost = calculateFn(terraincost, cost);
+                            cost = calculateFn(terraincost, cost, token);
                             detail.total = cost;
 
                             details.push(detail);
