@@ -77,11 +77,6 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     cost(pts, options = {}) {
-        let details = this.costDetails(pts, options);
-        return details.cost;
-    }
-
-    costDetails(pts, options = {}) {
         let reduceFn = function (cost, reduce) {
             let value = parseFloat(reduce.value);
 
@@ -95,7 +90,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 }
             }
 
-            return Math.max(value, 0);
+            return value; //Math.max(value, 0);
         }
 
         let details = [];
@@ -205,7 +200,10 @@ export class TerrainLayer extends PlaceablesLayer {
             total += (cost != undefined ? cost : 1);
         }
 
-        return { cost: total, details: details, calculate: calculate };
+        if (options.verbose === true)
+            return { cost: total, details: details, calculate: calculate };
+        else
+            return total;
     }
 
     terrainAt(x, y) {

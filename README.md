@@ -31,8 +31,7 @@ options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terra
 - tokenId - pass in the token id to avoid having the result use the token's own space as difficult terrain.
 - token - pass in the token, will use both the id and elevation of that token.  passing in elevation:false will result in the the function ignoring the token's elevation.
 - calculate - this is how you'd like the cost to be calculated.  default is 'maximum', which returns the highest value found while looking through all terrains.  you can also pass in 'additive' if you want all costs to be added together.  And if neither of those work, you can pass your own function in to make the final calculation `calculate(cost, total, object)` with cost being the current cost and total being the running total so far and object being either the terrain, measure, or token that's caused the difficult terrain.
-
-if you'd like all the details of how the cost was acheived, call costDetails(pts, options).  It will return the cost, and an array of details that combined to make the cost.
+- verbose - setting this to true will return an object with 'cost' set to the total cost and 'details' as an array of all terrain object found.
 
 A list of Terrain Environments can be found by calling canvas.terrain.environment(); and can be overridden if the environments in your game differ.
 
