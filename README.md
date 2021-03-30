@@ -24,9 +24,15 @@ You can also set blocks of Terrain to be shown or not shown, so if the difficult
 For those who are developing Rulers based on the Enhanced Terrain Layer, to get access to the difficulty cost of terrain grid you call the cost function.
 `canvas.terrrain.cost(pts, options);`
 pts can be a single object {x: 0, y:0}, or an array of point objects.
-options {elevation: 0, ignore:[]} lets the terrain layer know certain things about what you're asking for.
-Passing in 'elevation' for the tokens elevation will ignore any difficult terrain caused by other tokens if the elevation is not the same.  
-Passing in an array of environments to ignore will cause the Terrain Layer to ignore any difficult terrain that has that environment label.
+options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terrain layer know certain things about what you're asking for.
+
+- elevation: adding a value for elevation will ignore all terrain that is a ground type if the elevation is greater than 0 and ignore any air terrain if the elevation is less than or equal to 0.  It will also ignore any tokens that aren't at the same elevation.
+- reduce: [{id:'arctic',value:1}] will result in any calculation essentially ignoring arctic terrain. [{id:'arctic',value:'-1',stop:1}] will result in any calculation reducing the difficulty by 1 and stopping at 1.  You can also use '+1' to add to the difficulty.  stop is an optional parameter. And you can use the id 'token' to have these settings applied when calculating cost through another token's space.
+- tokenId - pass in the token id to avoid having the result use the token's own space as difficult terrain.
+- token - pass in the token, will use both the id and elevation of that token.  passing in elevation:false will result in the the function ignoring the token's elevation.
+- calculate - this is how you'd like the cost to be calculated.  default is 'maximum', which returns the highest value found while looking through all terrains.  you can also passin 'additive' if you want all costs to be added together.
+
+if you'd like all the details of how the cost was acheived, call costDetails(pts, options).  It will return the cost, and an array of details that combined to make the cost.
 
 A list of Terrain Environments can be found by calling canvas.terrain.environment(); and can be overridden if the environments in your game differ.
 

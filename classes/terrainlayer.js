@@ -77,14 +77,45 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     cost(pts, options = {}) {
+        let details = this.costDetails(pts, options);
+        return details.cost;
+    }
+
+    costDetails(pts, options = {}) {
+        let reduceFn = function (cost, reduce) {
+            let value = parseFloat(reduce.value);
+
+            if (typeof reduce.value == 'string' && (reduce.value.startsWith('+') || reduce.value.startsWith('-'))) {
+                value = cost + value;
+                if (reduce.stop) {
+                    if (reduce.value.startsWith('+'))
+                        value = Math.min(value, reduce.stop);
+                    else
+                        value = Math.max(value, reduce.stop);
+                }
+            }
+
+            return Math.max(value, 0);
+        }
+
+        let details = [];
         let total = 0;
         pts = pts instanceof Array ? pts : [pts];
 
         const hx = canvas.grid.w / 2;
         const hy = canvas.grid.h / 2;
 
+        let calculate = options.calculate || 'maximum';
+        let calculateFn = function (cost, total) { return cost; };
+        switch (calculate) {
+            case 'maximum':
+                calculateFn = function (cost, total) { return Math.max(cost, total); }; break;
+            case 'additive':
+                calculateFn = function (cost, total) { return cost + total; }; break;
+        }
+
         for (let pt of pts) {
-            let cost = 0;
+            let cost = null;
             let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x);
 
             let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
@@ -98,8 +129,20 @@ export class TerrainLayer extends PlaceablesLayer {
                     !options.ignore?.includes(terrain.environment) &&
                     !((terrain.data.terraintype == 'ground' && elevation > 0) || (terrain.data.terraintype == 'air' && elevation <= 0)) &&
                     terrain.shape.contains(testX, testY)) {
-                    cost = Math.max(terrain.cost(options), cost);
-		    if (cost > 1 && options.reduce?.includes(terrain.environment)) {cost -= 1};
+                    let detail = {object:terrain};
+                    let terraincost = terrain.cost(options);
+                    detail.cost = terraincost;
+
+                    let reduce = options.reduce?.find(e => e.id == terrain.environment);
+                    if (reduce) {
+                        detail.reduce = reduce;
+                        terraincost = reduceFn(terraincost, reduce);
+                    }
+                    cost = calculateFn(terraincost, cost);
+                    detail.total = cost;
+
+                    details.push(detail);
+
                 }
             }
 
@@ -107,15 +150,26 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let measure of canvas.templates.placeables) {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
-                let measMult = measure.getFlag('enhanced-terrain-layer', 'multiple');													  
+                let terraincost = measure.getFlag('enhanced-terrain-layer', 'multiple');													  
                 let measType = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
                 let measEnv = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
-                if (measMult &&
+                if (terraincost &&
                     !options.ignore?.includes(measEnv) &&
                     !((measType == 'ground' && elevation > 0) || (measType == 'air' && elevation <= 0)) &&
                     measure.shape.contains(testX, testY)) {
-                    cost = Math.max(measMult, cost);
-		    if (cost > 1 && options.reduce?.includes(measEnv)) {cost -= 1};
+
+                    let detail = { object: measure, cost: terraincost };
+                    let reduce = options.reduce?.find(e => e.id == measEnv);
+                    if (reduce) {
+                        detail.reduce = reduce;
+                        terraincost = reduceFn(terraincost, reduce);
+                    }
+
+                    cost = calculateFn(terraincost, cost);
+                    detail.total = cost;
+
+                    details.push(detail);
+
                 }
             }
 
@@ -126,16 +180,28 @@ export class TerrainLayer extends PlaceablesLayer {
 						const testX = (gx + hx);
 						const testY = (gy + hy);
 						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
-							cost = Math.max(2, cost);
+                            let terraincost = 2;
+                            let detail = { object: token, cost: terraincost };
+
+                            let reduce = options.reduce?.find(e => e.id == 'token');
+                            if (reduce) {
+                                detail.reduce = reduce;
+                                terraincost = reduceFn(terraincost, reduce);
+                            }
+
+                            cost = calculateFn(terraincost, cost);
+                            detail.total = cost;
+
+                            details.push(detail);
 						}
 					}
 				}
 			}
 
-            total += cost || 1;
+            total += (cost != undefined ? cost : 1);
         }
 
-        return total;
+        return { cost: total, details: details, calculate: calculate };
     }
 
     terrainAt(x, y) {
