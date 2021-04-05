@@ -1,3 +1,8 @@
+#Version 1.0.18
+Add setting to not show terrain when dragging a token
+
+The original Terrain Layer does not play nice with the Enhanced Terrain Layer.  Added code to make sure they can exist at the same time.
+
 #Version 1.0.17
 Added function to try and copy old data from TerrainLayer
 
