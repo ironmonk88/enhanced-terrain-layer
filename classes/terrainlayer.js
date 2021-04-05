@@ -67,7 +67,7 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
 /* -------------------------------------------- */
-
+    //Remove once moved off TerrainLayer
     get costGrid() {
         console.warn('costGrid is deprecated, please use the cost function instead');
         if (this._costGrid == undefined) {
@@ -75,6 +75,12 @@ export class TerrainLayer extends PlaceablesLayer {
         }
         return this._costGrid;
     }
+
+    get highlight() {
+        return { children: [{visible: false}] };
+    }
+
+/* -------------------------------------------- */
 
     cost(pts, options = {}) {
         let reduceFn = function (cost, reduce) {
@@ -399,7 +405,7 @@ export class TerrainLayer extends PlaceablesLayer {
             updates[key] = null;
 
             if (game.user.isGM)
-                game.socket.emit('module.enhanced-terrain-layer', { action: 'deleteTerrain', arguments: [id] });
+                game.socket.emit('module.enhanced-terrain-layer', { action: '_deleteTerrain', arguments: [id] });
         }
 
         if (!options.isUndo)
@@ -503,16 +509,8 @@ export class TerrainLayer extends PlaceablesLayer {
                 const data = preview.data;
 
                 // Adjust the final data
-                const createData = Terrain.normalizeShape(data);
-
-                // Create the object
+                this.createTerrain(data);
                 preview._chain = false;
-                preview.constructor.create(createData).then(d => {
-                    d._creating = true;
-                    if (game.user.isGM) {
-                        game.socket.emit('module.enhanced-terrain-layer', { action: 'createTerrain', arguments: [createData] });
-                    }
-                });
             }
 
             // Cancel the preview
@@ -604,7 +602,7 @@ export class TerrainLayer extends PlaceablesLayer {
             return Terrain.create(data).then(d => {
                 d._creating = true;
                 if (game.user.isGM) {
-                    game.socket.emit('module.enhanced-terrain-layer', { action: 'createTerrain', arguments: [data] });
+                    game.socket.emit('module.enhanced-terrain-layer', { action: '_createTerrain', arguments: [data] });
                 }
             });
         });
@@ -644,32 +642,29 @@ export class TerrainLayer extends PlaceablesLayer {
         return changed;
     }*/
 
-    /*
-    createTerrain(data, options = { }) {
-        if (!this.terrainExists(data.x, data.y)) {
-            data.multiple = data.multiple || this.defaultmultiple;
-            this.constructor.placeableClass.create(data, options).then((terrain) => {
-                if (this.originals != undefined)
-                    this.originals.push(terrain);
-            });
-        }
-        this._costGrid = null;
-    }*/
-    /*
-    terrainExists(pxX, pxY) {
-        return canvas.scene.data.terrain.find(t => { return t.x == pxX && t.y == pxY }) != undefined;
-    }*/
+    createTerrain(data) {
+        data = mergeObject(Terrain.defaults, data);
+        const createData = Terrain.normalizeShape(data);
+
+        // Create the object
+        Terrain.create(createData).then(d => {
+            d._creating = true;
+            if (game.user.isGM) {
+                game.socket.emit('module.enhanced-terrain-layer', { action: '_createTerrain', arguments: [createData] });
+            }
+        });
+    }
 
 
     //This is used for players, to add an remove on the fly
-    createTerrain(data, options = {}) {
+    _createTerrain(data, options = {}) {
         let userId = game.user._id;
         let object = canvas.terrain.createObject(data);
         object._onCreate(options, userId);
         canvas.scene.data.terrain.push(data);
     }
 
-    deleteTerrain(id, options = {}) {
+    _deleteTerrain(id, options = {}) {
         const object = this.get(id);
         this.objects.removeChild(object);
         object._onDelete(options, game.user.id);

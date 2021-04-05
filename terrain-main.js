@@ -98,17 +98,25 @@ Hooks.on('init', () => {
 	registerSettings();
 	registerLayer();
 
+	//remove old layer's controls
+	let oldGetControlButtons = SceneControls.prototype._getControlButtons;
+	SceneControls.prototype._getControlButtons = function () {
+		let controls = oldGetControlButtons();
+		controls.findSplice(c => c.name == 'terrain' && c.flags == undefined);
+		return controls;
+	}
+
 	let oldOnDragLeftStart = Token.prototype._onDragLeftStart;
 	Token.prototype._onDragLeftStart = function (event) {
 		oldOnDragLeftStart.apply(this, [event])
 		if (canvas != null)
-			canvas.terrain.visible = (canvas.grid.type != 0);
+			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
 	}
 
 	let oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
 	Token.prototype._onDragLeftDrop = function (event) {
 		if (canvas != null)
-			canvas.terrain.visible = (canvas.grid.type != 0 && (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain'));
+			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
 		oldOnDragLeftDrop.apply(this, [event]);
 	}
 	let oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
@@ -116,8 +124,9 @@ Hooks.on('init', () => {
 		//event.stopPropagation();
 		const ruler = canvas.controls.ruler;
 
-		if (canvas != null && !(ruler.isDragRuler || ruler._state === Ruler.STATES.MEASURING))
-			canvas.terrain.visible = (canvas.grid.type != 0 && (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain'));
+		log('ruler', ruler);
+		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
+			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
 
 		oldOnDragLeftCancel.apply(this, [event])
 	}

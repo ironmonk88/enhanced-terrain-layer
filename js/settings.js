@@ -25,6 +25,14 @@ export const registerSettings = function () {
 			canvas.terrain.refresh();
 		}
 	});
+	game.settings.register(modulename, 'show-on-drag', {
+		name: "EnhancedTerrainLayer.show-on-drag.name",
+		hint: "EnhancedTerrainLayer.show-on-drag.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean
+	});
 	game.settings.register(modulename, 'tokens-cause-difficult', {
 		name: "EnhancedTerrainLayer.tokens-cause-difficult.name",
 		hint: "EnhancedTerrainLayer.tokens-cause-difficult.hint",

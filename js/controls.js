@@ -9,6 +9,9 @@ Hooks.on('getSceneControlButtons', (controls) => {
 		visible: isGM,
 		layer: 'TerrainLayer',
 		activeTool: 'select',
+		flags: {
+			'enhanced-terrain-layer': { valid: true }
+		},
 		tools: [
 			{
 				name: 'select',
@@ -42,8 +45,6 @@ Hooks.on('getSceneControlButtons', (controls) => {
 			}
 		]
 	});
-	//show the terrain if show button is toggled, or if the current tool is the terrain tool
-	//canvas.terrain.highlight.children[0].visible = (canvas.terrain.showterrain || controls["terrain"].active);
 });
 Hooks.on('renderSceneControls', (controls) => {
 	if (canvas != null) {
