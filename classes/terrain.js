@@ -295,10 +295,13 @@ export class Terrain extends PlaceableObject {
         let s = canvas.dimensions.size;
 
         // Outer Stroke
-        let sc = colorStringToHex("#FFFFFF");
+        //const colors = CONFIG.Canvas.dispositionColors;
+        let sc = colorStringToHex("#FFFFFF"); //this.data.hidden ? colorStringToHex("#C0C0C0") : 
         let lStyle = new PIXI.LineStyle();
-        mergeObject(lStyle, { width: s / 20, color: sc, alpha: 0.9, join: PIXI.LINE_JOIN.ROUND, visible: true });
+        mergeObject(lStyle, { width: s / 20, color: sc, alpha: 1, cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND, visible: true });
         this.drawing.lineStyle(lStyle);
+
+        let drawAlpha = (ui.controls.activeControl == 'terrain' ? 1.0 : setting('opacity')); //this.data.hidden ? 0.5
 
         // Fill Color or Texture
         if (this.texture) {
@@ -306,12 +309,10 @@ export class Terrain extends PlaceableObject {
             let sH = (canvas.grid.h / (this.texture.height * 2));
             this.drawing.beginTextureFill({
                 texture: this.texture,
-                color: 0xFFFFFF,
-                alpha: 1,
+                color: sc,
+                alpha: drawAlpha,
                 matrix: new PIXI.Matrix().scale(sW, sH)
             });
-        } else {
-            //this.drawing.beginFill(colorStringToHex("#FFFFFF"), 0.4);
         }
 
         // Draw polygon
@@ -321,12 +322,19 @@ export class Terrain extends PlaceableObject {
             this.shape = new PIXI.Polygon(points.deepFlatten());
         }
 
-        if(this.shape)
+        if (this.shape) {
+            if (this.data.hidden) {
+                this.drawing.drawDashedPolygon(points, 0, 0, 0, 1, 5, 0);
+                lStyle.width = 0;
+                this.drawing.lineStyle(lStyle);
+            } 
             this.drawing.drawShape(this.shape);
+        }
 
         // Conclude fills
         this.drawing.lineStyle(0x000000, 0.0).closePath();
         this.drawing.endFill();
+        this.drawing.alpha = drawAlpha;
 
         /*
         // Set shape rotation, pivoting about the non-rotated center
@@ -335,6 +343,7 @@ export class Terrain extends PlaceableObject {
         this.drawing.rotation = toRadians(this.data.rotation || 0);
         */
         this.text.visible = setting('showText') && this.id && this.multiple != 1 && !this._original;
+        this.text.alpha = drawAlpha;
 
         // Determine drawing bounds and update the frame
         const bounds = this.terrain.getLocalBounds();
@@ -344,7 +353,7 @@ export class Terrain extends PlaceableObject {
         // Toggle visibility
         this.position.set(this.data.x, this.data.y);
         this.terrain.hitArea = bounds;
-        this.alpha = this.data.hidden ? 0.5 : 1.0;
+        this.alpha = 1;
         this.visible = !this.data.hidden || game.user.isGM;
 
         return this;

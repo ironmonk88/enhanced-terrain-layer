@@ -9,9 +9,12 @@ export const registerSettings = function () {
 		default: 1,
 		type: Number,
 		range: {
-			min: 0.5,
+			min: 0,
 			max: 1,
 			step: 0.1
+		},
+		onChange: () => {
+			canvas.terrain.refresh();
 		}
 	});
 	game.settings.register(modulename, 'showText', {
