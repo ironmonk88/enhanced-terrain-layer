@@ -3,12 +3,16 @@ import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { makeid, log, error, i18n, setting } from '../terrain-main.js';
 
-export let terraintype = key => {
-    return canvas.terrain.terraintype();
+export let terraintypes = key => {
+    return canvas.terrain.getTerrainTypes();
 };
 
-export let environment = key => {
-    return canvas.terrain.environment();
+export let environments = key => {
+    return canvas.terrain.getEnvironments();
+};
+
+export let obstacles = key => {
+    return canvas.terrain.getObstacles();
 };
 
 export class TerrainLayer extends PlaceablesLayer {
@@ -43,22 +47,35 @@ export class TerrainLayer extends PlaceablesLayer {
         return [0.5, 1, 2, 3, 4];
     }
 
-    terraintype() {
-        return [{ id: 'ground', text: 'Ground' }, { id: 'air', text: 'Air Only' }, { id: 'both', text: 'Air & Ground' }];
+    getTerrainTypes() {
+        return [
+            { id: 'ground', text: 'EnhancedTerrainLayer.terraintype.ground' },
+            { id: 'air', text: 'EnhancedTerrainLayer.terraintype.air' },
+            { id: 'both', text: 'EnhancedTerrainLayer.terraintype.both' }];
     }
 
-    environment() {
+    getEnvironments() {
         return [
-            { id: '', text: '' },
-            { id: 'arctic', text: 'Arctic' },
-            { id: 'coast', text: 'Coast' },
-            { id: 'desert', text: 'Desert' },
-            { id: 'forest', text: 'Forest' },
-            { id: 'grassland', text: 'Grassland' },
-            { id: 'mountain', text: 'Mountain' },
-            { id: 'swamp', text: 'Swamp' },
-            { id: 'underdark', text: 'Underdark' },
-            { id: 'water', text: 'Water' }
+            { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'fa-snowflake' },
+            { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: '' },
+            { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: '' },
+            { id: 'forest', text: 'EnhancedTerrainLayer.environment.forest', icon: 'fa-leaf' },
+            { id: 'grassland', text: 'EnhancedTerrainLayer.environment.grassland', icon: 'fa-pagelines' },
+            { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: '' },
+            { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: '' },
+            { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'fa-icicles' },
+            { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'fa-swimmer' }
+        ];
+    }
+
+    getObstacles() {
+        return [
+            { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd' },
+            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current' },
+            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic' },
+            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants' },
+            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble' },
+            { id: 'water', text: 'EnhancedTerrainLayer.obstacle.water' }
         ];
     }
 
@@ -138,12 +155,16 @@ export class TerrainLayer extends PlaceablesLayer {
                     let terraincost = terrain.cost(options);
                     detail.cost = terraincost;
 
-                    let reduce = options.reduce?.find(e => e.id == terrain.environment);
-                    if (reduce) {
-                        detail.reduce = reduce;
-                        terraincost = reduceFn(terraincost, reduce);
+                    //does this check ignore certain environment types?
+                    let reducers = options.reduce?.filter(e => e.id == terrain.environment || (setting('use-obstacles') && e.id == terrain.obstacle));
+                    if (reducers && reducers.length > 0) {
+                        detail.reduce = reducers;
+                        for (let reduce of reducers) {
+                            terraincost = reduceFn(terraincost, reduce);
+                        }
                     }
                     cost = calculateFn(terraincost, cost, terrain);
+
                     detail.total = cost;
 
                     details.push(detail);
@@ -156,25 +177,27 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
                 let terraincost = measure.getFlag('enhanced-terrain-layer', 'multiple');													  
-                let measType = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
-                let measEnv = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
+                let terraintype = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
+                let environment = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
+                let obstacle = measure.getFlag('enhanced-terrain-layer', 'obstacle') || '';
                 if (terraincost &&
-                    !options.ignore?.includes(measEnv) &&
-                    !((measType == 'ground' && elevation > 0) || (measType == 'air' && elevation <= 0)) &&
+                    !options.ignore?.includes(environment) &&
+                    !((terraintype == 'ground' && elevation > 0) || (terraintype == 'air' && elevation <= 0)) &&
                     measure.shape.contains(testX, testY)) {
 
                     let detail = { object: measure, cost: terraincost };
-                    let reduce = options.reduce?.find(e => e.id == measEnv);
-                    if (reduce) {
-                        detail.reduce = reduce;
-                        terraincost = reduceFn(terraincost, reduce);
+                    let reducers = options.reduce?.find(e => e.id == environment || (setting('use-obstacles') && e.id == obstacle));
+                    if (reducers && reducers.length > 0) {
+                        detail.reduce = reducers;
+                        for (let reduce of reducers) {
+                            terraincost = reduceFn(terraincost, reduce);
+                        }
                     }
 
                     cost = calculateFn(terraincost, cost, measure);
                     detail.total = cost;
 
                     details.push(detail);
-
                 }
             }
 

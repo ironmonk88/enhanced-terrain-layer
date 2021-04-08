@@ -32,22 +32,38 @@
 
     <div class="form-group">
         <label for="terraintype">{{localize "EnhancedTerrainLayer.TerrainType"}}</label>
-        <select name="terraintype">
-            {{#each terraintype}}
-            <option value="{{this.id}}">{{this.text}}</option>
-            {{/each}}
+        <select name="terraintype" data-dtype="String">
+            {{ selectOptions terraintypes selected=object.terraintype }}
+        </select>
+    </div>
+    {{#if useObstacles}}
+    <div class="form-group">
+        <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
+        <select name="environment" data-dtype="String">
+            {{ selectOptions environments selected=object.environment blank=' ' }}
         </select>
     </div>
 
     <div class="form-group">
-        <label for="terraintype">{{localize "EnhancedTerrainLayer.Environment"}}</label>
-        <select name="environment">
-            {{#each environment}}
-            <option value="{{this.id}}">{{this.text}}</option>
-            {{/each}}
+        <label for="obstacle">{{localize "EnhancedTerrainLayer.Obstacle"}}</label>
+        <select name="obstacle" data-dtype="String">
+            {{ selectOptions obstacles selected=object.obstacle blank=' ' }}
         </select>
     </div>
-
+    {{else}}
+    <div class="form-group">
+        <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
+        <select name="environment" data-dtype="String">
+            <option value=""></option>
+            <optgroup label="{{localize "EnhancedTerrainLayer.Environment"}}">
+                {{ selectOptions environments selected=object.environment }}
+            </optgroup>
+            <optgroup label="{{localize "EnhancedTerrainLayer.Obstacle"}}">
+                {{ selectOptions obstacles selected=object.obstacle }}
+            </optgroup>
+        </select>
+    </div>
+    {{/if}}
     <div class="form-group">
         <label for="hidden">Hidden</label>
         <input type="checkbox" name="hidden" {{#if object.hidden}} checked{{/if}} data-dtype="Boolean">

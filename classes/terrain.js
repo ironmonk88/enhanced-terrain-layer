@@ -52,7 +52,8 @@ export class Terrain extends PlaceableObject {
             points: [],
             multiple: this.layer.defaultmultiple,
             terraintype: 'ground',
-            environment: null
+            environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
+            obstacle: null
         }
     }
 
@@ -77,6 +78,10 @@ export class Terrain extends PlaceableObject {
 
     get environment() {
         return this.data.environment;
+    }
+
+    get obstacle() {
+        return this.data.obstacle;
     }
 
     static async create(data, options) {

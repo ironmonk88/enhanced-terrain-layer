@@ -1,4 +1,4 @@
-import { TerrainLayer, terraintype, environment } from './terrainlayer.js';
+import { TerrainLayer } from './terrainlayer.js';
 import { log, setting, i18n} from '../terrain-main.js';
 
 export class TerrainConfig extends FormApplication {
@@ -19,11 +19,28 @@ export class TerrainConfig extends FormApplication {
 
     /** @override */
     getData(options) {
+        var _terraintypes = canvas.terrain.getTerrainTypes().reduce(function (map, obj) {
+            map[obj.id] = i18n(obj.text);
+            return map;
+        }, {});
+
+        var _environments = canvas.terrain.getEnvironments().reduce(function (map, obj) {
+            map[obj.id] = i18n(obj.text);
+            return map;
+        }, {});
+
+        var _obstacles = canvas.terrain.getObstacles().reduce(function (map, obj) {
+            map[obj.id] = i18n(obj.text);
+            return map;
+        }, {});
+
         return {
             object: duplicate(this.object.data),
             options: this.options,
-            terraintype: terraintype,
-            environment: environment,
+            terraintypes: _terraintypes,
+            environments: _environments,
+            obstacles: _obstacles,
+            useObstacles: setting('use-obstacles'),
             submitText: this.options.preview ? "Create" : "Update"
         }
     }
@@ -56,8 +73,3 @@ export class TerrainConfig extends FormApplication {
         super.activateListeners(html);
     }
 }
-
-Hooks.on("renderTerrainConfig", (app, html) => {
-    $('[name="terraintype"]', html).val(app.object.data.terraintype);
-    $('[name="environment"]', html).val(app.object.data.environment);
-})
