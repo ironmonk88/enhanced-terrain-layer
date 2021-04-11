@@ -49,3 +49,5 @@ If you feel like being generous, stop by my <a href="https://www.patreon.com/iro
 
 ## License
 This Foundry VTT module, writen by Ironmonk, is licensed under MIT License
+
+This work is licensed under Foundry Virtual Tabletop <a href="https://foundryvtt.com/article/license/">EULA - Limited License Agreement for module development from May 29, 2020.</a>
