@@ -52,6 +52,16 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean
 	});
+
+	game.settings.register(modulename, 'terrainColor', {
+		name: "EnhancedTerrainLayer.terrain-color.name",
+		hint: "EnhanedTerrainLayer.terrain-color.hint",
+		scope: "world",
+		config: true,
+		default: "#ffffff",
+		type: String
+	});
+
 	game.settings.register(modulename, 'showterrain', {
 		scope: "world",
 		config: false,
