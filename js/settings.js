@@ -59,7 +59,10 @@ export const registerSettings = function () {
 		scope: "world",
 		config: true,
 		default: "#ffffff",
-		type: String
+		type: String,
+		onChange: () => {
+			canvas.terrain.refresh();
+		}
 	});
 
 	game.settings.register(modulename, 'showterrain', {
