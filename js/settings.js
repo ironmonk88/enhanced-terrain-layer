@@ -55,7 +55,7 @@ export const registerSettings = function () {
 
 	game.settings.register(modulename, 'terrainColor', {
 		name: "EnhancedTerrainLayer.terrain-color.name",
-		hint: "EnhanedTerrainLayer.terrain-color.hint",
+		hint: "EnhancedTerrainLayer.terrain-color.hint",
 		scope: "world",
 		config: true,
 		default: "#ffffff",
