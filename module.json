@@ -30,7 +30,7 @@
 	"styles": [ "css/terrainlayer.css" ],
 	"packs": [],
 	"url" : "https://github.com/vitormaduro/enhanced-terrain-layer",
-	"download" : "https://github.com/vitormaduro/enhanced-terrain-layer/archive/1.0.20.zip",
+	"download" : "https://github.com/vitormaduro/enhanced-terrain-layer/archive/0.1.zip",
 	"manifest" : "https://github.com/vitormaduro/enhanced-terrain-layer/releases/latest/download/module.json",
 	"bugs": "https://github.com/vitormaduro/enhanced-terrain-layer/issues",
 	"allowBugReporter": true,
