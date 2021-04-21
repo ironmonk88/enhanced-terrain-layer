@@ -18,7 +18,8 @@ export class TerrainHUD extends BasePlaceableHUD {
         return mergeObject(data, {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
-            cost: 'x' + this.object.multiple
+            cost: 'x' + this.object.multiple,
+            environment: this.object.environment
         });
     }
 

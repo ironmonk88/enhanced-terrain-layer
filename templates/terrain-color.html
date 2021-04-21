@@ -1,0 +1,37 @@
+<div class="terrain-color flexcol" style="height:100%;">
+    <form style="height:100%;" class="flexcol">
+        <section class="content" style="height:100%;overflow-y:auto;">
+            <div class="form-group">
+                <label>Global color</label>
+                <div class="form-fields">
+                    <input type="text" id="_default" value="{{main.color}}" data-dtype="String">
+                    <input type="color" value="{{main.color}}" data-edit="_default">
+                </div>
+            </div>
+            <h2>Environments</h2>
+            {{#each environment}}
+            <div class="form-group">
+                <label>{{localize this.text}}</label>
+                <div class="form-fields">
+                    <input type="text" id="{{this.id}}" value="{{this.color}}" data-dtype="String">
+                    <input type="color" value="{{this.color}}" data-edit="{{this.id}}">
+                </div>
+            </div>
+            {{/each}}
+            <h2>Obstacles</h2>
+            {{#each obstacle}}
+            <div class="form-group">
+                <label>{{localize this.text}}</label>
+                <div class="form-fields">
+                    <input type="text" id="{{this.id}}" value="{{this.color}}" data-dtype="String">
+                    <input type="color" value="{{this.color}}" data-edit="{{this.id}}">
+                </div>
+            </div>
+            {{/each}}
+        </section>
+        <footer class="sheet-footer flexrow" style="flex:0 0 30px;margin-top:5px;">
+            <button type="button" name="submit"><i class="far fa-save"></i> {{localize 'EnhancedTerrainLayer.SaveChanges'}}</button>
+            <button type="button" name="reset"><i class="fas fa-undo"></i> {{localize 'EnhancedTerrainLayer.ResetDefaults'}}</button>
+        </footer>
+    </form>
+</div>

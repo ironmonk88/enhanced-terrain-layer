@@ -3,6 +3,12 @@
         <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
             <span class="terrain-cost" title="{{localize "EnhancedTerrainLayer.TerrainCost"}}">{{cost}}</span>
         </div>
+
+        {{#if environment}}
+        <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
+            <span class="terrain-environment" title="{{localize environment.text}}"><img style="width:26px;height:26px;margin-left:7px;" src="modules/enhanced-terrain-layer/img/environment/{{environment.icon}}" /></span>
+        </div>
+        {{/if}}
     </div>
 
     <div class="col middle">

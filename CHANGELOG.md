@@ -1,3 +1,8 @@
+# Version 1.0.21
+Added icons for the different environments
+
+Added the option to set different colours for each environment, aswell as a default color for the scene and a global default colour.
+
 # Version 1.0.20
 Added obstacles
 

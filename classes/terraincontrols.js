@@ -27,7 +27,9 @@ export class TerrainLayerToolBar extends FormApplication {
     }
 
     getData(options) {
-        return { multiple: canvas.terrain.defaultmultiple };
+        return {
+            multiple: canvas.terrain.defaultmultiple
+        };
     }
 
     _onHandleClick(event) {

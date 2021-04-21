@@ -56,26 +56,26 @@ export class TerrainLayer extends PlaceablesLayer {
 
     getEnvironments() {
         return [
-            { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'fa-snowflake' },
-            { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: '' },
-            { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: '' },
-            { id: 'forest', text: 'EnhancedTerrainLayer.environment.forest', icon: 'fa-leaf' },
-            { id: 'grassland', text: 'EnhancedTerrainLayer.environment.grassland', icon: 'fa-pagelines' },
-            { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: '' },
-            { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: '' },
-            { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'fa-icicles' },
-            { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'fa-swimmer' }
+            { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'arctic.png' },
+            { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: 'coast.png' },
+            { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: 'desert.png' },
+            { id: 'forest', text: 'EnhancedTerrainLayer.environment.forest', icon: 'forest.png' },
+            { id: 'grassland', text: 'EnhancedTerrainLayer.environment.grassland', icon: 'grassland.png' },
+            { id: 'jungle', text: 'EnhancedTerrainLayer.environment.jungle', icon: 'jungle.png' },
+            { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: 'mountain.png' },
+            { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: 'swamp.png' },
+            { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'underdark.png' },
+            { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'water.png' }
         ];
     }
 
     getObstacles() {
         return [
             { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd' },
-            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current' },
-            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic' },
-            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants' },
-            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble' },
-            { id: 'water', text: 'EnhancedTerrainLayer.obstacle.water' }
+            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'current.png' },
+            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'magic.png' },
+            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'plants.png' },
+            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'rubble.png' }
         ];
     }
 
@@ -148,7 +148,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testX = (gx + hx) - terrain.data.x;
                 const testY = (gy + hy) - terrain.data.y;
                 if (terrain.multiple != 1 &&
-                    !options.ignore?.includes(terrain.environment) &&
+                    !options.ignore?.includes(terrain.data.environment) &&
                     !((terrain.data.terraintype == 'ground' && elevation > 0) || (terrain.data.terraintype == 'air' && elevation <= 0)) &&
                     terrain.shape.contains(testX, testY)) {
                     let detail = {object:terrain};
@@ -156,7 +156,7 @@ export class TerrainLayer extends PlaceablesLayer {
                     detail.cost = terraincost;
 
                     //does this check ignore certain environment types?
-                    let reducers = options.reduce?.filter(e => e.id == terrain.environment || (setting('use-obstacles') && e.id == terrain.obstacle));
+                    let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (setting('use-obstacles') && e.id == terrain.obstacle));
                     if (reducers && reducers.length > 0) {
                         detail.reduce = reducers;
                         for (let reduce of reducers) {
@@ -695,9 +695,9 @@ export class TerrainLayer extends PlaceablesLayer {
         canvas.scene.data.terrain.findSplice(t => { return t._id == id; });
     }
 
-    refresh() {
+    refresh(icons) {
         for (let terrain of this.placeables) {
-            terrain.refresh();
+            terrain.refresh(icons);
         }
     }
 }

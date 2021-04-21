@@ -76,9 +76,14 @@ export class Terrain extends PlaceableObject {
         return this.data.terraintype || Terrain.defaults.terraintype;
     }
 
+    get color() {
+        return setting('environment-color')[this.environment?.id] || this.environment?.color || canvas.scene.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
+    }
+
+    /*
     get environment() {
         return this.data.environment;
-    }
+    }*/
 
     get obstacle() {
         return this.data.obstacle;
@@ -167,6 +172,10 @@ export class Terrain extends PlaceableObject {
         let mult = Math.clamped(this.data.multiple, 0.5, 4);
         this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${mult}x.svg`) : null);
 
+        this.environment = canvas.terrain.getEnvironments().find(e => e.id == this.data.environment);
+        if (this.environment == undefined && !setting('use-obstacles'))
+            this.environment = canvas.terrain.getObstacles().find(e => e.id == this.data.environment);
+
         // Create the inner Terrain container
         this._createTerrain();
 
@@ -195,8 +204,10 @@ export class Terrain extends PlaceableObject {
         this.drawing = this.terrain.addChild(new PIXI.Graphics());
 
         // Overlay Text
-        this.text = this.terrain.addChild(this._createText());
-        this._positionText();
+        this.overlay = this.terrain.addChild(new PIXI.Graphics());
+        this.text = this.overlay.addChild(this._createText());
+        this._createIcon();
+        this._positionOverlay();
     }
 
     /* -------------------------------------------- */
@@ -234,17 +245,43 @@ export class Terrain extends PlaceableObject {
             padding: stroke
         });
 
-        return new PreciseText('x' + mult, textStyle);;
+        return new PreciseText('x' + mult, textStyle);
     }
 
-    _positionText() {
-        //center text
+    _createIcon() {
+        if (this.icon && !this.icon._destroyed) {
+            this.icon.destroy();
+            this.icon = null;
+        }
+
+        if (this.environment?.icon == undefined)
+            return;
+
+        this.icon = this.overlay.addChild(new PIXI.Container());
+
+        let s = canvas.dimensions.size;
+        const size = Math.max(Math.round(s / 2.5), 5);
+
+        let sc = colorStringToHex(this.color);
+
+        this.icon.border = this.icon.addChild(new PIXI.Graphics());
+        this.icon.border.clear().lineStyle(3, 0x000000).drawRoundedRect(0, 0, size, size, 4).beginFill(0x000000, 0.5).lineStyle(2, sc).drawRoundedRect(0, 0, size, size, 4).endFill();
+
+        this.icon.background = this.icon.addChild(new PIXI.Sprite.from("modules/enhanced-terrain-layer/img/environment/" + this.environment?.icon));
+        this.icon.background.x = this.icon.background.y = 1;
+        this.icon.background.width = this.icon.background.height = size - 2;
+    }
+
+    _positionOverlay() {
+        //center overlay
         var points = this.data.points;
         var x = 0,
             y = 0,
             i,
             j,
             f;
+
+        let s = canvas.dimensions.size;
 
         var area = function (points) {
             var area = 0,
@@ -272,9 +309,9 @@ export class Terrain extends PlaceableObject {
 
         f = area(points) * 6;
 
-        this.text.anchor.set(0.5, 0.5);
-        this.text.x = parseInt(x / f);
-        this.text.y = parseInt(y / f);
+        //this.overlay.anchor.set(0.5, 0.5);
+        this.overlay.x = parseInt(x / f);
+        this.overlay.y = parseInt(y / f);// - (s / 5.2);
     }
 
     /* -------------------------------------------- */
@@ -292,7 +329,7 @@ export class Terrain extends PlaceableObject {
     /* -------------------------------------------- */
 
     /** @override */
-    refresh() {
+    refresh(icons) {
         if (this._destroyed || this.drawing._destroyed) return;
 
         this.drawing.clear();
@@ -301,7 +338,7 @@ export class Terrain extends PlaceableObject {
 
         // Outer Stroke
         //const colors = CONFIG.Canvas.dispositionColors;
-        let sc = colorStringToHex("#FFFFFF"); //this.data.hidden ? colorStringToHex("#C0C0C0") : 
+        let sc = colorStringToHex(this.color); //this.data.hidden ? colorStringToHex("#C0C0C0") : 
         let lStyle = new PIXI.LineStyle();
         mergeObject(lStyle, { width: s / 20, color: sc, alpha: 1, cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND, visible: true });
         this.drawing.lineStyle(lStyle);
@@ -347,8 +384,24 @@ export class Terrain extends PlaceableObject {
         this.drawing.position.set(this.data.width / 2, this.data.height / 2);
         this.drawing.rotation = toRadians(this.data.rotation || 0);
         */
-        this.text.visible = setting('showText') && this.id && this.multiple != 1 && !this._original;
-        this.text.alpha = drawAlpha;
+
+        let showicon = setting('show-icon') && this.icon;
+
+        this.text.visible = setting('show-text') && this.multiple != 1;
+        this.text.x = (showicon ? -this.text.width - 2 : -(this.text.width / 2));
+        this.text.y = -(this.text.height / 2);
+        if (this.icon) {
+            this.icon.visible = setting('show-icon');
+            this.icon.x = (setting('show-text') ? 2 : -(this.icon.width / 2));
+            this.icon.y = -(this.icon.height / 2);
+        }
+
+        const size = Math.max(Math.round(s / 2.5), 5);
+        //if(this.icon && icons)
+        //    this.icon.border.lineStyle(3, 0x000000).drawRoundedRect(0, 0, size, size, 4).lineStyle(2, sc).drawRoundedRect(0, 0, size, size, 4);
+
+        this.overlay.visible = this.id && !this._original;
+        this.overlay.alpha = drawAlpha;
 
         // Determine drawing bounds and update the frame
         const bounds = this.terrain.getLocalBounds();
@@ -454,7 +507,7 @@ export class Terrain extends PlaceableObject {
         }
 
         // Full re-draw or partial refresh
-        if (changed.has("multiple"))
+        if (changed.has("multiple") || changed.has("environment"))
             this.draw().then(() => super._onUpdate(data));
         else {
             this.refresh();
@@ -686,7 +739,7 @@ export class Terrain extends PlaceableObject {
         const update = this._rescaleDimensions(this._original, dx, dy);
         this.resizing = false;
 
-        this._positionText();
+        this._positionOverlay();
 
         // Commit the update
         this.data = this._original;
@@ -800,7 +853,7 @@ export class Terrain extends PlaceableObject {
         }
         //await canvas.scene.setFlag("enhanced-terrain-layer", "terrain" + this.data._id, objectdata, {diff: false});
         //if the multiple has changed then update the image
-        if (data.multiple != undefined) {
+        if (data.multiple != undefined || data.environment != undefined) {
             this.draw();
         }else
             this.refresh();

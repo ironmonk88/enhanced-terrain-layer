@@ -13,6 +13,6 @@
 
   "EnhancedTerrainLayer.opacity.name": "地形圖示的不透明度",
   "EnhancedTerrainLayer.opacity.hint": "圖示和數字的不透明度。",
-  "EnhancedTerrainLayer.showText.name": "顯示文字",
-  "EnhancedTerrainLayer.showText.hint": "顯示有關地形難度的文字。"
+  "EnhancedTerrainLayer.show-text.name": "顯示文字",
+  "EnhancedTerrainLayer.show-text.hint": "顯示有關地形難度的文字。"
 }

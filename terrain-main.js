@@ -197,12 +197,25 @@ Hooks.on('canvasReady', () => {
 Hooks.on("renderSceneConfig", (app, html, data) => {
 	let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
 
+	let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
+
+	//add default color
+	$('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.DefaultTerrainColor")))
+		.append($('<div>').addClass('form-fields')
+			.append($('<input>').attr('type', 'text').attr('name', 'flags.enhanced-terrain-layer.defaultcolor').attr('data-dtype', 'String').val(defaultColor))
+			.append($('<input>').attr('type', 'color').attr('data-edit', 'flags.enhanced-terrain-layer.defaultcolor').val(defaultColor)))
+		.insertAfter(backgroundRow);
 	//add the environment
 	$('<div>').addClass('form-group')
 		.append($('<label>').html(i18n("EnhancedTerrainLayer.Environment")))
 		.append($('<div>').addClass('form-fields')
 			.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.environment').attr('data-type', 'String').append($('<option>').attr('value', '')).append(function () { return canvas.terrain.getEnvironments().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) }).val(app.object.getFlag('enhanced-terrain-layer', 'environment'))))
 		.insertAfter(backgroundRow);
+});
+
+Hooks.on("renderSceneConfig", (app, html) => {
+	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
 });
 
 PIXI.Graphics.prototype.drawDashedPolygon = function (polygons, x, y, rotation, dash, gap, offsetPercentage) {

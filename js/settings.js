@@ -1,5 +1,19 @@
+import { TerrainColor } from "../classes/terraincolor.js";
+
 export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
+
+	game.settings.registerMenu(modulename, 'edit-colors', {
+		name: 'Edit Colors',
+		label: 'Edit Colors',
+		hint: 'Edit default color, environment colrs, and obstacle colors',
+		icon: 'fas fa-palette',
+		restricted: true,
+		type: TerrainColor,
+		onClick: (value) => {
+			
+		}
+	});
 
 	game.settings.register(modulename, 'opacity', {
 		name: "EnhancedTerrainLayer.opacity.name",
@@ -17,9 +31,20 @@ export const registerSettings = function () {
 			canvas.terrain.refresh();
 		}
 	});
-	game.settings.register(modulename, 'showText', {
-		name: "EnhancedTerrainLayer.showText.name",
-		hint: "EnhancedTerrainLayer.showText.hint",
+	game.settings.register(modulename, 'show-text', {
+		name: "EnhancedTerrainLayer.show-text.name",
+		hint: "EnhancedTerrainLayer.show-text.hint",
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+		onChange: () => {
+			canvas.terrain.refresh();
+		}
+	});
+	game.settings.register(modulename, 'show-icon', {
+		name: "EnhancedTerrainLayer.show-icon.name",
+		hint: "EnhancedTerrainLayer.show-icon.hint",
 		scope: "world",
 		config: true,
 		default: false,
@@ -64,5 +89,12 @@ export const registerSettings = function () {
 		config: false,
 		default: false,
 		type: Boolean
+	});
+
+	game.settings.register(modulename, 'environment-color', {
+		scope: "world",
+		config: false,
+		default: {},
+		type: Object
 	});
 };

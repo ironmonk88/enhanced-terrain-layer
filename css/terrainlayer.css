@@ -48,3 +48,8 @@
 #terrainlayer-tools td:nth-child(n+1) {
     padding-left: 8px;
 }
+
+/*
+.terrain-color input[type=color]::-webkit-color-swatch {
+    background-color: transparent !important;
+}*/
