@@ -1,3 +1,6 @@
+# Version 1.0.22
+Fixing an issue with changing environment back to blank affecting the icon.
+
 # Version 1.0.21
 Added icons for the different environments
 
