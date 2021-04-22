@@ -386,12 +386,12 @@ export class Terrain extends PlaceableObject {
         this.drawing.rotation = toRadians(this.data.rotation || 0);
         */
 
-        let showicon = setting('show-icon') && this.icon;
+        let showicon = setting('show-icon') && this.icon && !this.icon._destroyed;
 
         this.text.visible = setting('show-text') && this.multiple != 1;
         this.text.x = (showicon ? -this.text.width - 2 : -(this.text.width / 2));
         this.text.y = -(this.text.height / 2);
-        if (this.icon) {
+        if (this.icon && !this.icon._destroyed) {
             this.icon.visible = setting('show-icon');
             this.icon.x = (setting('show-text') ? 2 : -(this.icon.width / 2));
             this.icon.y = -(this.icon.height / 2);
