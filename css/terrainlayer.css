@@ -53,3 +53,24 @@
 .terrain-color input[type=color]::-webkit-color-swatch {
     background-color: transparent !important;
 }*/
+
+/*
+#terrain-config input[type="range"] {
+    z-index: 2;
+}
+
+#terrain-config input[type="range"] + input[type="range"] {
+    position: absolute;
+    top: 0px;
+    left: 0px;
+    width: calc(100% - 58px);
+    -webkit-appearance: none;
+    z-index: 1;
+}
+
+#terrain-config input[type="range"] + input[type="range"]::-webkit-slider-runnable-track,
+#terrain-config input[type="range"] + input[type="range"]::-moz-range-track,
+#terrain-config input[type="range"] + input[type="range"]::-ms-track {
+    background: none;
+    color:transparent;
+}*/

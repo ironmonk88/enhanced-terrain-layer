@@ -18,7 +18,8 @@ export class TerrainHUD extends BasePlaceableHUD {
         return mergeObject(data, {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
-            cost: 'x' + this.object.multiple,
+            cost: TerrainLayer.multipleText(this.object.multiple),
+            terraintype: this.object.terraintype,
             environment: this.object.environment
         });
     }
@@ -64,7 +65,7 @@ export class TerrainHUD extends BasePlaceableHUD {
             for (let terrain of this.layer.controlled) {
                 let data = updates.find(u => { return u._id == terrain.data._id });
                 terrain.update(data, { save: false }).then(() => {
-                    $('.terrain-cost', this.element).html('x' + this.object.multiple);
+                    $('.terrain-cost', this.element).html(String.fromCharCode(215) + this.object.multiple);
                 });
             }
         });

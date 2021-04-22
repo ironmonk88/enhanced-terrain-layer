@@ -1,4 +1,5 @@
 import { makeid, log, setting } from '../terrain-main.js';
+import { TerrainLayer } from './terrainlayer.js';
 
 export class Terrain extends PlaceableObject {
     constructor(...args) {
@@ -245,7 +246,7 @@ export class Terrain extends PlaceableObject {
             padding: stroke
         });
 
-        return new PreciseText('x' + mult, textStyle);
+        return new PreciseText(String.fromCharCode(215) + (mult == 0.5 ? String.fromCharCode(189) : mult), textStyle);
     }
 
     _createIcon() {

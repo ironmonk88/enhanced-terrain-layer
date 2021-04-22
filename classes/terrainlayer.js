@@ -25,7 +25,7 @@ export class TerrainLayer extends PlaceablesLayer {
     /** @override */
     static get layerOptions() {
         return mergeObject(super.layerOptions, {
-            zIndex: 15,
+            zIndex: 35, //15,
             canDragCreate: game.user.isGM,
             canDelete: game.user.isGM,
             controllableObjects: game.user.isGM,
@@ -80,7 +80,7 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     static multipleText(multiple) {
-        return (parseInt(multiple) == 0 || parseInt(multiple) == 0.5 ? '1/2' : multiple);
+        return (parseInt(multiple) == 0 || parseInt(multiple) == 0.5 ? '&frac12;' : multiple);
     }
 
 /* -------------------------------------------- */
