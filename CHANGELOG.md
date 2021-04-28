@@ -1,3 +1,8 @@
+# Version 1.0.24
+Fixing an issue with Enhanced Terrain Layer not finding a place to put the additional controls on an item.
+
+Adding Urban environment, and Furniture obstacle.
+
 # Version 1.0.23
 Fixing an issue with changing environment back to blank affecting the icon.
 

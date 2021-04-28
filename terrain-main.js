@@ -121,11 +121,14 @@ function addControls(app, html) {
 				.append(obsGroup)
 				.val(app.object.getFlag('enhanced-terrain-layer', 'environment'))));
 
-	let group = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', html).get(0).closest(".form-group");
-	if (group) {
-		environment.insertAfter(group);
-		type.insertAfter(group);
-		cost.insertAfter(group);
+	let ctrl = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', html);
+	if (ctrl.length > 0) {
+		let group = ctrl.get(0).closest(".form-group");
+		if (group) {
+			environment.insertAfter(group);
+			type.insertAfter(group);
+			cost.insertAfter(group);
+		}
 	}
 }
 
@@ -261,7 +264,8 @@ Hooks.on("renderSceneConfig", (app, html) => {
 });
 
 Hooks.on("renderItemSheet", (app, html) => {
-	addControls(app, html);
+	if(app.object.type == 'spell')
+		addControls(app, html);
 });
 
 PIXI.Graphics.prototype.drawDashedPolygon = function (polygons, x, y, rotation, dash, gap, offsetPercentage) {
