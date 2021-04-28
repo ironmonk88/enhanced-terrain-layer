@@ -3,11 +3,11 @@ import { TerrainHUD } from './classes/terrainhud.js';
 import { registerSettings } from "./js/settings.js";
 
 export let debug = (...args) => {
-	if (debugEnabled > 1) console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
+	console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
 };
 export let log = (...args) => console.log("Enhanced Terrain Layer | ", ...args);
 export let warn = (...args) => {
-	if (debugEnabled > 0) console.warn("Enhanced Terrain Layer | ", ...args);
+	console.warn("Enhanced Terrain Layer | ", ...args);
 };
 export let error = (...args) => console.error("Enhanced Terrain Layer | ", ...args);
 
@@ -77,6 +77,58 @@ export function makeid() {
 	return result;
 }
 
+function addControls(app, html) {
+	let multiple = app.object.getFlag("enhanced-terrain-layer", "multiple") || 1;
+	let cost = $('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainCost")))
+		.append($('<div>').addClass('form-fields')
+			.append($('<input>')
+				.attr('type', 'range').attr('dtype', 'Number').attr('min', '1').attr('max', '4').attr('step', '1').attr('name', 'flags.enhanced-terrain-layer.multiple')
+				.val(multiple))
+			//.on('change', function () { $(this).next().html(TerrainLayer.multipleText($(this).val())) }))
+			.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(multiple))
+		)
+
+	//add the terrain type
+	let type = $('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainType")))
+		.append($('<div>')
+			.addClass('form-fields')
+			.append($('<select>')
+				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
+				.attr('data-type', 'String')
+				.append(function () { return canvas.terrain.getTerrainTypes().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) })
+				.val(app.object.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground')));
+
+	//add the environment
+	var obs = [];
+	var env = canvas.terrain.getEnvironments().reduce(function (map, obj) {
+		let opt = $('<option>').attr('value', obj.id).html(i18n(obj.text));
+		(obj.obstacle === true ? obs : map).push(opt);
+		return map;
+	}, []);
+
+	let envGroup = (env.length > 0 ? $('<optgroup>').attr('label', i18n("EnhancedTerrainLayer.Environment")).append(env) : '');
+	let obsGroup = (obs.length > 0 ? $('<optgroup>').attr('label', i18n("EnhancedTerrainLayer.Obstacle")).append(obs) : '');
+	let environment = $('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.Environment")))
+		.append($('<div>').addClass('form-fields')
+			.append($('<select>')
+				.attr('name', 'flags.enhanced-terrain-layer.environment')
+				.attr('data-type', 'String')
+				.append($('<option>').attr('value', '').html(''))
+				.append(envGroup)
+				.append(obsGroup)
+				.val(app.object.getFlag('enhanced-terrain-layer', 'environment'))));
+
+	let group = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', html).get(0).closest(".form-group");
+	if (group) {
+		environment.insertAfter(group);
+		type.insertAfter(group);
+		cost.insertAfter(group);
+	}
+}
+
 Hooks.on('canvasInit', () => {
 	canvas.hud.terrain = new TerrainHUD();
 	//Scene.constructor.config.embeddedEntities.Terrain = "terrain";
@@ -87,9 +139,27 @@ Hooks.on('ready', () => {
 		checkUpgrade();
 		game.settings.set('enhanced-terrain-layer', 'conversion', true);
 	}
+
+	window.setTimeout(function () {
+		if (canvas.terrain.getObstacles != undefined && !canvas.terrain.updateObstacles) {
+			warn('getObstacles is deprecated, please use getEnvironment and set the obstacle property to true');
+
+			let obstacles = canvas.terrain.getObstacles().map(t => {
+				t.obstacle = true;
+				return t;
+			});
+			let environments = canvas.terrain.getEnvironments().concat(obstacles);
+
+			canvas.terrain.getEnvironments = function () {
+				return environments;
+			}
+
+			canvas.terrain.updateObstacles = true;
+		}
+	}, 100);
 })
 
-Hooks.on('init', () => {
+Hooks.on('init', async () => {
 	game.socket.on('module.enhanced-terrain-layer', async (data) => {
 		console.log(data);
 		canvas.terrain[data.action].apply(canvas.terrain, data.arguments);
@@ -139,55 +209,30 @@ Hooks.on('init', () => {
 			canvas.terrain.highlight.children[0].visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
 		handleDragCancel.apply(this, [event])
 	}*/
+
+	if (game.system.id == 'dnd5e') {
+		const importedJS = await import("/systems/dnd5e/module/pixi/ability-template.js");
+		const AbilityTemplate = importedJS.default || importedJS.AbilityTemplate;
+
+		const oldFromItem = AbilityTemplate.fromItem
+		AbilityTemplate.fromItem = function (item) {
+			const measure = oldFromItem.bind(this)(item);
+			let flags = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
+			if (flags) {
+				if (measure.data.flags == undefined)
+					measure.data.flags = {};
+				measure.data.flags['enhanced-terrain-layer'] = flags;
+			}
+			return measure;
+		}
+	}
 })
 
 Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
-	let submitBtn = $('button[name="submit"]', html);
-	let incHeight = 0;
-
-	//add the movement cost
-	let multiple = config.object.getFlag('enhanced-terrain-layer', 'multiple');
-	$('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.MovementCost")))
-		.append($('<div>').addClass('form-fields')
-			.append($('<input>').attr('type', 'range').attr('min', '0').attr('max', '4').attr('step', '1').attr('name', 'flags.enhanced-terrain-layer.multiple').attr('data-type', 'Number').val(multiple))
-			.append($('<span>').addClass('range-value').html(multiple)))
-		.insertBefore(submitBtn);
-
-	//add the terrain type
-	$('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainType")))
-		.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.terraintype').attr('data-type', 'String').append(function () { return canvas.terrain.getTerrainTypes().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) }).val(config.object.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground'))
-		.insertBefore(submitBtn);
-
-	if (setting('use-obstacles')) {
-		//add the environment
-		$('<div>').addClass('form-group')
-			.append($('<label>').html(i18n("EnhancedTerrainLayer.Environment")))
-			.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.environment').attr('data-type', 'String').append(function () { return canvas.terrain.getEnvironments().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) }).val(config.object.getFlag('enhanced-terrain-layer', 'environment')))
-			.insertBefore(submitBtn);
-
-		//add an obstacle
-		$('<div>').addClass('form-group')
-			.append($('<label>').html(i18n("EnhancedTerrainLayer.Obstacle")))
-			.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.obstacle').attr('data-type', 'String').append(function () { return canvas.terrain.getObstacles().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) }).val(config.object.getFlag('enhanced-terrain-layer', 'obstacle')))
-			.insertBefore(submitBtn);
-
-		incHeight = 120;
-	} else {
-		//add the environment
-		let envGroup = $('<optgroup>').attr('label', i18n("EnhancedTerrainLayer.Environment")).append(function () { return canvas.terrain.getEnvironments().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) });
-		let obsGroup = $('<optgroup>').attr('label', i18n("EnhancedTerrainLayer.Environment")).append(function () { return canvas.terrain.getObstacles().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) });
-		$('<div>').addClass('form-group')
-			.append($('<label>').html(i18n("EnhancedTerrainLayer.Environment")))
-			.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.environment').attr('data-type', 'String').append(envGroup).append(obsGroup).val(config.object.getFlag('enhanced-terrain-layer', 'environment')))
-			.insertBefore(submitBtn);
-
-		incHeight = 90;
-	}
+	addControls(config, html);
 
 	let height = $(html).height();
-	$(html).css({ height: height + incHeight});
+	$(html).css({ height: height + 90});
 })
 
 Hooks.on('canvasReady', () => {
@@ -206,16 +251,17 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
 			.append($('<input>').attr('type', 'text').attr('name', 'flags.enhanced-terrain-layer.defaultcolor').attr('data-dtype', 'String').val(defaultColor))
 			.append($('<input>').attr('type', 'color').attr('data-edit', 'flags.enhanced-terrain-layer.defaultcolor').val(defaultColor)))
 		.insertAfter(backgroundRow);
+
 	//add the environment
-	$('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.Environment")))
-		.append($('<div>').addClass('form-fields')
-			.append($('<select>').attr('name', 'flags.enhanced-terrain-layer.environment').attr('data-type', 'String').append($('<option>').attr('value', '')).append(function () { return canvas.terrain.getEnvironments().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) }).val(app.object.getFlag('enhanced-terrain-layer', 'environment'))))
-		.insertAfter(backgroundRow);
+	addControls(app, html);
 });
 
 Hooks.on("renderSceneConfig", (app, html) => {
 	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
+});
+
+Hooks.on("renderItemSheet", (app, html) => {
+	addControls(app, html);
 });
 
 PIXI.Graphics.prototype.drawDashedPolygon = function (polygons, x, y, rotation, dash, gap, offsetPercentage) {

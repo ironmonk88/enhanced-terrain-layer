@@ -173,9 +173,7 @@ export class Terrain extends PlaceableObject {
         let mult = Math.clamped(this.data.multiple, 0.5, 4);
         this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${mult}x.svg`) : null);
 
-        this.environment = canvas.terrain.getEnvironments().find(e => e.id == this.data.environment);
-        if (this.environment == undefined && !setting('use-obstacles'))
-            this.environment = canvas.terrain.getObstacles().find(e => e.id == this.data.environment);
+        this.updateEnvironment();
 
         // Create the inner Terrain container
         this._createTerrain();
@@ -268,7 +266,7 @@ export class Terrain extends PlaceableObject {
         this.icon.border = this.icon.addChild(new PIXI.Graphics());
         this.icon.border.clear().lineStyle(3, 0x000000).drawRoundedRect(0, 0, size, size, 4).beginFill(0x000000, 0.5).lineStyle(2, sc).drawRoundedRect(0, 0, size, size, 4).endFill();
 
-        this.icon.background = this.icon.addChild(new PIXI.Sprite.from("modules/enhanced-terrain-layer/img/environment/" + this.environment?.icon));
+        this.icon.background = this.icon.addChild(new PIXI.Sprite.from(this.environment?.icon));
         this.icon.background.x = this.icon.background.y = 1;
         this.icon.background.width = this.icon.background.height = size - 2;
     }
@@ -506,6 +504,9 @@ export class Terrain extends PlaceableObject {
         if (changed.has("z")) {
             this.zIndex = parseInt(data.z) || 0;
         }
+
+        if (data.environment != undefined)
+            this.updateEnvironment();
 
         // Full re-draw or partial refresh
         if (changed.has("multiple") || changed.has("environment"))
@@ -852,6 +853,9 @@ export class Terrain extends PlaceableObject {
             await canvas.scene.update({ [key]: objectdata }, { diff: false });
 		canvas.terrain._costGrid = null;
         }
+
+        if (data.environment != undefined)
+            this.updateEnvironment();
         //await canvas.scene.setFlag("enhanced-terrain-layer", "terrain" + this.data._id, objectdata, {diff: false});
         //if the multiple has changed then update the image
         if (data.multiple != undefined || data.environment != undefined) {
@@ -867,5 +871,11 @@ export class Terrain extends PlaceableObject {
         layerdata.splice(idx, 1);
         await this.scene.setFlag("enhanced-terrain-layer", "data", layerdata);
         return this;
+    }
+
+    updateEnvironment() {
+        this.environment = canvas.terrain.getEnvironments().find(e => e.id == this.data.environment);
+        //if (this.environment == undefined && !setting('use-obstacles'))
+        //    this.environment = canvas.terrain.getObstacles().find(e => e.id == this.data.environment);
     }
 }

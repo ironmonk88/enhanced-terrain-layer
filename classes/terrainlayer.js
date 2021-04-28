@@ -10,10 +10,10 @@ export let terraintypes = key => {
 export let environments = key => {
     return canvas.terrain.getEnvironments();
 };
-
+/*
 export let obstacles = key => {
     return canvas.terrain.getObstacles();
-};
+};*/
 
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
@@ -56,28 +56,34 @@ export class TerrainLayer extends PlaceablesLayer {
 
     getEnvironments() {
         return [
-            { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'arctic.png' },
-            { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: 'coast.png' },
-            { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: 'desert.png' },
-            { id: 'forest', text: 'EnhancedTerrainLayer.environment.forest', icon: 'forest.png' },
-            { id: 'grassland', text: 'EnhancedTerrainLayer.environment.grassland', icon: 'grassland.png' },
-            { id: 'jungle', text: 'EnhancedTerrainLayer.environment.jungle', icon: 'jungle.png' },
-            { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: 'mountain.png' },
-            { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: 'swamp.png' },
-            { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'underdark.png' },
-            { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'water.png' }
+            { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'modules/enhanced-terrain-layer/img/environment/arctic.png' },
+            { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: 'modules/enhanced-terrain-layer/img/environment/coast.png' },
+            { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: 'modules/enhanced-terrain-layer/img/environment/desert.png' },
+            { id: 'forest', text: 'EnhancedTerrainLayer.environment.forest', icon: 'modules/enhanced-terrain-layer/img/environment/forest.png' },
+            { id: 'grassland', text: 'EnhancedTerrainLayer.environment.grassland', icon: 'modules/enhanced-terrain-layer/img/environment/grassland.png' },
+            { id: 'jungle', text: 'EnhancedTerrainLayer.environment.jungle', icon: 'modules/enhanced-terrain-layer/img/environment/jungle.png' },
+            { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: 'modules/enhanced-terrain-layer/img/environment/mountain.png' },
+            { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: 'modules/enhanced-terrain-layer/img/environment/swamp.png' },
+            { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'modules/enhanced-terrain-layer/img/environment/underdark.png' },
+            { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'modules/enhanced-terrain-layer/img/environment/water.png' },
+
+            { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd', icon: 'modules/enhanced-terrain-layer/img/environment/crowd.png', obstacle: true },
+            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'modules/enhanced-terrain-layer/img/environment/current.png', obstacle: true },
+            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'modules/enhanced-terrain-layer/img/environment/magic.png', obstacle: true },
+            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'modules/enhanced-terrain-layer/img/environment/plants.png', obstacle: true },
+            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png', obstacle: true }
         ];
     }
-
+    /*
     getObstacles() {
         return [
-            { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd' },
-            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'current.png' },
-            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'magic.png' },
-            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'plants.png' },
-            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'rubble.png' }
+            { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd', icon: 'modules/enhanced-terrain-layer/img/environment/crowd.png' },
+            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'modules/enhanced-terrain-layer/img/environment/current.png' },
+            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'modules/enhanced-terrain-layer/img/environment/magic.png' },
+            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'modules/enhanced-terrain-layer/img/environment/plants.png' },
+            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png' }
         ];
-    }
+    }*/
 
     static multipleText(multiple) {
         return (parseInt(multiple) == 0 || parseInt(multiple) == 0.5 ? '&frac12;' : multiple);
@@ -262,11 +268,16 @@ export class TerrainLayer extends PlaceablesLayer {
         if (etl) {
             for (let [k, v] of Object.entries(etl)) {
                 if (k.startsWith('terrain')) {
-                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined)
+                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined) {
+                        if (v.environment == '' && v.obstacle != '') {
+                            v.environment = v.obstacle;
+                            v.obstacle = '';
+                        }
                         if (v.points != undefined)
                             canvas.scene.data.terrain.push(v);
+                    }
                     else
-                            await canvas.scene.unsetFlag('enhanced-terrain-layer', k);
+                        await canvas.scene.unsetFlag('enhanced-terrain-layer', k);
                 }
             };
         }

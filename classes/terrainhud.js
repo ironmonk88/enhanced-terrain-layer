@@ -1,6 +1,8 @@
 import { TerrainLayer } from './terrainlayer.js';
+import { log, setting, i18n } from '../terrain-main.js';
 
 export class TerrainHUD extends BasePlaceableHUD {
+    _showEnvironments = false;
 
     /** @override */
     static get defaultOptions() {
@@ -10,17 +12,37 @@ export class TerrainHUD extends BasePlaceableHUD {
         });
     }
 
+    bind(object) {
+        this._showEnvironments = false;
+        return super.bind(object);
+    }
+
     /* -------------------------------------------- */
 
     /** @override */
     getData() {
+        var _environments = canvas.terrain.getEnvironments().map(obj => {
+            obj.text = i18n(obj.text);
+            obj.active = (this.object.data.environment == obj.id);
+
+            return obj;
+        });
+
+        /*
+        var _obstacles = canvas.terrain.getObstacles().map(obj => {
+            obj.text = i18n(obj.text);
+            obj.active = (setting('use-obstacles') ? this.object.data.obstacle == obj.id : (this.object.data.environment || this.object.data.obstacle) == obj.id);
+            return obj;
+        });*/
+
         const data = super.getData();
         return mergeObject(data, {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
             cost: TerrainLayer.multipleText(this.object.multiple),
             terraintype: this.object.terraintype,
-            environment: this.object.environment
+            environment: this.object.environment,
+            environments: _environments
         });
     }
 
@@ -29,12 +51,57 @@ export class TerrainHUD extends BasePlaceableHUD {
 
         $('.inc-multiple', this.element).on("click", this._onHandleClick.bind(this, true));
         $('.dec-multiple', this.element).on("click", this._onHandleClick.bind(this, false));
+        html.find(".environments > img").click(this._onClickEnvironments.bind(this));
+
+        html.find(".environment-list")
+            .on("click", ".environment-container", this._onToggleEnvironment.bind(this))
+            .on("contextmenu", ".environment-container", event => this._onToggleEnvironment(event));
+
         /*
         this.frame.handle.off("mouseover").off("mouseout").off("mousedown")
             .on("mouseover", this._onHandleHoverIn.bind(this))
             .on("mouseout", this._onHandleHoverOut.bind(this))
             .on("mousedown", this._onHandleMouseDown.bind(this));
         this.frame.handle.interactive = true;*/
+    }
+
+    _onClickEnvironments(event) {
+        event.preventDefault();
+        this._toggleEnvironments(!this._showEnvironments);
+    }
+
+    /* -------------------------------------------- */
+
+    _toggleEnvironments(active) {
+        this._showEnvironments = active;
+        const button = this.element.find(".control-icon.environments")[0];
+        button.classList.toggle("active", active);
+        const palette = button.querySelector(".environment-list");
+        palette.classList.toggle("active", active);
+    }
+
+    /* -------------------------------------------- */
+
+    _onToggleEnvironment(event) {
+        event.preventDefault();
+        let ctrl = event.currentTarget;
+        let id = ctrl.dataset.environmentId;
+        $('.environment-list .environment-container.active', this.element).removeClass('active');
+        if (id != this.object.data.environment)
+            $('.environment-list .environment-container[data-environment-id="' + id + '"]', this.element).addClass('active');
+
+        const updates = this.layer.controlled.map(o => {
+            return { _id: o.id, environment: (id != this.object.data.environment ? id : '') };
+        });
+
+        this.layer.updateMany(updates).then(() => {
+            for (let terrain of this.layer.controlled) {
+                let data = updates.find(u => { return u._id == terrain.data._id });
+                terrain.update(data, { save: false }).then(() => {
+                    $('.environments > img', this.element).attr('src', terrain?.environment?.icon || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
+                });
+            }
+        });
     }
 
     /*

@@ -19,17 +19,17 @@ export class TerrainColor extends FormApplication {
     getData(options) {
         let colors = setting('environment-color');
 
-        let environmentColor = canvas.terrain.getEnvironments().map(c => {
-            if (colors[c.id] != undefined)
-                c.color = colors[c.id];
-            return c;
-        });
+        var obstacleColor = [];
+        var environmentColor = canvas.terrain.getEnvironments().reduce(function (map, obj) {
+            if (colors[obj.id] != undefined)
+                obj.color = colors[obj.id];
 
-        let obstacleColor = canvas.terrain.getObstacles().map(c => {
-            if (colors[c.id] != undefined)
-                c.color = colors[c.id];
-            return c;
-        });
+            if (obj.obstacle === true) {
+                obstacleColor.push(obj);
+            } else
+                map.push(obj);
+            return map;
+        }, []);
 
         return {
             main: colors['_default'] || { id:'_default', color:'#FFFFFF'},
@@ -55,10 +55,10 @@ export class TerrainColor extends FormApplication {
         for (let env of canvas.terrain.getEnvironments()) {
             updateColor(env.id, $('#' + env.id, this.element).val());
         }
-
+        /*
         for (let obs of canvas.terrain.getObstacles()) {
             updateColor(obs.id, $('#' + obs.id, this.element).val());
-        }
+        }*/
 
         game.settings.set('enhanced-terrain-layer', 'environment-color', colors).then(() => {
             canvas.terrain.refresh(true);

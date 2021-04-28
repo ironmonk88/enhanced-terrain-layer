@@ -24,15 +24,20 @@ export class TerrainConfig extends FormApplication {
             return map;
         }, {});
 
+        var _obstacles = {};
         var _environments = canvas.terrain.getEnvironments().reduce(function (map, obj) {
-            map[obj.id] = i18n(obj.text);
+            
+            if (obj.obstacle === true) {
+                _obstacles[obj.id] = i18n(obj.text);
+            }else
+                 map[obj.id] = i18n(obj.text);
             return map;
         }, {});
 
-        var _obstacles = canvas.terrain.getObstacles().reduce(function (map, obj) {
+        /*var _obstacles = canvas.terrain.getObstacles().reduce(function (map, obj) {
             map[obj.id] = i18n(obj.text);
             return map;
-        }, {});
+        }, {});*/
 
         return {
             object: duplicate(this.object.data),
@@ -71,5 +76,24 @@ export class TerrainConfig extends FormApplication {
 
     activateListeners(html) {
         super.activateListeners(html);
+
+        
+        if (setting('use-obstacles')) {
+            $('select[name="environment"], select[name="obstacle"]', html).on('change', function () {
+                //make sure that the environment is always set if using obstacles
+                if ($('select[name="environment"]', html).val() == '' && $('select[name="obstacle"]', html).val() != '') {
+                    $('select[name="environment"]', html).val($('select[name="obstacle"]', html).val());
+                    $('select[name="obstacle"]', html).val('');
+                }
+
+                //make sure that obstacle is only set once, can't have an obstacle + obstacle, can only be environment + obstacle
+                if ($('select[name="environment"] option:selected', html).parent().attr('data-type') == 'obstacle' && $('select[name="obstacle"]', html).val() != '') {
+                    if ($(this).attr('name') == 'obstacle') {
+                        $('select[name="environment"]', html).val($('select[name="obstacle"]', html).val());
+                    }
+                    $('select[name="obstacle"]', html).val('');
+                };
+            });
+        }
     }
 }

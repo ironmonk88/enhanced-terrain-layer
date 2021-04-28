@@ -35,31 +35,23 @@
             {{ selectOptions terraintypes selected=object.terraintype }}
         </select>
     </div>
-    {{#if useObstacles}}
-    <div class="form-group">
-        <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
-        <select name="environment" data-dtype="String">
-            {{ selectOptions environments selected=object.environment blank=' ' }}
-        </select>
-    </div>
-
-    <div class="form-group">
-        <label for="obstacle">{{localize "EnhancedTerrainLayer.Obstacle"}}</label>
-        <select name="obstacle" data-dtype="String">
-            {{ selectOptions obstacles selected=object.obstacle blank=' ' }}
-        </select>
-    </div>
-    {{else}}
     <div class="form-group">
         <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
         <select name="environment" data-dtype="String">
             <option value=""></option>
-            <optgroup label="{{localize "EnhancedTerrainLayer.Environment"}}">
+            <optgroup label="{{localize "EnhancedTerrainLayer.Environment"}}" data-type="environment">
                 {{ selectOptions environments selected=object.environment }}
             </optgroup>
-            <optgroup label="{{localize "EnhancedTerrainLayer.Obstacle"}}">
+            <optgroup label="{{localize "EnhancedTerrainLayer.Obstacle"}}" data-type="obstacle">
                 {{ selectOptions obstacles selected=object.environment }}
             </optgroup>
+        </select>
+    </div>
+    {{#if useObstacles}}
+    <div class="form-group">
+        <label for="obstacle">{{localize "EnhancedTerrainLayer.Obstacle"}}</label>
+        <select name="obstacle" data-dtype="String">
+            {{ selectOptions obstacles selected=object.obstacle blank=' ' }}
         </select>
     </div>
     {{/if}}

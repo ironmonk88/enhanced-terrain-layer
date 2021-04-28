@@ -1,5 +1,13 @@
-# Version 1.0.22
+# Version 1.0.23
 Fixing an issue with changing environment back to blank affecting the icon.
+
+Merging environment and obstacles so that it's just one list.  But added the option to set an item in the environment list as being an obstacle, so they can still be shown in separate lists.  This fixes issues when using the option to use obstacles with environment.  Setting an obstacle without an environment caused issues.
+
+Adding a side menu to change the environment type from the terrain HUD.
+
+Added integration with spells, so you can set the difficulty, environment, and terrain type of the spell and it will translate to the measured template produced.  Only works for DnD5e right now, but if it gets added to more systems then I'll update it.
+
+Fixed the image path names so that it wasn't hard coded to the enhanced terrain layer folder.  And overriding the environment will now let you override the image used.
 
 # Version 1.0.21
 Added icons for the different environments

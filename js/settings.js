@@ -47,7 +47,7 @@ export const registerSettings = function () {
 		hint: "EnhancedTerrainLayer.show-icon.hint",
 		scope: "world",
 		config: true,
-		default: false,
+		default: true,
 		type: Boolean,
 		onChange: () => {
 			canvas.terrain.refresh();
