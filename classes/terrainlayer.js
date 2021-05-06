@@ -55,7 +55,7 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     getEnvironments() {
-        return [
+        let environments = [
             { id: 'arctic', text: 'EnhancedTerrainLayer.environment.arctic', icon: 'modules/enhanced-terrain-layer/img/environment/arctic.png' },
             { id: 'coast', text: 'EnhancedTerrainLayer.environment.coast', icon: 'modules/enhanced-terrain-layer/img/environment/coast.png' },
             { id: 'desert', text: 'EnhancedTerrainLayer.environment.desert', icon: 'modules/enhanced-terrain-layer/img/environment/desert.png' },
@@ -65,16 +65,20 @@ export class TerrainLayer extends PlaceablesLayer {
             { id: 'mountain', text: 'EnhancedTerrainLayer.environment.mountain', icon: 'modules/enhanced-terrain-layer/img/environment/mountain.png' },
             { id: 'swamp', text: 'EnhancedTerrainLayer.environment.swamp', icon: 'modules/enhanced-terrain-layer/img/environment/swamp.png' },
             { id: 'underdark', text: 'EnhancedTerrainLayer.environment.underdark', icon: 'modules/enhanced-terrain-layer/img/environment/underdark.png' },
-            { id: 'urban', text: 'EnhancedTerrainLayer.environment.urban' },
+            { id: 'urban', text: 'EnhancedTerrainLayer.environment.urban', icon: 'modules/enhanced-terrain-layer/img/environment/urban.png' },
             { id: 'water', text: 'EnhancedTerrainLayer.environment.water', icon: 'modules/enhanced-terrain-layer/img/environment/water.png' },
 
             { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd', icon: 'modules/enhanced-terrain-layer/img/environment/crowd.png', obstacle: true },
             { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'modules/enhanced-terrain-layer/img/environment/current.png', obstacle: true },
-            { id: 'furniture', text: 'EnhancedTerrainLayer.obstacle.furniture', obstacle: true },
+            { id: 'furniture', text: 'EnhancedTerrainLayer.obstacle.furniture', icon: 'modules/enhanced-terrain-layer/img/environment/furniture.png', obstacle: true },
             { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'modules/enhanced-terrain-layer/img/environment/magic.png', obstacle: true },
             { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'modules/enhanced-terrain-layer/img/environment/plants.png', obstacle: true },
             { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png', obstacle: true }
         ];
+
+        Hooks.call(`getTerrainEnvironments`, this, environments);
+
+        return environments;
     }
     /*
     getObstacles() {
@@ -128,11 +132,11 @@ export class TerrainLayer extends PlaceablesLayer {
         let total = 0;
         pts = pts instanceof Array ? pts : [pts];
 
-        const hx = canvas.grid.w / 2;
-        const hy = canvas.grid.h / 2;
+        const hx = (canvas.grid.type == 0 ? 0 : canvas.grid.w / 2);
+        const hy = (canvas.grid.type == 0 ? 0 : canvas.grid.h / 2);
 
         let calculate = options.calculate || 'maximum';
-        let calculateFn = function (cost, total) { return cost; };
+        let calculateFn;
         if (typeof calculate == 'function')
             calculateFn = calculate;
         else {
@@ -141,12 +145,15 @@ export class TerrainLayer extends PlaceablesLayer {
                     calculateFn = function (cost, total) { return Math.max(cost, total); }; break;
                 case 'additive':
                     calculateFn = function (cost, total) { return cost + total; }; break;
+                default:
+                    error('calculate function is undefined');
+                    return false;
             }
         }
 
         for (let pt of pts) {
             let cost = null;
-            let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x);
+            let [gx, gy] = (canvas.grid.type == 0 ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
 
             let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
             let tokenId = options.tokenId || options?.token?.id;
@@ -171,7 +178,8 @@ export class TerrainLayer extends PlaceablesLayer {
                             terraincost = reduceFn(terraincost, reduce);
                         }
                     }
-                    cost = calculateFn(terraincost, cost, terrain);
+                    if (typeof calculateFn == 'function')
+                        cost = calculateFn(terraincost, cost, terrain);
 
                     detail.total = cost;
 
@@ -202,7 +210,8 @@ export class TerrainLayer extends PlaceablesLayer {
                         }
                     }
 
-                    cost = calculateFn(terraincost, cost, measure);
+                    if (typeof calculateFn == 'function')
+                        cost = calculateFn(terraincost, cost, measure);
                     detail.total = cost;
 
                     details.push(detail);
@@ -225,7 +234,8 @@ export class TerrainLayer extends PlaceablesLayer {
                                 terraincost = reduceFn(terraincost, reduce);
                             }
 
-                            cost = calculateFn(terraincost, cost, token);
+                            if (typeof calculateFn == 'function')
+                                cost = calculateFn(terraincost, cost, token);
                             detail.total = cost;
 
                             details.push(detail);

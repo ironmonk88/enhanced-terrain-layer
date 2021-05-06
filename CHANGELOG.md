@@ -1,3 +1,14 @@
+# Version 1.0.25
+Fixing issue with wrapping the AbilityTemplate.fromItem function
+
+Adding icons for Urban and Furniture environments
+
+Adding a Hook for Terrain Environments
+
+Adding support for gridless maps
+
+Better error handling for calculate function, in case 
+
 # Version 1.0.24
 Fixing an issue with Enhanced Terrain Layer not finding a place to put the additional controls on an item.
 

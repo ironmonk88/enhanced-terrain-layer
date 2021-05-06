@@ -214,19 +214,28 @@ Hooks.on('init', async () => {
 	}*/
 
 	if (game.system.id == 'dnd5e') {
-		const importedJS = await import("/systems/dnd5e/module/pixi/ability-template.js");
-		const AbilityTemplate = importedJS.default || importedJS.AbilityTemplate;
-
-		const oldFromItem = AbilityTemplate.fromItem
-		AbilityTemplate.fromItem = function (item) {
-			const measure = oldFromItem.bind(this)(item);
+		let fromItem = function(wrapped, ...args) {
+			const [item] = args;
+			const template = wrapped(...args);
+			if (!template) {
+				return template;
+			}
 			let flags = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
 			if (flags) {
-				if (measure.data.flags == undefined)
-					measure.data.flags = {};
-				measure.data.flags['enhanced-terrain-layer'] = flags;
+				if (template.data.flags == undefined)
+					template.data.flags = {};
+				template.data.flags['enhanced-terrain-layer'] = flags;
 			}
-			return measure;
+			return template;
+		}
+
+		if (game.modules.get("lib-wrapper")?.active) {
+			libWrapper.register("enhanced-terrain-layer", "game.dnd5e.canvas.AbilityTemplate.fromItem", fromItem, "WRAPPER");
+		} else {
+			const origFromItem = game.dnd5e.canvas.AbilityTemplate.fromItem;
+			game.dnd5e.canvas.AbilityTemplate.fromItem = function () {
+				return fromItem.call(this, origFromItem.bind(this), ...arguments);
+			}
 		}
 	}
 })
