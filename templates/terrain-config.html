@@ -30,10 +30,13 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="terraintype">{{localize "EnhancedTerrainLayer.TerrainType"}}</label>
-        <select name="terraintype" data-dtype="String">
-            {{ selectOptions terraintypes selected=object.terraintype }}
-        </select>
+        <label for="terrainheight">{{localize "EnhancedTerrainLayer.TerrainHeight"}}</label>
+        <div class="form-fields" style="position:relative;">
+            <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Min"}}</label>
+            <input type="number" name="terrainheight.min" data-dtype="Number" value="{{object.terrainheight.min}}">
+            <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Max"}}</label>
+            <input type="number" name="terrainheight.max" data-dtype="Number" value="{{object.terrainheight.max}}">
+        </div>
     </div>
     <div class="form-group">
         <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
@@ -57,12 +60,12 @@
     {{/if}}
     <div class="form-group">
         <label for="hidden">Hidden</label>
-        <input type="checkbox" name="hidden" {{#if object.hidden}} checked{{/if}} data-dtype="Boolean">
+        <input type="checkbox" name="hidden" {{checked object.hidden}} data-dtype="Boolean">
     </div>
 
     <div class="form-group">
         <label for="locked">Locked</label>
-        <input type="checkbox" name="locked" {{#if object.locked}} checked{{/if}} data-dtype="Boolean">
+        <input type="checkbox" name="locked" {{checked object.locked}} data-dtype="Boolean">
     </div>
 
     <button type="submit" name="submit" value="1"><i class="far fa-save"></i> {{localize "EnhancedTerrainLayer.UpdateTerrain"}}</button>

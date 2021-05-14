@@ -1,4 +1,4 @@
-import { makeid, log, setting } from '../terrain-main.js';
+import { makeid, log, setting, debug } from '../terrain-main.js';
 import { TerrainLayer } from './terrainlayer.js';
 
 export class Terrain extends PlaceableObject {
@@ -52,7 +52,7 @@ export class Terrain extends PlaceableObject {
             hidden: false,
             points: [],
             multiple: this.layer.defaultmultiple,
-            terraintype: 'ground',
+            terrainheight: {min:0, max:0},
             environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
             obstacle: null
         }
@@ -74,7 +74,12 @@ export class Terrain extends PlaceableObject {
     }
 
     get terraintype() {
-        return this.data.terraintype || Terrain.defaults.terraintype;
+        debug('terraintype is deprecated, please use terrainheight');
+        return '';
+    }
+
+    get terrainheight() {
+        return this.data.terrainheight || Terrain.defaults.terrainheight;
     }
 
     get color() {

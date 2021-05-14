@@ -160,3 +160,13 @@
 #terrain-hud .environment-list .environment-container:hover .environment-name {
     opacity:1;
 }
+
+.terrainheight-label {
+    font-size: 13px;
+}
+
+.terrain-height.smaller {
+    font-size: 12px;
+    line-height: 14px;
+    margin-top: 2px;
+}

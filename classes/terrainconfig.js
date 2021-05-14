@@ -19,11 +19,6 @@ export class TerrainConfig extends FormApplication {
 
     /** @override */
     getData(options) {
-        var _terraintypes = canvas.terrain.getTerrainTypes().reduce(function (map, obj) {
-            map[obj.id] = i18n(obj.text);
-            return map;
-        }, {});
-
         var _obstacles = {};
         var _environments = canvas.terrain.getEnvironments().reduce(function (map, obj) {
             
@@ -42,7 +37,6 @@ export class TerrainConfig extends FormApplication {
         return {
             object: duplicate(this.object.data),
             options: this.options,
-            terraintypes: _terraintypes,
             environments: _environments,
             obstacles: _obstacles,
             useObstacles: setting('use-obstacles'),

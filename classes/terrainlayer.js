@@ -3,9 +3,9 @@ import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { makeid, log, error, i18n, setting } from '../terrain-main.js';
 
-export let terraintypes = key => {
+/*export let terraintypes = key => {
     return canvas.terrain.getTerrainTypes();
-};
+};*/
 
 export let environments = key => {
     return canvas.terrain.getEnvironments();
@@ -47,12 +47,13 @@ export class TerrainLayer extends PlaceablesLayer {
         return [0.5, 1, 2, 3, 4];
     }
 
+    /*
     getTerrainTypes() {
         return [
             { id: 'ground', text: 'EnhancedTerrainLayer.terraintype.ground' },
             { id: 'air', text: 'EnhancedTerrainLayer.terraintype.air' },
             { id: 'both', text: 'EnhancedTerrainLayer.terraintype.both' }];
-    }
+    }*/
 
     getEnvironments() {
         let environments = [
@@ -132,8 +133,8 @@ export class TerrainLayer extends PlaceablesLayer {
         let total = 0;
         pts = pts instanceof Array ? pts : [pts];
 
-        const hx = (canvas.grid.type == 0 ? 0 : canvas.grid.w / 2);
-        const hy = (canvas.grid.type == 0 ? 0 : canvas.grid.h / 2);
+        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? 0 : canvas.grid.w / 2);
+        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? 0 : canvas.grid.h / 2);
 
         let calculate = options.calculate || 'maximum';
         let calculateFn;
@@ -146,14 +147,13 @@ export class TerrainLayer extends PlaceablesLayer {
                 case 'additive':
                     calculateFn = function (cost, total) { return cost + total; }; break;
                 default:
-                    error('calculate function is undefined');
-                    return false;
+                    throw new Error(i18n("EnhancedTerrainLayer.ErrorCalculate"));
             }
         }
 
         for (let pt of pts) {
             let cost = null;
-            let [gx, gy] = (canvas.grid.type == 0 ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
+            let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
 
             let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
             let tokenId = options.tokenId || options?.token?.id;
@@ -164,7 +164,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = (gy + hy) - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
-                    !((terrain.data.terraintype == 'ground' && elevation > 0) || (terrain.data.terraintype == 'air' && elevation <= 0)) &&
+                    !(elevation < terrain.data.terrainheight.min || elevation > terrain.data.terrainheight.max) &&
                     terrain.shape.contains(testX, testY)) {
                     let detail = {object:terrain};
                     let terraincost = terrain.cost(options);
@@ -192,29 +192,32 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let measure of canvas.templates.placeables) {
                 const testX = (gx + hx) - measure.data.x;
                 const testY = (gy + hy) - measure.data.y;
-                let terraincost = measure.getFlag('enhanced-terrain-layer', 'multiple');													  
-                let terraintype = measure.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground';
-                let environment = measure.getFlag('enhanced-terrain-layer', 'environment') || '';
-                let obstacle = measure.getFlag('enhanced-terrain-layer', 'obstacle') || '';
-                if (terraincost &&
-                    !options.ignore?.includes(environment) &&
-                    !((terraintype == 'ground' && elevation > 0) || (terraintype == 'air' && elevation <= 0)) &&
-                    measure.shape.contains(testX, testY)) {
+                let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
+                if (terrainFlag) {
+                    let terraincost = terrainFlag.multiple || 2;
+                    let terrainheight = terrainFlag.terrainheight || { min: 0, max: 0 };
+                    let environment = terrainFlag.environment || '';
+                    let obstacle = terrainFlag.obstacle || '';
+                    if (terraincost &&
+                        !options.ignore?.includes(environment) &&
+                        !(elevation < terrainheight.min || elevation > terrainheight.max) &&
+                        measure.shape.contains(testX, testY)) {
 
-                    let detail = { object: measure, cost: terraincost };
-                    let reducers = options.reduce?.find(e => e.id == environment || (setting('use-obstacles') && e.id == obstacle));
-                    if (reducers && reducers.length > 0) {
-                        detail.reduce = reducers;
-                        for (let reduce of reducers) {
-                            terraincost = reduceFn(terraincost, reduce);
+                        let detail = { object: measure, cost: terraincost };
+                        let reducers = options.reduce?.find(e => e.id == environment || (setting('use-obstacles') && e.id == obstacle));
+                        if (reducers && reducers.length > 0) {
+                            detail.reduce = reducers;
+                            for (let reduce of reducers) {
+                                terraincost = reduceFn(terraincost, reduce);
+                            }
                         }
+
+                        if (typeof calculateFn == 'function')
+                            cost = calculateFn(terraincost, cost, measure);
+                        detail.total = cost;
+
+                        details.push(detail);
                     }
-
-                    if (typeof calculateFn == 'function')
-                        cost = calculateFn(terraincost, cost, measure);
-                    detail.total = cost;
-
-                    details.push(detail);
                 }
             }
 
@@ -284,6 +287,14 @@ export class TerrainLayer extends PlaceablesLayer {
                         if (v.environment == '' && v.obstacle != '') {
                             v.environment = v.obstacle;
                             v.obstacle = '';
+                        }
+                        if (v.terrainheight == undefined) {
+                            if (v.terraintype == 'ground' || v.terraintype == undefined)
+                                v.terrainheight = { min: 0, max: 0 };
+                            else if (v.terraintype == 'both')
+                                v.terrainheight = { min: 0, max: 100 };
+                            else if (v.terraintype == 'air')
+                                v.terrainheight = { min: 5, max: 100 };
                         }
                         if (v.points != undefined)
                             canvas.scene.data.terrain.push(v);

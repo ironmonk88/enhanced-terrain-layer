@@ -7,7 +7,11 @@ Adding a Hook for Terrain Environments
 
 Adding support for gridless maps
 
-Better error handling for calculate function, in case 
+Better error handling for calculate function, to confirm options passed into the function
+
+Changed terraintype to terrain height to make it a little more transparent as to what's being calculated.  And added extra controls on the terrain HUD to display the height of the terrain.
+
+Updated the cost function to be more effecient
 
 # Version 1.0.24
 Fixing an issue with Enhanced Terrain Layer not finding a place to put the additional controls on an item.

@@ -12,13 +12,16 @@
   "EnhancedTerrainLayer.Configuration": "Terrain Configuration",
   "EnhancedTerrainLayer.UpdateTerrain": "Update Terrain",
   "EnhancedTerrainLayer.MovementCost": "Movement Cost",
-  "EnhancedTerrainLayer.TerrainType": "Terrain Type",
+  "EnhancedTerrainLayer.TerrainHeight": "Terrain Height",
   "EnhancedTerrainLayer.Environment": "Environment",
   "EnhancedTerrainLayer.Obstacle": "Obstacle",
   "EnhancedTerrainLayer.TerrainColor": "Terrain Color",
   "EnhancedTerrainLayer.DefaultTerrainColor": "Default Terrain Color",
   "EnhancedTerrainLayer.ResetDefaults": "Reset Defaults",
   "EnhancedTerrainLayer.SaveChanges": "Save Changes",
+  "EnhancedTerrainLayer.ErrorCalculate": "Calculate function is undefined",
+  "EnhancedTerrainLayer.Min": "Min",
+  "EnhancedTerrainLayer.Max": "Max",
 
   "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",
@@ -32,10 +35,6 @@
   "EnhancedTerrainLayer.tokens-cause-difficult.hint": "When a token is dragged over another token, it's considered difficult terrain.",
   "EnhancedTerrainLayer.use-obstacles.name": "Use Additional Obstacles",
   "EnhancedTerrainLayer.use-obstacles.hint": "Allow the additional use of obstacles in combination with an environment.",
-
-  "EnhancedTerrainLayer.terraintype.ground": "Ground",
-  "EnhancedTerrainLayer.terraintype.air": "Air Only",
-  "EnhancedTerrainLayer.terraintype.both": "Air & Ground",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",

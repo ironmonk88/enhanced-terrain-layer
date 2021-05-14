@@ -83,7 +83,7 @@ function addControls(app, html) {
 		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainCost")))
 		.append($('<div>').addClass('form-fields')
 			.append($('<input>')
-				.attr('type', 'range').attr('dtype', 'Number').attr('min', '1').attr('max', '4').attr('step', '1').attr('name', 'flags.enhanced-terrain-layer.multiple')
+				.attr({ 'type': 'range', 'dtype': 'Number', 'min': '1', 'max': '4', 'step': '1', 'name': 'flags.enhanced-terrain-layer.multiple' })
 				.val(multiple))
 			//.on('change', function () { $(this).next().html(TerrainLayer.multipleText($(this).val())) }))
 			.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(multiple))
@@ -91,14 +91,20 @@ function addControls(app, html) {
 
 	//add the terrain type
 	let type = $('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainType")))
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainHeight")))
 		.append($('<div>')
 			.addClass('form-fields')
+			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Min")))
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.terraintype.min', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'terrainheight.min') || 0))
+			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.terraintype.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'terrainheight.max') || 0))
+			)
+			/*
 			.append($('<select>')
 				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
 				.attr('data-type', 'String')
 				.append(function () { return canvas.terrain.getTerrainTypes().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) })
-				.val(app.object.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground')));
+				.val(app.object.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground')));*/
 
 	//add the environment
 	var obs = [];

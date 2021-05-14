@@ -40,7 +40,9 @@ export class TerrainHUD extends BasePlaceableHUD {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
             cost: TerrainLayer.multipleText(this.object.multiple),
-            terraintype: this.object.terraintype,
+            height: (this.object.terrainheight.min == this.object.terrainheight.max ? this.object.terrainheight.min : this.object.terrainheight.min + " - " + this.object.terrainheight.max),
+            heightclass: (this.object.terrainheight.min == this.object.terrainheight.max ? '' : 'smaller'),
+            terrainheight: this.object.terrainheight,
             environment: this.object.environment,
             environments: _environments
         });

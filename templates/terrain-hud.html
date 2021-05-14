@@ -1,5 +1,5 @@
 <form id="{{id}}" class="{{classes}}" data-appid="{{appId}}" autocomplete="off" onsubmit="event.preventDefault();">
-    <div class="col left">
+    <div class="col left" style="justify-content: center;">
         <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
             <span class="terrain-cost" title="{{localize "EnhancedTerrainLayer.TerrainCost"}}">&times;{{{cost}}}</span>
         </div>
@@ -8,9 +8,13 @@
             <img style="width:26px;height:26px;margin-left:7px;" src="{{environment.icon}}" title="{{localize environment.text}}" onerror="this.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';" />
             <div class="environment-list">
                 {{#each environments}}
-                <div class="environment-container{{#if this.active}} active{{/if}}" title="{{this.text}}" data-environment-id="{{this.id}}"><img class="environment-control " src="{{this.icon}}" onerror="this.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';" ><div class="environment-name">{{this.text}}</div></div>
+                <div class="environment-container{{#if this.active}} active{{/if}}" title="{{this.text}}" data-environment-id="{{this.id}}"><img class="environment-control " src="{{this.icon}}" onerror="this.src = 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=';"><div class="environment-name">{{this.text}}</div></div>
                 {{/each}}
             </div>
+        </div>
+
+        <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
+            <div class="terrain-height {{this.heightclass}}" title="{{localize "EnhancedTerrainLayer.TerrainHeight"}}">{{this.height}} ft</div>
         </div>
     </div>
 
