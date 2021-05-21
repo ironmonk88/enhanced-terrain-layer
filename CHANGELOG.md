@@ -1,3 +1,12 @@
+# Version 1.0.27
+Fixing issue when attempting to move a terrain, but not really moving it would cause it to disappear.
+
+Added option to not show inactive terrain for the GM unless on the terrain layer.
+
+Changed some of the language to better describe what toggle switches do.
+
+Added option to create default terrain by double clicking
+
 # Version 1.0.26
 Fixing issue with determining token as difficult terrain on a gridless maps
 

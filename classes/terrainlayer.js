@@ -394,6 +394,7 @@ export class TerrainLayer extends PlaceablesLayer {
         }
 
         // Difference each update against existing data
+        let nonupdate = [];
         let updates = canvas.scene.data.terrain.reduce((arr, d) => {
             if (!pending.has(d._id)) return arr;
             let update = pending.get(d._id);
@@ -401,8 +402,11 @@ export class TerrainLayer extends PlaceablesLayer {
             // Diff the update against current data
             if (options.diff) {
                 update = diffObject(d, expandObject(update));
-                if (isObjectEmpty(update)) return arr;
                 update["_id"] = d._id;
+                if (isObjectEmpty(update)) {
+                    nonupdate.push(update);
+                    return arr;
+                }
             }
 
             // Call pre-update hooks to ensure the update is allowed to proceed
@@ -418,6 +422,17 @@ export class TerrainLayer extends PlaceablesLayer {
             arr.push(update);
             return arr;
         }, []);
+
+        //refresh any of the non-updates so that they don't disappear
+        if (nonupdate.length) {
+            for (let update of nonupdate) {
+                let terrain = this.placeables.find(t => { return t.id == update._id });
+                if (terrain != undefined)
+                    terrain.refresh();
+            }
+        }
+
+        //drop out of the function if nothing is being updated
         if (!updates.length) return [];
 
         let flags = {};
@@ -428,8 +443,9 @@ export class TerrainLayer extends PlaceablesLayer {
 
         this._costGrid = null;
 
-        canvas.scene.update(flags).then(() => {
+        return canvas.scene.update(flags).then(() => {
             this.updateTerrain(updates);
+            return updates;
         });
     }
 
@@ -515,6 +531,31 @@ export class TerrainLayer extends PlaceablesLayer {
         if (createState >= 1) {
             event.data.createState = 2;
             return this._onDragLeftDrop(event);
+        } else if (createState == 0 || createState == undefined) {
+            //add a default square
+            let gW = canvas.grid.w;
+            let gH = canvas.grid.h;
+            let id = makeid();
+            //let pos = canvas.grid.getSnappedPosition(event.data.origin.x, event.data.origin.y, 1);
+            let [tX, tY] = canvas.grid.grid.getGridPositionFromPixels(event.data.origin.x, event.data.origin.y);
+            let [gX, gY] = canvas.grid.grid.getPixelsFromGridPosition(tX, tY);
+
+            let points = [];
+            if (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || canvas.grid.type == CONST.GRID_TYPES.SQUARE)
+                points = [[0, 0], [gW, 0], [gW, gH], [0, gH], [0, 0]];
+            else if (canvas.grid.type == CONST.GRID_TYPES.HEXEVENR || canvas.grid.type == CONST.GRID_TYPES.HEXODDR) 
+                points = [[gW / 2, 0], [gW, gH * 0.25], [gW, gH * 0.75], [gW / 2, gH], [0, gH * 0.75], [0, gH * 0.25], [gW / 2, 0]];
+            else if (canvas.grid.type == CONST.GRID_TYPES.HEXEVENQ || canvas.grid.type == CONST.GRID_TYPES.HEXODDQ)
+                points = [[0, gH / 2], [gW * 0.25, 0], [gW * 0.75, 0], [gW, gH / 2], [gW * 0.75, gH], [gW * 0.25, gH], [0, gH / 2]];
+
+            this.createTerrain({
+                _id: id,
+                x: gX - (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? (gW / 2) : 0),
+                y: gY - (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? (gH / 2) : 0),
+                points: points,
+                width: gW,
+                height: gH
+            });
         }
 
         // Standard double-click handling

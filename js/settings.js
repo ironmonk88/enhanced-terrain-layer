@@ -61,6 +61,17 @@ export const registerSettings = function () {
 		default: true,
 		type: Boolean
 	});
+	game.settings.register(modulename, 'only-show-active', {
+		name: "EnhancedTerrainLayer.only-show-active.name",
+		hint: "EnhancedTerrainLayer.only-show-active.hint",
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean,
+		onChange: () => {
+			canvas.terrain.refresh();
+		}
+	});
 	game.settings.register(modulename, 'tokens-cause-difficult', {
 		name: "EnhancedTerrainLayer.tokens-cause-difficult.name",
 		hint: "EnhancedTerrainLayer.tokens-cause-difficult.hint",

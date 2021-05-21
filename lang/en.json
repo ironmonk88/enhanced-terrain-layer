@@ -2,7 +2,7 @@
   "EnhancedTerrainLayer.tool": "Terrain Layer",
   "EnhancedTerrainLayer.select": "Select Difficult Terrain",
   "EnhancedTerrainLayer.add": "Add Difficult Terrain",
-  "EnhancedTerrainLayer.onoff": "Enable/Disable Terrain",
+  "EnhancedTerrainLayer.onoff": "Toggle terrain always displayed",
   "EnhancedTerrainLayer.reset": "Reset Terrain",
   "EnhancedTerrainLayer.IncreaseCost": "Increase Cost",
   "EnhancedTerrainLayer.DecreaseCost": "Decrease Cost",
@@ -22,6 +22,7 @@
   "EnhancedTerrainLayer.ErrorCalculate": "Calculate function is undefined",
   "EnhancedTerrainLayer.Min": "Min",
   "EnhancedTerrainLayer.Max": "Max",
+  "EnhancedTerrainLayer.visibility": "Toggle Active State",
 
   "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",
@@ -35,6 +36,8 @@
   "EnhancedTerrainLayer.tokens-cause-difficult.hint": "When a token is dragged over another token, it's considered difficult terrain.",
   "EnhancedTerrainLayer.use-obstacles.name": "Use Additional Obstacles",
   "EnhancedTerrainLayer.use-obstacles.hint": "Allow the additional use of obstacles in combination with an environment.",
+  "EnhancedTerrainLayer.only-show-active.name": "Only show active terrain",
+  "EnhancedTerrainLayer.only-show-active.hint": "Hidden terrain will only be visible for the GM when the terrain tool is active.",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",

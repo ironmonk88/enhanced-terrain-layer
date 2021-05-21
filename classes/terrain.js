@@ -416,7 +416,7 @@ export class Terrain extends PlaceableObject {
         this.position.set(this.data.x, this.data.y);
         this.terrain.hitArea = bounds;
         this.alpha = 1;
-        this.visible = !this.data.hidden || game.user.isGM;
+        this.visible = !this.data.hidden || (game.user.isGM && (ui.controls.activeControl == 'terrain' || !setting('only-show-active')));
 
         return this;
     }
