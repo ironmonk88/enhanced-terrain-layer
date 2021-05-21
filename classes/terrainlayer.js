@@ -221,7 +221,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 }
             }
 
-			if (setting("tokens-cause-difficult")) {
+            if (setting("tokens-cause-difficult") && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS) {
 				//get the cost for walking through another creatures square
 				for (let token of canvas.tokens.placeables) {
 					if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation)) {
@@ -377,8 +377,10 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     deactivate() {
-        super.deactivate();
-        if (this.objects) this.objects.visible = true;
+        //if (this.objects) {
+            super.deactivate();
+            if (this.objects) this.objects.visible = true;
+        //}
     }
 
     async updateMany(data, options = {diff: true}) {

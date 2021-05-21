@@ -1,3 +1,10 @@
+# Version 1.0.26
+Fixing issue with determining token as difficult terrain on a gridless maps
+
+Fixing issue with the Terrain Config not updating the terrain to clients
+
+Fixing weird issue where deactivating the terrain was causing the objects array not to be populated.
+
 # Version 1.0.25
 Fixing issue with wrapping the AbilityTemplate.fromItem function
 

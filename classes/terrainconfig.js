@@ -63,6 +63,11 @@ export class TerrainConfig extends FormApplication {
             let data = duplicate(formData);
             data._id = this.object.id;
             data.multiple = (data.multiple == 0 ? 0.5 : parseInt(data.multiple));
+
+            if (game.user.isGM) {
+                game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data] });
+            }
+
             return this.object.update(data);
         }
         return this.object.constructor.create(formData);
