@@ -1,3 +1,6 @@
+# Version 1.0.28
+Support for Foundry 0.8.x
+
 # Version 1.0.27
 Fixing issue when attempting to move a terrain, but not really moving it would cause it to disappear.
 

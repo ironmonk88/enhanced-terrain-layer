@@ -7,7 +7,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 		title: game.i18n.localize('EnhancedTerrainLayer.tool'),
 		icon: 'fas fa-mountain',
 		visible: isGM,
-		layer: 'TerrainLayer',
+		layer: 'terrain',
 		activeTool: 'select',
 		flags: {
 			'enhanced-terrain-layer': { valid: true }
@@ -47,7 +47,7 @@ Hooks.on('getSceneControlButtons', (controls) => {
 	});
 });
 Hooks.on('renderSceneControls', (controls) => {
-	if (canvas != null) {
+	if (canvas != null && canvas.terrain) {
 		canvas.terrain.visible = (canvas.terrain.showterrain || controls.activeControl == 'terrain');
 
 		if (controls.activeControl == 'terrain') {

@@ -1,5 +1,8 @@
 import { TerrainLayer } from './classes/terrainlayer.js';
 import { TerrainHUD } from './classes/terrainhud.js';
+import { TerrainConfig } from './classes/terrainconfig.js';
+import { Terrain } from './classes/terrain.js';
+import { BaseTerrain, TerrainDocument } from './classes/terraindocument.js';
 import { registerSettings } from "./js/settings.js";
 
 export let debug = (...args) => {
@@ -20,16 +23,46 @@ export let setting = key => {
 };
 
 function registerLayer() {
-	const layers = mergeObject(Canvas.layers, {
-		terrain: TerrainLayer
-	});
-	Object.defineProperty(Canvas, 'layers', {
-		get: function () {
-			return layers;
-		}
-	});
+	CONFIG.Canvas.layers.terrain = TerrainLayer;
+	CONFIG.Terrain = {
+		documentClass: TerrainDocument,
+		layerClass: TerrainLayer,
+		sheetClass: TerrainConfig,
+		objectClass: Terrain
+	};
+
+	let oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
+	Scene.prototype.createEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.createDocuments(updates, context);
+		} else
+			return oldCreateEmbeddedDocuments.call(this, embeddedName, updates, context);
+	}
+
+	let oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
+	Scene.prototype.updateEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.updateDocuments(updates, context);
+		} else
+			return oldUpdateEmbeddedDocuments.call(this, embeddedName, updates, context);
+	}
+
+	let oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
+	Scene.prototype.deleteEmbeddedDocuments = async function (embeddedName, ids, context = {}) {
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.deleteDocuments(ids, context);
+		} else
+			return oldDeleteEmbeddedDocuments.call(this, embeddedName, ids, context);
+    }
 }
 
+/*
 async function checkUpgrade() {
 	let hasInformed = false;
 	let inform = function () {
@@ -65,7 +98,7 @@ async function checkUpgrade() {
 
 	if (hasInformed)
 		ui.notifications.info('TerrainLayer conversion complete.');
-}
+}*/
 
 export function makeid() {
 	var result = '';
@@ -95,9 +128,9 @@ function addControls(app, html) {
 		.append($('<div>')
 			.addClass('form-fields')
 			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Min")))
-			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.terraintype.min', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'terrainheight.min') || 0))
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.min', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'min') || 0))
 			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
-			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.terraintype.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'terrainheight.max') || 0))
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'max') || 0))
 			)
 			/*
 			.append($('<select>')
@@ -144,10 +177,11 @@ Hooks.on('canvasInit', () => {
 });
 
 Hooks.on('ready', () => {
+	/*
 	if (game.user.isGM && !setting('conversion')) {
 		checkUpgrade();
 		game.settings.set('enhanced-terrain-layer', 'conversion', true);
-	}
+	}*/
 
 	window.setTimeout(function () {
 		if (canvas.terrain.getObstacles != undefined && !canvas.terrain.updateObstacles) {
@@ -226,11 +260,10 @@ Hooks.on('init', async () => {
 			if (!template) {
 				return template;
 			}
-			let flags = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
-			if (flags) {
-				if (template.data.flags == undefined)
-					template.data.flags = {};
-				template.data.flags['enhanced-terrain-layer'] = flags;
+			let etldata = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
+			if (etldata) {
+				let data = { flags: { 'enhanced-terrain-layer': etldata }};
+				template.data.update(data);
 			}
 			return template;
 		}
@@ -253,9 +286,10 @@ Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
 	$(html).css({ height: height + 90});
 })
 
+/*
 Hooks.on('canvasReady', () => {
 	canvas.terrain._costGrid = null;
-});
+});*/
 
 Hooks.on("renderSceneConfig", (app, html, data) => {
 	let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();

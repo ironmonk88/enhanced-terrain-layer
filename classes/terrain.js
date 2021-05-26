@@ -52,7 +52,8 @@ export class Terrain extends PlaceableObject {
             hidden: false,
             points: [],
             multiple: this.layer.defaultmultiple,
-            terrainheight: {min:0, max:0},
+            min: 0,
+            max: 0,
             environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
             obstacle: null
         }
@@ -74,12 +75,21 @@ export class Terrain extends PlaceableObject {
     }
 
     get terraintype() {
-        debug('terraintype is deprecated, please use terrainheight');
+        debug('terraintype is deprecated, please use min/max');
         return '';
     }
 
     get terrainheight() {
-        return this.data.terrainheight || Terrain.defaults.terrainheight;
+        debug('terrainheight is deprecated, please use min/max');
+        return { min: this.min, max: this.max };
+    }
+
+    get min() {
+        return this.data.min || Terrain.defaults.min;
+    }
+
+    get max() {
+        return this.data.max || Terrain.defaults.max;
     }
 
     get color() {
@@ -96,7 +106,7 @@ export class Terrain extends PlaceableObject {
     }
 
     static async create(data, options) {
-
+        debugger;
         //super.create(data, options);
         //canvas.scene._data.terrain
         data._id = data._id || makeid();
@@ -139,29 +149,6 @@ export class Terrain extends PlaceableObject {
 
         //return this;
     }
-
-    _onDelete() {
-        //+++delete this.layer._controlled[this.id];
-        //+++if ( layer._hover === this ) layer._hover = null;
-    }
-
-    /* -------------------------------------------- */
-
-    /**
-     * Apply initial sanitizations to the provided input data to ensure that a Terrain has valid required attributes.
-     * @private
-     */
-    /*
-    _cleanData() {
-        if (this.data._id == undefined)
-            this.data._id = makeid();
-
-        if (isNaN(parseFloat(this.data.multiple)))
-            this.data.multiple = 2;
-        this.data.multiple = parseFloat(this.data.multiple);
-
-        this.data.flags = this.data.flags || {};
-    }*/
 
     /* -------------------------------------------- */
     /*  Properties                                  */
@@ -622,7 +609,7 @@ export class Terrain extends PlaceableObject {
         const updates = clones.map(c => {
             let dest = { x: c.data.x, y: c.data.y };
             if (!event.data.originalEvent.shiftKey) {
-                dest = canvas.grid.getSnappedPosition(c.data.x, c.data.y, this.layer.options.gridPrecision);
+                dest = canvas.grid.getSnappedPosition(c.data.x, c.data.y, this.layer.gridPrecision);
             }
 
             // Define the update
@@ -637,7 +624,11 @@ export class Terrain extends PlaceableObject {
             c._original.visible = false;
             return update;
         });
-        return this.layer.updateMany(updates);
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
+            for (let clone of clones) {
+                clone._original.visible = true;
+            }
+        });
     }
 
     /* -------------------------------------------- */
@@ -684,7 +675,7 @@ export class Terrain extends PlaceableObject {
     _onHandleMouseDown(event) {
         if (!this.data.locked) {
             this._dragHandle = true;
-            this._original = duplicate(this.data);
+            this._original = this.document.toJSON();
         }
     }
 
@@ -722,8 +713,7 @@ export class Terrain extends PlaceableObject {
         const dx = destination.x - origin.x;
         const dy = destination.y - origin.y;
         const update = this._rescaleDimensions(this._original, dx, dy);
-        mergeObject(this.data, update);
-
+        this.document.data.update(update);
         this.refresh();
     }
 
@@ -735,7 +725,7 @@ export class Terrain extends PlaceableObject {
      * @private
      */
     _onHandleDragDrop(event) {
-        let { destination, handle, origin, originalEvent } = event.data;
+        let { destination, origin, originalEvent } = event.data;
         if (!originalEvent.shiftKey) {
             destination = canvas.grid.getSnappedPosition(destination.x, destination.y, this.layer.gridPrecision);
         }
@@ -744,13 +734,14 @@ export class Terrain extends PlaceableObject {
         const dx = destination.x - origin.x;
         const dy = destination.y - origin.y;
         const update = this._rescaleDimensions(this._original, dx, dy);
+        this.document.data.update(update);
         this.resizing = false;
+        delete this._original;  //delete the original so that the drag cancel doesn't erase our changes.
 
         this._positionOverlay();
 
         // Commit the update
-        this.data = this._original;
-        return this.update(update);
+        return this.document.update(this.document.data, { diff: false });
     }
 
     /* -------------------------------------------- */
@@ -760,7 +751,8 @@ export class Terrain extends PlaceableObject {
      * @private
      */
     _onHandleDragCancel(event) {
-        this.data = this._original;
+        if (this._original)
+            this.document.data.update(this._original);
         this._dragHandle = false;
         delete this._original;
         this.refresh();
@@ -856,7 +848,7 @@ export class Terrain extends PlaceableObject {
             //updates['flags.enhanced-terrain-layer.terrain' + this.data._id + '.multiple'] = data.multiple;
             let key = `flags.enhanced-terrain-layer.terrain${this.data._id}`;
             await canvas.scene.update({ [key]: objectdata }, { diff: false });
-		canvas.terrain._costGrid = null;
+		    //canvas.terrain._costGrid = null;
         }
 
         if (data.environment != undefined)

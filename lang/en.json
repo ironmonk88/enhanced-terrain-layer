@@ -23,6 +23,7 @@
   "EnhancedTerrainLayer.Min": "Min",
   "EnhancedTerrainLayer.Max": "Max",
   "EnhancedTerrainLayer.visibility": "Toggle Active State",
+  "EnhancedTerrainLayer.terrain": "Terrain",
 
   "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",

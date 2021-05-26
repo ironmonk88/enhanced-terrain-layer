@@ -40,9 +40,10 @@ export class TerrainHUD extends BasePlaceableHUD {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
             cost: TerrainLayer.multipleText(this.object.multiple),
-            height: (this.object.terrainheight.min == this.object.terrainheight.max ? this.object.terrainheight.min : this.object.terrainheight.min + " - " + this.object.terrainheight.max),
-            heightclass: (this.object.terrainheight.min == this.object.terrainheight.max ? '' : 'smaller'),
-            terrainheight: this.object.terrainheight,
+            height: (this.object.min == this.object.max ? this.object.min : this.object.min + " - " + this.object.max),
+            heightclass: (this.object.min == this.object.max ? '' : 'smaller'),
+            min: this.object.min,
+            max: this.object.max,
             environment: this.object.environment,
             environments: _environments
         });
@@ -96,7 +97,7 @@ export class TerrainHUD extends BasePlaceableHUD {
             return { _id: o.id, environment: (id != this.object.data.environment ? id : '') };
         });
 
-        this.layer.updateMany(updates).then(() => {
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
             for (let terrain of this.layer.controlled) {
                 let data = updates.find(u => { return u._id == terrain.data._id });
                 terrain.update(data, { save: false }).then(() => {
@@ -129,7 +130,9 @@ export class TerrainHUD extends BasePlaceableHUD {
             idx = Math.clamped((increase ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
             return { _id: o.id, multiple: TerrainLayer.multipleOptions[idx] };
         });
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates);
 
+        /*
         this.layer.updateMany(updates).then(() => {
             for (let terrain of this.layer.controlled) {
                 let data = updates.find(u => { return u._id == terrain.data._id });
@@ -137,7 +140,7 @@ export class TerrainHUD extends BasePlaceableHUD {
                     $('.terrain-cost', this.element).html(String.fromCharCode(215) + this.object.multiple);
                 });
             }
-        });
+        });*/
 
         /*
         let mult = this.object.data.multiple;
@@ -150,39 +153,26 @@ export class TerrainHUD extends BasePlaceableHUD {
     async _onToggleVisibility(event) {
         event.preventDefault();
 
-        // Toggle the visible state
         const isHidden = this.object.data.hidden;
-        const updates = this.layer.controlled.map(o => {
-            return { _id: o.id, hidden: !isHidden };
-        });
 
-        // Update all objects
-        await this.layer.updateMany(updates).then(() => {
-            for (let terrain of this.layer.controlled) {
-                let data = updates.find(u => { return u._id == terrain.data._id });
-                terrain.update(data, { save: false });
-            }
-        });
         event.currentTarget.classList.toggle("active", !isHidden);
+
+        // Toggle the visible state
+        const updates = this.layer.controlled.map(o => { return { _id: o.id, hidden: !isHidden }; });
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates);
     }
 
     async _onToggleLocked(event) {
         event.preventDefault();
 
-        // Toggle the locked state
         const isLocked = this.object.data.locked;
-        const updates = this.layer.controlled.map(o => {
-            return { _id: o.id, locked: !isLocked };
-        });
 
-        // Update all objects
-        await this.layer.updateMany(updates).then(() => {
-            for (let terrain of this.layer.controlled) {
-                let data = updates.find(u => { return u._id == terrain.data._id });
-                terrain.update(data, { save: false });
-            }
-        });
         event.currentTarget.classList.toggle("active", !isLocked);
+
+        // Toggle the locked state
+        const updates = this.layer.controlled.map(o => { return { _id: o.id, locked: !isLocked }; });
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates);
+        
     }
 
     /* -------------------------------------------- */

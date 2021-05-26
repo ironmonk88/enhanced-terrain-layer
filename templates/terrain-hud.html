@@ -23,11 +23,11 @@
 
     <div class="col right" style="justify-content: center;">
         {{#if isGM}}
-        <div class="control-icon visibility {{visibilityClass}}">
+        <div class="control-icon {{visibilityClass}}" data-action="visibility">
             <img src="{{icons.visibility}}" width="36" height="36" title="{{localize "EnhancedTerrainLayer.visibility"}}">
         </div>
 
-        <div class="control-icon locked {{lockedClass}}">
+        <div class="control-icon {{lockedClass}}" data-action="locked">
             <img src="{{icons.lock}}" width="36" height="36" title="{{localize "HUD.ToggleLock"}}">
         </div>
 

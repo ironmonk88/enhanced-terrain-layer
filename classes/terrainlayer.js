@@ -1,7 +1,9 @@
 import { Terrain } from './terrain.js';
 import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
+import { TerrainDocument, TerrainData } from './terraindocument.js';
 import { makeid, log, error, i18n, setting } from '../terrain-main.js';
+import EmbeddedCollection from "/common/abstract/embedded-collection.mjs";
 
 /*export let terraintypes = key => {
     return canvas.terrain.getTerrainTypes();
@@ -22,6 +24,8 @@ export class TerrainLayer extends PlaceablesLayer {
         this.defaultmultiple = 2;
     }
 
+    static documentName = "Terrain";
+
     /** @override */
     static get layerOptions() {
         return mergeObject(super.layerOptions, {
@@ -35,6 +39,10 @@ export class TerrainLayer extends PlaceablesLayer {
         });
     }
 
+    getDocuments() {
+        return canvas.scene?.data.terrain || null;
+    }
+
     get gridPrecision() {
         let size = canvas.dimensions.size;
         if (size >= 128) return 16;
@@ -46,14 +54,6 @@ export class TerrainLayer extends PlaceablesLayer {
     static get multipleOptions() {
         return [0.5, 1, 2, 3, 4];
     }
-
-    /*
-    getTerrainTypes() {
-        return [
-            { id: 'ground', text: 'EnhancedTerrainLayer.terraintype.ground' },
-            { id: 'air', text: 'EnhancedTerrainLayer.terraintype.air' },
-            { id: 'both', text: 'EnhancedTerrainLayer.terraintype.both' }];
-    }*/
 
     getEnvironments() {
         let environments = [
@@ -81,16 +81,6 @@ export class TerrainLayer extends PlaceablesLayer {
 
         return environments;
     }
-    /*
-    getObstacles() {
-        return [
-            { id: 'crowd', text: 'EnhancedTerrainLayer.obstacle.crowd', icon: 'modules/enhanced-terrain-layer/img/environment/crowd.png' },
-            { id: 'current', text: 'EnhancedTerrainLayer.obstacle.current', icon: 'modules/enhanced-terrain-layer/img/environment/current.png' },
-            { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'modules/enhanced-terrain-layer/img/environment/magic.png' },
-            { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'modules/enhanced-terrain-layer/img/environment/plants.png' },
-            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png' }
-        ];
-    }*/
 
     static multipleText(multiple) {
         return (parseInt(multiple) == 0 || parseInt(multiple) == 0.5 ? '&frac12;' : multiple);
@@ -98,7 +88,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
 /* -------------------------------------------- */
     //Remove once moved off TerrainLayer
-    get costGrid() {
+    /*get costGrid() {
         console.warn('costGrid is deprecated, please use the cost function instead');
         if (this._costGrid == undefined) {
             this.buildCostGrid(canvas.terrain.placeables);
@@ -108,7 +98,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
     get highlight() {
         return { children: [{visible: false}] };
-    }
+    }*/
 
 /* -------------------------------------------- */
 
@@ -164,7 +154,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = (gy + hy) - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
-                    !(elevation < terrain.data.terrainheight.min || elevation > terrain.data.terrainheight.max) &&
+                    !(elevation < terrain.data.min || elevation > terrain.data.max) &&
                     terrain.shape.contains(testX, testY)) {
                     let detail = {object:terrain};
                     let terraincost = terrain.cost(options);
@@ -195,12 +185,13 @@ export class TerrainLayer extends PlaceablesLayer {
                 let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
                 if (terrainFlag) {
                     let terraincost = terrainFlag.multiple || 2;
-                    let terrainheight = terrainFlag.terrainheight || { min: 0, max: 0 };
+                    let terrainmin = terrainFlag.min || Terrain.defaults.min; //{ min: 0, max: 0 };
+                    let terrainmax = terrainFlag.max || Terrain.defaults.max;
                     let environment = terrainFlag.environment || '';
                     let obstacle = terrainFlag.obstacle || '';
                     if (terraincost &&
                         !options.ignore?.includes(environment) &&
-                        !(elevation < terrainheight.min || elevation > terrainheight.max) &&
+                        !(elevation < terrainmin || elevation > terrainmax) &&
                         measure.shape.contains(testX, testY)) {
 
                         let detail = { object: measure, cost: terraincost };
@@ -278,26 +269,33 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     async draw() {
-        canvas.scene.data.terrain = [];
+        canvas.scene.data.terrain = new EmbeddedCollection(canvas.scene.data, [], Terrain);
         let etl = canvas.scene.data.flags['enhanced-terrain-layer'];
         if (etl) {
             for (let [k, v] of Object.entries(etl)) {
                 if (k.startsWith('terrain')) {
-                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined) {
+                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined && v._id != undefined && v.points != undefined) {
+                        //lets correct any changes
+                        let change = false;
                         if (v.environment == '' && v.obstacle != '') {
                             v.environment = v.obstacle;
                             v.obstacle = '';
+                            change = true;
                         }
-                        if (v.terrainheight == undefined) {
-                            if (v.terraintype == 'ground' || v.terraintype == undefined)
-                                v.terrainheight = { min: 0, max: 0 };
-                            else if (v.terraintype == 'both')
-                                v.terrainheight = { min: 0, max: 100 };
-                            else if (v.terraintype == 'air')
-                                v.terrainheight = { min: 5, max: 100 };
+                        if (v.min == undefined || v.max == undefined) {
+                            if (v.terrainheight != undefined && typeof v.terrainheight === 'string')
+                                v.terrainheight = JSON.parse(v.terrainheight);
+                            v.min = (v.terrainheight != undefined ? v.terrainheight.min : (v.terraintype == 'air' ? 5 : 0)) || 0;
+                            v.max = (v.terrainheight != undefined ? v.terrainheight.max : (v.terraintype == 'air' || v.terraintype == 'both' ? 100 : 0)) || 0;
+                            change = true;
                         }
-                        if (v.points != undefined)
-                            canvas.scene.data.terrain.push(v);
+
+                        if (change)
+                            await canvas.scene.setFlag('enhanced-terrain-layer', k, v);
+
+                        //add this the the terrain collection
+                        let document = new TerrainDocument(v, { parent: canvas.scene });
+                        canvas.scene.data.terrain.set(v._id, document);
                     }
                     else
                         await canvas.scene.unsetFlag('enhanced-terrain-layer', k);
@@ -319,17 +317,18 @@ export class TerrainLayer extends PlaceablesLayer {
         // Create preview container which is always above objects
         this.preview = this.addChild(new PIXI.Container());
 
-        // Create and draw objects
-        const promises = canvas.scene.data.terrain.map(data => {
-            const obj = this.createObject(data);
-            return obj.draw();
-        });
+        const documents = this.getDocuments();
+        const promises = documents.map(doc => {
+            return doc.object.draw();
+        })
 
         // Wait for all objects to draw
         this.visible = true;
-        return Promise.all(promises || []);
+        await Promise.all(promises);
+        return this;
     }
 
+    /*
     async buildCostGrid(data) {
         this._costGrid = {};
         for (let terrain of data) {
@@ -362,7 +361,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 }
             }
         }
-    }
+    }*/
 
     async toggle(show, emit = false) {
         if (show == undefined)
@@ -383,6 +382,7 @@ export class TerrainLayer extends PlaceablesLayer {
         //}
     }
 
+    /*
     async updateMany(data, options = {diff: true}) {
         const user = game.user;
 
@@ -447,8 +447,8 @@ export class TerrainLayer extends PlaceablesLayer {
             this.updateTerrain(updates);
             return updates;
         });
-    }
-
+    }*/
+    /*
     updateTerrain(data, options) {
         data = data instanceof Array ? data : [data];
         for (let update of data) {
@@ -460,10 +460,10 @@ export class TerrainLayer extends PlaceablesLayer {
             game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data]});
         }
     }
-
+    */
+    /*
     async deleteMany(ids, options = {}) {
         //+++ need to update this to only respond to actual deletions
-
         let updates = {};
         let originals = [];
         for (let id of ids) {
@@ -489,7 +489,7 @@ export class TerrainLayer extends PlaceablesLayer {
         this._costGrid = null;
 
         canvas.scene.update(updates);
-    }
+    }*/
 
     _getNewTerrainData(origin) {
         const data = mergeObject(Terrain.defaults, {
@@ -535,7 +535,7 @@ export class TerrainLayer extends PlaceablesLayer {
             //add a default square
             let gW = canvas.grid.w;
             let gH = canvas.grid.h;
-            let id = makeid();
+
             //let pos = canvas.grid.getSnappedPosition(event.data.origin.x, event.data.origin.y, 1);
             let [tX, tY] = canvas.grid.grid.getGridPositionFromPixels(event.data.origin.x, event.data.origin.y);
             let [gX, gY] = canvas.grid.grid.getPixelsFromGridPosition(tX, tY);
@@ -548,14 +548,17 @@ export class TerrainLayer extends PlaceablesLayer {
             else if (canvas.grid.type == CONST.GRID_TYPES.HEXEVENQ || canvas.grid.type == CONST.GRID_TYPES.HEXODDQ)
                 points = [[0, gH / 2], [gW * 0.25, 0], [gW * 0.75, 0], [gW, gH / 2], [gW * 0.75, gH], [gW * 0.25, gH], [0, gH / 2]];
 
-            this.createTerrain({
-                _id: id,
+            const data = mergeObject(Terrain.defaults, {
                 x: gX - (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? (gW / 2) : 0),
                 y: gY - (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? (gH / 2) : 0),
                 points: points,
                 width: gW,
                 height: gH
             });
+
+            const document = new TerrainDocument(data, { parent: canvas.scene });
+
+            this.createTerrain(document.data);
         }
 
         // Standard double-click handling
@@ -568,10 +571,11 @@ export class TerrainLayer extends PlaceablesLayer {
     _onDragLeftStart(event) {
         super._onDragLeftStart(event);
         const data = this._getNewTerrainData(event.data.origin);
-        const terrain = new Terrain(data);
 
+        const document = new TerrainDocument(data, { parent: canvas.scene });
+        const terrain = new Terrain(document);
         event.data.preview = this.preview.addChild(terrain);
-        terrain.draw();
+        return terrain.draw();
     }
 
     /* -------------------------------------------- */
@@ -667,8 +671,10 @@ export class TerrainLayer extends PlaceablesLayer {
         event.data.coords = coords;
     }*/
 
-    pasteObjects(position, { hidden = false, snap = true } = {}) {
+    async pasteObjects(position, { hidden = false, snap = true } = {}) {
         if (!this._copy.length) return [];
+        const cls = this.constructor.placeableClass;
+        const d = canvas.dimensions;
 
         // Adjust the pasted position for half a grid space
         if (snap) {
@@ -683,33 +689,39 @@ export class TerrainLayer extends PlaceablesLayer {
         // Iterate over objects
         const toCreate = [];
         for (let c of this._copy) {
-            let data = duplicate(c.data);
-            let dest = { x: position.x + (data.x - x), y: position.y + (data.y - y) };
-            if (snap) dest = canvas.grid.getSnappedPosition(dest.x, dest.y);
+            let data = c.document.toObject();
             delete data._id;
-            toCreate.push(Terrain.normalizeShape(mergeObject(data, {
+
+            // Constrain the destination position
+            let dest = { x: position.x + (data.x - x), y: position.y + (data.y - y) };
+            dest.x = Math.clamped(dest.x, 0, d.width - 1);
+            dest.y = Math.clamped(dest.y, 0, d.height - 1);
+            if (snap) dest = canvas.grid.getSnappedPosition(dest.x, dest.y);
+
+            let document = new TerrainDocument(Terrain.normalizeShape(mergeObject(data, {
                 x: dest.x,
                 y: dest.y,
                 hidden: data.hidden || hidden
-            })));
+            })), { parent: canvas.scene });
+            toCreate.push(document.data);
         }
 
         // Call paste hooks
-        Hooks.call(`pasteTerrain`, this._copy, toCreate);
+        Hooks.call(`paste${cls.name}`, this._copy, toCreate);
 
-        // Create the object
-        let created = toCreate.map((data) => {
-            return Terrain.create(data).then(d => {
-                d._creating = true;
-                if (game.user.isGM) {
-                    game.socket.emit('module.enhanced-terrain-layer', { action: '_createTerrain', arguments: [data] });
-                }
-            });
-        });
+        let created = await canvas.scene.createEmbeddedDocuments(this.constructor.documentName, toCreate);
+        ui.notifications.info(`Pasted data for ${toCreate.length} ${this.constructor.documentName} objects.`);
 
-        ui.notifications.info(`Pasted data for ${toCreate.length} Terrain objects.`);
-        created = created instanceof Array ? created : [created];
-        return created.map(c => this.get(c._id));
+        /*
+        for (let terrain of created) {
+            if (terrain.document._object == undefined) {
+                terrain.document._object = new Terrain(terrain.document);
+                canvas.terrain.objects.addChild(terrain.document._object);
+                terrain.document._object.draw();
+            }
+        }*/
+
+        return created;
     }
 
     /*
@@ -743,35 +755,52 @@ export class TerrainLayer extends PlaceablesLayer {
     }*/
 
     createTerrain(data) {
-        data = mergeObject(Terrain.defaults, data);
+        //data = mergeObject(Terrain.defaults, data);
         const createData = Terrain.normalizeShape(data);
 
+        const cls = getDocumentClass("Terrain");
+
         // Create the object
-        Terrain.create(createData).then(d => {
+        return cls.create(createData, { parent: canvas.scene }); /*.then(d => {
             d._creating = true;
-            if (game.user.isGM) {
-                game.socket.emit('module.enhanced-terrain-layer', { action: '_createTerrain', arguments: [createData] });
+            if (d.document._object == undefined) {
+                d.document._object = new Terrain(d.document);
+                canvas.terrain.objects.addChild(d.document._object);
+                d.document._object.draw();
             }
-        });
+            return d;
+        });*/
     }
 
 
     //This is used for players, to add an remove on the fly
     _createTerrain(data, options = {}) {
+        let toCreate = data.map(d => new TerrainData(d));
+        TerrainDocument.createDocuments(toCreate, { parent: canvas.scene });
+
+        /*
+        let toCreate = data.map(d => {
+            const document = new TerrainDocument(d, { parent: canvas.scene });
+            return document.data;
+        });
+
+        TerrainDocument.createDocuments();
+
         let userId = game.user._id;
         let object = canvas.terrain.createObject(data);
         object._onCreate(options, userId);
-        canvas.scene.data.terrain.push(data);
+        canvas.scene.data.terrain.push(data);*/
     }
 
-    _deleteTerrain(id, options = {}) {
-        const object = this.get(id);
-        this.objects.removeChild(object);
-        object._onDelete(options, game.user.id);
-        object.destroy({ children: true });
-        canvas.scene.data.terrain.findSplice(t => { return t._id == id; });
+    _updateTerrain(data, options = {}) {
+        TerrainDocument.updateDocuments(data, { parent: canvas.scene });
     }
 
+    _deleteTerrain(ids, options = {}) {
+        TerrainDocument.deleteDocuments(ids, { parent: canvas.scene });
+    }
+
+    //refresh all the terrain on this layer
     refresh(icons) {
         for (let terrain of this.placeables) {
             terrain.refresh(icons);

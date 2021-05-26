@@ -1,14 +1,15 @@
 import { TerrainLayer } from './terrainlayer.js';
+import { TerrainDocument } from './terraindocument.js';
 import { log, setting, i18n} from '../terrain-main.js';
 
-export class TerrainConfig extends FormApplication {
+export class TerrainConfig extends DocumentSheet {
 
     /** @override */
     static get defaultOptions() {
         return mergeObject(super.defaultOptions, {
             id: "terrain-config",
             classes: ["sheet", "terrain-sheet"],
-            title: i18n("EnhancedTerrainLayer.Configuration"),
+            //title: i18n("EnhancedTerrainLayer.Configuration"),
             template: "modules/enhanced-terrain-layer/templates/terrain-config.html",
             width: 400,
             submitOnChange: true
@@ -59,18 +60,16 @@ export class TerrainConfig extends FormApplication {
     /** @override */
     async _updateObject(event, formData) {
         if (!game.user.isGM) throw "You do not have the ability to configure a Terrain object.";
-        if (this.object.id) {
-            let data = duplicate(formData);
-            data._id = this.object.id;
-            data.multiple = (data.multiple == 0 ? 0.5 : parseInt(data.multiple));
 
+        let data = expandObject(formData);
+        if (this.document.id) {
+            /*
             if (game.user.isGM) {
                 game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data] });
-            }
-
-            return this.object.update(data);
+            }*/
+            return this.document.update(data);
         }
-        return this.object.constructor.create(formData);
+        return this.document.constructor.create(data);
     }
 
     activateListeners(html) {
