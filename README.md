@@ -18,7 +18,11 @@ And it will also calculate other tokens so that when you're moving through anoth
 
 Terrain Layer can either be shown all the time, or hidden until a token is selected and dragged across the screen.  This can be changed using the Enable/Disable Terrain button with the other terrain controls.
 
-You can also set blocks of Terrain to be shown or not shown, so if the difficult terrain is only temporary or conditional you can control it.
+You can also set blocks of Terrain to be active or not active, so if the difficult terrain is only temporary or conditional you can control it.
+
+You can also set the environment that the difficult terrain represents.  So if you have water, or rocks, or arctic tundra you can record this information.  If you have a system that allows characters to ignore difficult terrain of a certain type, and a ruler that supports checking on this, then it can be added to the calculations.
+
+You can set the color of the terrain, on an individual basis, a default colour for that environment, a default for the scene, or a general color.
 
 ## Coding
 For those who are developing Rulers based on the Enhanced Terrain Layer, to get access to the difficulty cost of terrain grid you call the cost function.

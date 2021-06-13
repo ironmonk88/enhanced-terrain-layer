@@ -17,6 +17,7 @@ export class TerrainData extends DocumentData {
             multiple: fields.NUMERIC_FIELD,
             min: fields.NUMERIC_FIELD,
             max: fields.NUMERIC_FIELD,
+            drawcolor: fields.STRING_FIELD,
             environment: fields.STRING_FIELD,
             obstacle: fields.STRING_FIELD,
             flags: fields.OBJECT_FIELD

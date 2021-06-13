@@ -12,7 +12,7 @@ export class TerrainConfig extends DocumentSheet {
             //title: i18n("EnhancedTerrainLayer.Configuration"),
             template: "modules/enhanced-terrain-layer/templates/terrain-config.html",
             width: 400,
-            submitOnChange: true
+            submitOnChange: false
         });
     }
 
@@ -53,6 +53,7 @@ export class TerrainConfig extends DocumentSheet {
             let val = $(event.target).val();
             $(event.target).next().html(TerrainLayer.multipleText(val));
         }
+        super._onChangeInput.call(this, event);
     }
 
     /* -------------------------------------------- */

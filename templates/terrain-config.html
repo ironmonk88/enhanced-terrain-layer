@@ -30,6 +30,12 @@
         </div>
     </div>
     <div class="form-group">
+        <label for="drawcolor">{{localize "EnhancedTerrainLayer.TerrainColor"}}</label>
+        <div class="form-fields">
+            {{ colorPicker name="drawcolor" value=object.drawcolor}}
+        </div>
+    </div>
+    <div class="form-group">
         <label for="terrainheight">{{localize "EnhancedTerrainLayer.TerrainHeight"}}</label>
         <div class="form-fields" style="position:relative;">
             <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Min"}}</label>

@@ -93,7 +93,7 @@ export class Terrain extends PlaceableObject {
     }
 
     get color() {
-        return setting('environment-color')[this.environment?.id] || this.environment?.color || canvas.scene.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
+        return this.data.drawcolor || setting('environment-color')[this.environment?.id] || this.environment?.color || canvas.scene.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
     }
 
     /*

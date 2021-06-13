@@ -1,3 +1,8 @@
+# Version 1.0.29
+Fixed issue with the config dialog
+
+Added option to set the color for individual terrain
+
 # Version 1.0.28
 Support for Foundry 0.8.x
 
