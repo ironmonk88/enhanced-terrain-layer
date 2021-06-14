@@ -26,7 +26,7 @@ You can set the color of the terrain, on an individual basis, a default colour f
 
 ## Coding
 For those who are developing Rulers based on the Enhanced Terrain Layer, to get access to the difficulty cost of terrain grid you call the cost function.
-`canvas.terrrain.cost(pts, options);`
+`canvas.terrain.cost(pts, options);`
 pts can be a single object {x: 0, y:0}, or an array of point objects.
 options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terrain layer know certain things about what you're asking for.
 
@@ -37,7 +37,7 @@ options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terra
 - calculate - this is how you'd like the cost to be calculated.  default is 'maximum', which returns the highest value found while looking through all terrains.  you can also pass in 'additive' if you want all costs to be added together.  And if neither of those work, you can pass your own function in to make the final calculation `calculate(cost, total, object)` with cost being the current cost and total being the running total so far and object being either the terrain, measure, or token that's caused the difficult terrain.
 - verbose - setting this to true will return an object with 'cost' set to the total cost and 'details' as an array of all terrain object found.
 
-A list of Terrain Environments can be found by calling canvas.terrain.environment(); and can be overridden if the environments in your game differ.
+A list of Terrain Environments can be found by calling `canvas.terrain.getEnvironments();` and can be overridden if the environments in your game differ.
 
 if you need to find the terrain at a certain grid co-ordinate you can call `canvas.terrain.terrainAt(x, y);`  This is useful if you want to determine if the terrain in question is water, and use the swim speed instead of walking speed to calculate speed.
 
