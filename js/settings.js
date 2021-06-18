@@ -80,6 +80,14 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean
 	});
+	game.settings.register(modulename, 'dead-cause-difficult', {
+		name: "EnhancedTerrainLayer.dead-cause-difficult.name",
+		hint: "EnhancedTerrainLayer.dead-cause-difficult.hint",
+		scope: "world",
+		config: true,
+		default: false,
+		type: Boolean
+	});
 	game.settings.register(modulename, 'use-obstacles', {
 		name: "EnhancedTerrainLayer.use-obstacles.name",
 		hint: "EnhancedTerrainLayer.use-obstacles.hint",

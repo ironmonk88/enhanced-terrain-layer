@@ -45,6 +45,8 @@
   "EnhancedTerrainLayer.minimum-cost.hint": "Minimum cost you can set difficult terrain to",
   "EnhancedTerrainLayer.maximum-cost.name": "Maximum Cost",
   "EnhancedTerrainLayer.maximum-cost.hint": "Maximum cost you can set difficult terrain to",
+  "EnhancedTerrainLayer.dead-cause-difficult.name": "Dead cause difficult terrain",
+  "EnhancedTerrainLayer.dead-cause-difficult.hint": "Dead tokens cause difficult terrain",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",

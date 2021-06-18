@@ -214,8 +214,9 @@ export class TerrainLayer extends PlaceablesLayer {
 
             if (setting("tokens-cause-difficult") && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS) {
 				//get the cost for walking through another creatures square
-				for (let token of canvas.tokens.placeables) {
-					if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation)) {
+                for (let token of canvas.tokens.placeables) {
+                    let dead = token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId);
+                    if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation) && (!dead || setting("dead-cause-difficult"))) {
 						const testX = (gx + hx);
 						const testY = (gy + hy);
 						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
