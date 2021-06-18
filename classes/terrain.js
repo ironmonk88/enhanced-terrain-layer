@@ -162,7 +162,7 @@ export class Terrain extends PlaceableObject {
     async draw() {
         this.clear();
 
-        let mult = Math.clamped(this.data.multiple, 0.5, 4);
+        let mult = Math.clamped(this.data.multiple, setting('minimum-cost'), setting('maximum-cost'));
         this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${mult}x.svg`) : null);
 
         this.updateEnvironment();
@@ -214,7 +214,7 @@ export class Terrain extends PlaceableObject {
         }
         let s = canvas.dimensions.size;
         let fontsize = (s / 3);
-        let mult = Math.clamped(this.data.multiple, 0.5, 4);
+        let mult = Math.clamped(this.data.multiple, setting('minimum-cost'), setting('maximum-cost'));
 
         const stroke = Math.max(Math.round(fontsize / 32), 2);
 

@@ -88,6 +88,22 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean
 	});
+	game.settings.register(modulename, 'minimum-cost', {
+		name: "EnhancedTerrainLayer.minimum-cost.name",
+		hint: "EnhancedTerrainLayer.minimum-cost.hint",
+		scope: "world",
+		config: false,
+		default: 0.5,
+		type: Number
+	});
+	game.settings.register(modulename, 'maximum-cost', {
+		name: "EnhancedTerrainLayer.maximum-cost.name",
+		hint: "EnhancedTerrainLayer.maximum-cost.hint",
+		scope: "world",
+		config: false,
+		default: 4,
+		type: Number
+	});
 	game.settings.register(modulename, 'showterrain', {
 		scope: "world",
 		config: false,

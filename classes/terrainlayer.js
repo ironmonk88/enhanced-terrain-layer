@@ -2,7 +2,7 @@ import { Terrain } from './terrain.js';
 import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { TerrainDocument, TerrainData } from './terraindocument.js';
-import { makeid, log, error, i18n, setting } from '../terrain-main.js';
+import { makeid, log, debug, warn, error, i18n, setting } from '../terrain-main.js';
 import EmbeddedCollection from "/common/abstract/embedded-collection.mjs";
 
 /*export let terraintypes = key => {
@@ -248,6 +248,8 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     terrainAt(x, y) {
+        warn('terrainAt is deprecated and will be removed, please use terrainFromGrid or terrainFromPixels instead');
+        /*
         const hx = canvas.grid.w / 2;
         const hy = canvas.grid.h / 2;
         let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(y, x);
@@ -258,7 +260,29 @@ export class TerrainLayer extends PlaceablesLayer {
         });
 
         return terrains;
+        */
+        return this.terrainFromGrid(x, y);
     }
+
+    terrainFromGrid(x, y) {
+        let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(y, x);
+        return this.terrainFromPixels(gx, gy);
+    }
+
+    terrainFromPixels(x, y) {
+        const hx = (x + (canvas.grid.w / 2));
+        const hy = (y + (canvas.grid.h / 2));
+
+        let terrains = this.placeables.filter(t => {
+            const testX = hx - t.data.x;
+            const testY = hy - t.data.y;
+            return t.shape.contains(testX, testY);
+        });
+
+        return terrains;
+    }
+
+
 
     /**
      * Tile objects on this layer utilize the TileHUD

@@ -24,6 +24,8 @@
   "EnhancedTerrainLayer.Max": "Max",
   "EnhancedTerrainLayer.visibility": "Toggle Active State",
   "EnhancedTerrainLayer.terrain": "Terrain",
+  "EnhancedTerrainLayer.Inactive": "Inactive",
+  "EnhancedTerrainLayer.Locked": "Locked",
 
   "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",
@@ -39,6 +41,10 @@
   "EnhancedTerrainLayer.use-obstacles.hint": "Allow the additional use of obstacles in combination with an environment.",
   "EnhancedTerrainLayer.only-show-active.name": "Only show active terrain",
   "EnhancedTerrainLayer.only-show-active.hint": "Hidden terrain will only be visible for the GM when the terrain tool is active.",
+  "EnhancedTerrainLayer.minimum-cost.name": "Minimum Cost",
+  "EnhancedTerrainLayer.minimum-cost.hint": "Minimum cost you can set difficult terrain to",
+  "EnhancedTerrainLayer.maximum-cost.name": "Maximum Cost",
+  "EnhancedTerrainLayer.maximum-cost.hint": "Maximum cost you can set difficult terrain to",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",

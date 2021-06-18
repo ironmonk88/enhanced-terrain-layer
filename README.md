@@ -39,7 +39,7 @@ options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terra
 
 A list of Terrain Environments can be found by calling `canvas.terrain.getEnvironments();` and can be overridden if the environments in your game differ.
 
-if you need to find the terrain at a certain grid co-ordinate you can call `canvas.terrain.terrainAt(x, y);`  This is useful if you want to determine if the terrain in question is water, and use the swim speed instead of walking speed to calculate speed.
+if you need to find the terrain at a certain grid co-ordinate you can call `canvas.terrain.terrainFromGrid(x, y);` or `canvas.terrain.terrainFromPixels(x, y);`.  This is useful if you want to determine if the terrain in question is water, and use the swim speed instead of walking speed to calculate speed.
 
 ## Credit
 The orginal idea came from the Terrain Layer module.  But in the process of re-developing it I realised that none of the original code remained.  This is why I branched out into a new module.  But I want to give credit to the original author Will Saunders.
