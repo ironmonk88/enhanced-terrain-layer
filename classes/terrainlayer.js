@@ -123,8 +123,8 @@ export class TerrainLayer extends PlaceablesLayer {
         let total = 0;
         pts = pts instanceof Array ? pts : [pts];
 
-        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? 0 : canvas.grid.w / 2);
-        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? 0 : canvas.grid.h / 2);
+        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.w / 2);
+        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.h / 2);
 
         let calculate = options.calculate || 'maximum';
         let calculateFn;
@@ -143,15 +143,18 @@ export class TerrainLayer extends PlaceablesLayer {
 
         for (let pt of pts) {
             let cost = null;
-            let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
+            let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
 
             let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
             let tokenId = options.tokenId || options?.token?.id;
 
+            let tx = (gx + hx);
+            let ty = (gy + hy);
+
             //get the cost for the terrain layer
             for (let terrain of this.placeables) {
-                const testX = (gx + hx) - terrain.data.x;
-                const testY = (gy + hy) - terrain.data.y;
+                const testX = tx - terrain.data.x;
+                const testY = ty - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
                     !(elevation < terrain.data.min || elevation > terrain.data.max) &&
@@ -180,8 +183,8 @@ export class TerrainLayer extends PlaceablesLayer {
 
             //get the cost for any measured templates, ie spells
             for (let measure of canvas.templates.placeables) {
-                const testX = (gx + hx) - measure.data.x;
-                const testY = (gy + hy) - measure.data.y;
+                const testX = tx - measure.data.x;
+                const testY = ty - measure.data.y;
                 let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
                 if (terrainFlag) {
                     let terraincost = terrainFlag.multiple || 2;
@@ -217,8 +220,8 @@ export class TerrainLayer extends PlaceablesLayer {
                 for (let token of canvas.tokens.placeables) {
                     let dead = token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId);
                     if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation) && (!dead || setting("dead-cause-difficult"))) {
-						const testX = (gx + hx);
-						const testY = (gy + hy);
+						const testX = tx;
+						const testY = ty;
 						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
                             let terraincost = 2;
                             let detail = { object: token, cost: terraincost };
@@ -829,6 +832,13 @@ export class TerrainLayer extends PlaceablesLayer {
     refresh(icons) {
         for (let terrain of this.placeables) {
             terrain.refresh(icons);
+        }
+    }
+
+    //refresh all the terrain on this layer
+    redraw() {
+        for (let terrain of this.placeables) {
+            terrain.draw();
         }
     }
 }

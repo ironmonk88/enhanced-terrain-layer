@@ -1,0 +1,15 @@
+<svg id="icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" width="120" height="120">
+	<g transform="translate(0,0)" style="touch-action: none;" stroke="#ffffff" stroke-opacity="0.7" stroke-width="30">
+		<line y1="0" x1="20" y2="120" x2="20" />
+		<line y1="0" x1="60" y2="120" x2="60" />
+		<line y1="0" x1="100" y2="120" x2="100" />
+	</g>
+	<g stroke="#ffffff" stroke-opacity="1" stroke-width="2">
+		<line y1="0" x1="5" y2="120" x2="5" />
+		<line y1="0" x1="35" y2="120" x2="35" />
+		<line y1="0" x1="45" y2="120" x2="45" />
+		<line y1="0" x1="75" y2="120" x2="75" />
+		<line y1="0" x1="85" y2="120" x2="85" />
+		<line y1="0" x1="115" y2="120" x2="115" />
+	</g>
+</svg>

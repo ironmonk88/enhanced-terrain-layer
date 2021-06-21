@@ -1,3 +1,10 @@
+#Version 1.0.31
+Added option to ignore snap to grid when calculating cost
+
+Added option to not show border
+
+Added option to change the picture shown
+
 #Version 1.0.30
 Split terrainAt into two functions terrainFromPixel and terrainFromGrid to make it more understandable.
 

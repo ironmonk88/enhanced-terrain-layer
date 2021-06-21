@@ -163,7 +163,8 @@ export class Terrain extends PlaceableObject {
         this.clear();
 
         let mult = Math.clamped(this.data.multiple, setting('minimum-cost'), setting('maximum-cost'));
-        this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${mult}x.svg`) : null);
+        let image = setting('terrain-image');
+        this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${image}${mult}x.svg`) : null);
 
         this.updateEnvironment();
 
@@ -321,7 +322,7 @@ export class Terrain extends PlaceableObject {
 
     /** @override */
     refresh(icons) {
-        if (this._destroyed || this.drawing._destroyed) return;
+        if (this._destroyed || this.drawing?._destroyed || this.drawing == undefined) return;
 
         this.drawing.clear();
 
@@ -331,15 +332,15 @@ export class Terrain extends PlaceableObject {
         //const colors = CONFIG.Canvas.dispositionColors;
         let sc = colorStringToHex(this.color); //this.data.hidden ? colorStringToHex("#C0C0C0") : 
         let lStyle = new PIXI.LineStyle();
-        mergeObject(lStyle, { width: s / 20, color: sc, alpha: 1, cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND, visible: true });
+        mergeObject(lStyle, { width: s / 20, color: sc, alpha: (setting('draw-border') ? 1 : 0), cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND, visible: true });
         this.drawing.lineStyle(lStyle);
 
         let drawAlpha = (ui.controls.activeControl == 'terrain' ? 1.0 : setting('opacity')); //this.data.hidden ? 0.5
 
         // Fill Color or Texture
         if (this.texture) {
-            let sW = (canvas.grid.w / (this.texture.width * 2));
-            let sH = (canvas.grid.h / (this.texture.height * 2));
+            let sW = (canvas.grid.w / (this.texture.width * (setting('terrain-image') == 'diagonal' ? 2 : 1)));
+            let sH = (canvas.grid.h / (this.texture.height * (setting('terrain-image') == 'diagonal' ? 2 : 1)));
             this.drawing.beginTextureFill({
                 texture: this.texture,
                 color: sc,

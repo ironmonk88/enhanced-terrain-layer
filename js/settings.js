@@ -3,6 +3,15 @@ import { TerrainColor } from "../classes/terraincolor.js";
 export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
 
+	let imageoptions = {
+		'solid': 'Solid',
+		'diagonal': 'Diagonal',
+		'oldschool': 'Old School',
+		'triangle': 'Triangle',
+		'horizontal': 'Horizontal',
+		'vertical': 'Vertical'
+	};
+
 	game.settings.registerMenu(modulename, 'edit-colors', {
 		name: 'Edit Colors',
 		label: 'Edit Colors',
@@ -29,6 +38,29 @@ export const registerSettings = function () {
 		},
 		onChange: () => {
 			canvas.terrain.refresh();
+		}
+	});
+	game.settings.register(modulename, 'draw-border', {
+		name: "EnhancedTerrainLayer.draw-border.name",
+		hint: "EnhancedTerrainLayer.draw-border.hint",
+		scope: "world",
+		config: true,
+		default: true,
+		type: Boolean,
+		onChange: () => {
+			canvas.terrain.refresh();
+		}
+	});
+	game.settings.register(modulename, 'terrain-image', {
+		name: "EnhancedTerrainLayer.terrain-image.name",
+		hint: "EnhancedTerrainLayer.terrain-image.hint",
+		scope: "world",
+		config: true,
+		default: 'diagonal',
+		type: String,
+		choices: imageoptions,
+		onChange: () => {
+			canvas.terrain.redraw();
 		}
 	});
 	game.settings.register(modulename, 'show-text', {
