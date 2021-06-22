@@ -1,4 +1,4 @@
-#Version 1.0.31
+# Version 1.0.31
 Added option to ignore snap to grid when calculating cost
 
 Added option to not show border
