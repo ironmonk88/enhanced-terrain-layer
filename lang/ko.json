@@ -64,8 +64,8 @@
   "EnhancedTerrainLayer.environment.urban": "도시",
   "EnhancedTerrainLayer.environment.water": "물가",
 
-  "EnhancedTerrainLayer.obstacle.crowd": "무리",
-  "EnhancedTerrainLayer.obstacle.current": "현재",
+  "EnhancedTerrainLayer.obstacle.crowd": "무리 집단",
+  "EnhancedTerrainLayer.obstacle.current": "수류",
   "EnhancedTerrainLayer.obstacle.furniture": "가구",
   "EnhancedTerrainLayer.obstacle.magic": "마법",
   "EnhancedTerrainLayer.obstacle.plants": "식물",
