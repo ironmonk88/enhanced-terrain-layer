@@ -10,7 +10,7 @@ Split terrainAt into two functions terrainFromPixel and terrainFromGrid to make 
 
 Fixed the text in the terrain config dialog to reflect that it's the active state and not the hidden state that's changing.
 
-Changes to the README frile to correct some errors, Thank you caewok!
+Changes to the README file to correct some errors, Thank you caewok!
 
 Added setting to change dead token to not count as difficult terrain.
 
