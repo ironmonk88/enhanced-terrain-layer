@@ -7,7 +7,8 @@ Simply use the install module screen within the FoundryVTT setup
 Please note, this module by itself only records the difficult terrain.  You'll need to use a ruler that accesses this module to see the changes when dragging a token.
 
 ## Usage & Current Features
-Currently you can draw a polygon onto the map to represent the terrain at that location.  This tool functions the same way you would use the polygon tool to draw polygons shapes to the scene.  Left drag to start the shape, left click to add a point, right click to remove a point, and double-click to close the shape when you're done.
+Currently you can draw a polygon onto the map to represent the terrain at that location.  This tool functions the same way you would use the polygon tool to draw polygons shapes to the scene.  Left drag to start the shape, left click to add a point, right click to remove a point, and double-click to close the shape when you're done.  You can also add a grid square by double-clicking on the canvas.
+
 You can then set how difficult that terrain is to move through, and what type of terrain it is, and if it affects ground based tokens or air based tokens.
 
 Switching to the select tool you can resize an area or reposition the area as you would with most object in Foundry.  You can also delete an area by pressing the delete key while the the area is selected.
