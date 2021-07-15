@@ -5,7 +5,7 @@ Added option to not show border
 
 Added option to change the picture shown
 
-#Version 1.0.30
+# Version 1.0.30
 Split terrainAt into two functions terrainFromPixel and terrainFromGrid to make it more understandable.
 
 Fixed the text in the terrain config dialog to reflect that it's the active state and not the hidden state that's changing.
