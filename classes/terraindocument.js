@@ -1,5 +1,5 @@
-import * as fields from "/common/data/fields.mjs";
-import { Document, DocumentData } from "/common/abstract/module.mjs";
+import * as fields from "../../../common/data/fields.mjs";
+import { Document, DocumentData } from "../../../common/abstract/module.mjs";
 import { makeid, log, error, i18n, setting } from '../terrain-main.js';
 import { Terrain } from './terrain.js';
 

@@ -3,7 +3,7 @@ import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { TerrainDocument, TerrainData } from './terraindocument.js';
 import { makeid, log, debug, warn, error, i18n, setting } from '../terrain-main.js';
-import EmbeddedCollection from "/common/abstract/embedded-collection.mjs";
+import EmbeddedCollection from "../../../common/abstract/embedded-collection.mjs";
 
 /*export let terraintypes = key => {
     return canvas.terrain.getTerrainTypes();
