@@ -4,6 +4,8 @@ Added support for Levels module
 
 Fixing issue with relative URLs, thank you vexofp
 
+Added Korean support, thank you drdwing
+
 # Version 1.0.31
 Added option to ignore snap to grid when calculating cost
 
