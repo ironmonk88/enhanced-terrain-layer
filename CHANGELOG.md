@@ -1,3 +1,9 @@
+# Version 1.0.32
+
+Added support for Levels module
+
+Fixing issue with relative URLs, thank you vexofp
+
 # Version 1.0.31
 Added option to ignore snap to grid when calculating cost
 

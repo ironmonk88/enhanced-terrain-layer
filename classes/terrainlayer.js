@@ -346,9 +346,7 @@ export class TerrainLayer extends PlaceablesLayer {
         this.preview = this.addChild(new PIXI.Container());
 
         const documents = this.getDocuments();
-        const promises = documents.map(doc => {
-            return doc.object.draw();
-        })
+        const promises = documents.map(doc => { return doc.object.draw(); });
 
         // Wait for all objects to draw
         this.visible = true;

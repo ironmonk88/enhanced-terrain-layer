@@ -406,6 +406,12 @@ export class Terrain extends PlaceableObject {
         this.alpha = 1;
         this.visible = !this.data.hidden || (game.user.isGM && (ui.controls.activeControl == 'terrain' || !setting('only-show-active')));
 
+        if (this.visible && game.modules.get("levels")?.active && canvas.tokens.controlled[0]) {
+            const token = canvas.tokens.controlled[0];
+            if (token.data.elevation > this.max || token.data.elevation < this.min)
+                this.visible = false;
+        }
+
         return this;
     }
 

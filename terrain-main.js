@@ -317,6 +317,10 @@ Hooks.on("renderItemSheet", (app, html) => {
 		addControls(app, html);
 });
 
+Hooks.on("controlToken", (app, html) => {
+	canvas.terrain.refresh();
+});
+
 PIXI.Graphics.prototype.drawDashedPolygon = function (polygons, x, y, rotation, dash, gap, offsetPercentage) {
 	var i;
 	var p1;
