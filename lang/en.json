@@ -22,6 +22,7 @@
   "EnhancedTerrainLayer.ErrorCalculate": "Calculate function is undefined",
   "EnhancedTerrainLayer.Min": "Min",
   "EnhancedTerrainLayer.Max": "Max",
+  "EnhancedTerrainLayer.TerrainElevation": "Terrain Elevation",
   "EnhancedTerrainLayer.visibility": "Toggle Active State",
   "EnhancedTerrainLayer.terrain": "Terrain",
   "EnhancedTerrainLayer.Inactive": "Inactive",
