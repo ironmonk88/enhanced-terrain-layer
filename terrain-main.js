@@ -134,10 +134,14 @@ function addControls(app, html) {
 			)
 		
 	// add terrain elevation
-	let type = $('<div>').addClass('form-fields')
-	  .append($'<label>'.html(i18n("EnhancedTerrainLayer.TerrainElevation")))
-	  .append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.elevation', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'elevation') || 0))
-			
+let elevation = $('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainElevation")))
+		.append($('<div>').addClass('form-fields')
+			.append($('<input>')
+				.attr({ 'type': 'number', 'data-type': 'Number', 'name': 'flags.enhanced-terrain-layer.elevation' })
+				.val(app.object.getFlag('enhanced-terrain-layer', 'elevation') || 0))
+			//.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(multiple))
+		)			
 			/*
 			.append($('<select>')
 				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
@@ -170,6 +174,7 @@ function addControls(app, html) {
 	if (ctrl.length > 0) {
 		let group = ctrl.get(0).closest(".form-group");
 		if (group) {
+                        elevation.insertAfter(group);
 			environment.insertAfter(group);
 			type.insertAfter(group);
 			cost.insertAfter(group);
