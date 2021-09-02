@@ -44,6 +44,7 @@ export class TerrainHUD extends BasePlaceableHUD {
             heightclass: (this.object.min == this.object.max ? '' : 'smaller'),
             min: this.object.min,
             max: this.object.max,
+            elevation: this.object.elevation,
             environment: this.object.environment,
             environments: _environments
         });
