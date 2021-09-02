@@ -54,6 +54,7 @@ export class Terrain extends PlaceableObject {
             multiple: this.layer.defaultmultiple,
             min: 0,
             max: 0,
+            elevation: 0,
             environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
             obstacle: null
         }
@@ -90,6 +91,10 @@ export class Terrain extends PlaceableObject {
 
     get max() {
         return this.data.max || Terrain.defaults.max;
+    }
+    
+    get elevation() {
+        return this.data.elevation || Terrain.defaults.elevation;
     }
 
     get color() {
