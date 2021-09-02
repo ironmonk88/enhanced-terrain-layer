@@ -132,6 +132,12 @@ function addControls(app, html) {
 			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
 			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'max') || 0))
 			)
+		
+	// add terrain elevation
+	let type = $('<div>').addClass('form-fields')
+	  .append($'<label>'.html(i18n("EnhancedTerrainLayer.TerrainElevation")))
+	  .append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.elevation', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'elevation') || 0))
+			
 			/*
 			.append($('<select>')
 				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
