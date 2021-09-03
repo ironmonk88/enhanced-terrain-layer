@@ -30,36 +30,71 @@ function registerLayer() {
 		sheetClass: TerrainConfig,
 		objectClass: Terrain
 	};
+	
+	if (game.modules.get("lib-wrapper")?.active) {
+	  libWrapper.register("enhanced-terrain-layer", "Scene.prototype.createEmbeddedDocuments", function(wrapped, embeddedName, updates = [], context = {}) {
+	    if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.createDocuments(updates, context);
+      } else {
+        return wrapped(embeddedName, updates, context);
+      }
+	  }, "MIXED");
+	  
+	  libWrapper.register("enhanced-terrain-layer", "Scene.prototype.updateEmbeddedDocuments", function(wrapped, embeddedName, updates = [], context = {}) {
+	    if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.updateDocuments(updates, context);
+      } else {
+        return wrapped(embeddedName, updates, context);
+      }
+	  }, "MIXED");
+	  
+	  libWrapper.register("enhanced-terrain-layer", "Scene.prototype.deleteEmbeddedDocuments", function(wrapped, embeddedName, ids, context = {}) {
+	    if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.deleteEmbeddedDocuments(ids, context);
+      } else {
+        return wrapped(embeddedName, ids, context);
+      }
+	  }, "MIXED");
+	
+	} else {
 
-	let oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
-	Scene.prototype.createEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
-		if (embeddedName == 'Terrain') {
-			context.parent = this;
-			context.pack = this.pack;
-			return TerrainDocument.createDocuments(updates, context);
-		} else
-			return oldCreateEmbeddedDocuments.call(this, embeddedName, updates, context);
-	}
-
-	let oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
-	Scene.prototype.updateEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
-		if (embeddedName == 'Terrain') {
-			context.parent = this;
-			context.pack = this.pack;
-			return TerrainDocument.updateDocuments(updates, context);
-		} else
-			return oldUpdateEmbeddedDocuments.call(this, embeddedName, updates, context);
-	}
-
-	let oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
-	Scene.prototype.deleteEmbeddedDocuments = async function (embeddedName, ids, context = {}) {
-		if (embeddedName == 'Terrain') {
-			context.parent = this;
-			context.pack = this.pack;
-			return TerrainDocument.deleteDocuments(ids, context);
-		} else
-			return oldDeleteEmbeddedDocuments.call(this, embeddedName, ids, context);
+    let oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
+    Scene.prototype.createEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
+      if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.createDocuments(updates, context);
+      } else
+        return oldCreateEmbeddedDocuments.call(this, embeddedName, updates, context);
     }
+
+    let oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
+    Scene.prototype.updateEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
+      if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.updateDocuments(updates, context);
+      } else
+        return oldUpdateEmbeddedDocuments.call(this, embeddedName, updates, context);
+    }
+
+    let oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
+    Scene.prototype.deleteEmbeddedDocuments = async function (embeddedName, ids, context = {}) {
+      if (embeddedName == 'Terrain') {
+        context.parent = this;
+        context.pack = this.pack;
+        return TerrainDocument.deleteDocuments(ids, context);
+      } else
+        return oldDeleteEmbeddedDocuments.call(this, embeddedName, ids, context);
+      }
+    
+  }
 }
 
 /*
@@ -212,36 +247,67 @@ Hooks.on('init', async () => {
 	registerLayer();
 
 	//remove old layer's controls
-	let oldGetControlButtons = SceneControls.prototype._getControlButtons;
-	SceneControls.prototype._getControlButtons = function () {
-		let controls = oldGetControlButtons();
-		controls.findSplice(c => c.name == 'terrain' && c.flags == undefined);
-		return controls;
-	}
+	if (game.modules.get("lib-wrapper")?.active) {
+	  libWrapper.register("enhanced-terrain-layer", "SceneControls.prototype._getControlButtons", function(wrapped) {
+	    let controls = wrapped();
+	    controls.findSplice(c => c.name == 'terrain' && c.flags == undefined);
+	    return controls;
+	  }, "WRAPPER");
+	  
+	  libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftStart", function(wrapped, event) {
+	    wrapped(event);
+	    if (canvas != null)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+	  }, "WRAPPER");
+	  
+	  libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftDrop", function(wrapped, event) {
+	    if (canvas != null)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+      wrapped(event)
+	  }, "WRAPPER");
+	  
+	  libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftCancel", function(wrapped, event) {
+	    //event.stopPropagation();
+      const ruler = canvas.controls.ruler;
+      log('ruler', ruler);
+      if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
+      wrapped(event)
+	  }, "WRAPPER");
+	  
+	} else {
+	
+    let oldGetControlButtons = SceneControls.prototype._getControlButtons;
+    SceneControls.prototype._getControlButtons = function () {
+      let controls = oldGetControlButtons();
+      controls.findSplice(c => c.name == 'terrain' && c.flags == undefined);
+      return controls;
+    }
 
-	let oldOnDragLeftStart = Token.prototype._onDragLeftStart;
-	Token.prototype._onDragLeftStart = function (event) {
-		oldOnDragLeftStart.apply(this, [event])
-		if (canvas != null)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
-	}
+    let oldOnDragLeftStart = Token.prototype._onDragLeftStart;
+    Token.prototype._onDragLeftStart = function (event) {
+      oldOnDragLeftStart.apply(this, [event])
+      if (canvas != null)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+    }
 
-	let oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
-	Token.prototype._onDragLeftDrop = function (event) {
-		if (canvas != null)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
-		oldOnDragLeftDrop.apply(this, [event]);
-	}
-	let oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
-	Token.prototype._onDragLeftCancel = function (event) {
-		//event.stopPropagation();
-		const ruler = canvas.controls.ruler;
+    let oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
+    Token.prototype._onDragLeftDrop = function (event) {
+      if (canvas != null)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+      oldOnDragLeftDrop.apply(this, [event]);
+    }
+    let oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
+    Token.prototype._onDragLeftCancel = function (event) {
+      //event.stopPropagation();
+      const ruler = canvas.controls.ruler;
 
-		log('ruler', ruler);
-		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
+      log('ruler', ruler);
+      if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
+        canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
 
-		oldOnDragLeftCancel.apply(this, [event])
+      oldOnDragLeftCancel.apply(this, [event])
+    }
 	}
 
 	//let handleDragCancel = MouseInteractionManager.prototype._handleDragCancel;
