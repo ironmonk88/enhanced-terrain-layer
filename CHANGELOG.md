@@ -1,3 +1,11 @@
+# Version 1.0.33
+
+Fixed issue with terrain being created that doesn't have the minimum number of points.
+
+Fixed issue with dashedPolygon.
+
+Added more support for consistency with other layers.
+
 # Version 1.0.32
 
 Added support for Levels module

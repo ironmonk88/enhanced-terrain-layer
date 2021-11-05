@@ -102,6 +102,11 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
             //update this object
            // mergeObject(terrainDoc.data, data);
             terrain._id = terrain._id || makeid();
+
+            //don't create a terrain that has less than 3 points
+            if (terrain.points.length < 3)
+                continue;
+
             if(terrain.update)
                 terrain.update(terrain);
 
@@ -194,6 +199,9 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         let deleted = [];
         for (let id of ids) {
             let terrain = canvas.scene.data.terrain.find(t => t.id == id);
+
+            if (terrain == undefined)
+                continue;
 
             //remove this object from the terrain list
             canvas.scene.data.terrain.delete(id);

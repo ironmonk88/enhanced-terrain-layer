@@ -158,7 +158,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
                     !(elevation < terrain.data.min || elevation > terrain.data.max) &&
-                    terrain.shape.contains(testX, testY)) {
+                    terrain?.shape?.contains(testX, testY)) {
                     let detail = {object:terrain};
                     let terraincost = terrain.cost(options);
                     detail.cost = terraincost;
