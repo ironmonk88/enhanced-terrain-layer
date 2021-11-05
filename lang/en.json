@@ -50,7 +50,7 @@
   "EnhancedTerrainLayer.draw-border.name": "Draw Border",
   "EnhancedTerrainLayer.draw-border.hint": "Set if the border is drawn or not",
   "EnhancedTerrainLayer.terrain-image.name": "Terrain Image",
-  "EnhancedTerrainLayer.terrain-image.hint": "Change the backgraound texture for terrain",
+  "EnhancedTerrainLayer.terrain-image.hint": "Change the background texture for terrain",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",
