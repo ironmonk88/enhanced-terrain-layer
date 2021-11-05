@@ -440,7 +440,7 @@ Hooks.on("renderSceneConfig", (app, html, data) => {
 	addControls(app, html, true);
 });
 
-Hooks.on("renderSceneConfig", (app, html) => {
+Hooks.on("updateScene", (scene, data) => {
 	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
 });
 
