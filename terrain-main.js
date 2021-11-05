@@ -5,12 +5,13 @@ import { Terrain } from './classes/terrain.js';
 import { BaseTerrain, TerrainDocument } from './classes/terraindocument.js';
 import { registerSettings } from "./js/settings.js";
 
+let debugEnabled = 2;
 export let debug = (...args) => {
-	console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
+	if (debugEnabled > 1) console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
 };
 export let log = (...args) => console.log("Enhanced Terrain Layer | ", ...args);
 export let warn = (...args) => {
-	console.warn("Enhanced Terrain Layer | ", ...args);
+	if (debugEnabled > 0) console.warn("Enhanced Terrain Layer | ", ...args);
 };
 export let error = (...args) => console.error("Enhanced Terrain Layer | ", ...args);
 
@@ -31,6 +32,26 @@ function registerLayer() {
 		objectClass: Terrain
 	};
 
+	let createEmbeddedDocuments = async function (wrapped, ...args) {
+		let [embeddedName, updates = [], context = {}] = args;
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.createDocuments(updates, context);
+		} else
+			wrapped(...args);
+	}
+
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.createEmbeddedDocuments", createEmbeddedDocuments, "MIXED");
+	} else {
+		const oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
+		Scene.prototype.createEmbeddedDocuments = function (event) {
+			return createEmbeddedDocuments.call(this, oldCreateEmbeddedDocuments.bind(this), ...arguments);
+		}
+	}
+
+	/*
 	let oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
 	Scene.prototype.createEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
 		if (embeddedName == 'Terrain') {
@@ -39,8 +60,28 @@ function registerLayer() {
 			return TerrainDocument.createDocuments(updates, context);
 		} else
 			return oldCreateEmbeddedDocuments.call(this, embeddedName, updates, context);
+	}*/
+
+	let updateEmbeddedDocuments = async function (wrapped, ...args) {
+		let [embeddedName, updates = [], context = {}] = args;
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.updateDocuments(updates, context);
+		} else
+			wrapped(...args);
 	}
 
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.updateEmbeddedDocuments", updateEmbeddedDocuments, "MIXED");
+	} else {
+		const oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
+		Scene.prototype.updateEmbeddedDocuments = function (event) {
+			return updateEmbeddedDocuments.call(this, oldUpdateEmbeddedDocuments.bind(this), ...arguments);
+		}
+	}
+
+	/*
 	let oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
 	Scene.prototype.updateEmbeddedDocuments = async function (embeddedName, updates = [], context = {}) {
 		if (embeddedName == 'Terrain') {
@@ -49,8 +90,28 @@ function registerLayer() {
 			return TerrainDocument.updateDocuments(updates, context);
 		} else
 			return oldUpdateEmbeddedDocuments.call(this, embeddedName, updates, context);
+	}*/
+
+	let deleteEmbeddedDocuments = async function (wrapped, ...args) {
+		let [embeddedName, updates = [], context = {}] = args;
+		if (embeddedName == 'Terrain') {
+			context.parent = this;
+			context.pack = this.pack;
+			return TerrainDocument.deleteDocuments(updates, context);
+		} else
+			wrapped(...args);
 	}
 
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.deleteEmbeddedDocuments", deleteEmbeddedDocuments, "MIXED");
+	} else {
+		const oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
+		Scene.prototype.deleteEmbeddedDocuments = function (event) {
+			return deleteEmbeddedDocuments.call(this, oldDeleteEmbeddedDocuments.bind(this), ...arguments);
+		}
+	}
+
+	/*
 	let oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
 	Scene.prototype.deleteEmbeddedDocuments = async function (embeddedName, ids, context = {}) {
 		if (embeddedName == 'Terrain') {
@@ -59,7 +120,7 @@ function registerLayer() {
 			return TerrainDocument.deleteDocuments(ids, context);
 		} else
 			return oldDeleteEmbeddedDocuments.call(this, embeddedName, ids, context);
-	}
+	}*/
 
 	Object.defineProperty(Scene.prototype, "terrain", {
 		get: function terrain() {
@@ -126,7 +187,7 @@ function addControls(app, html, addheader) {
 				.val(multiple))
 			//.on('change', function () { $(this).next().html(TerrainLayer.multipleText($(this).val())) }))
 			.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(multiple))
-		)
+		);
 
 	//add the terrain type
 	let type = $('<div>').addClass('form-group')
@@ -137,7 +198,7 @@ function addControls(app, html, addheader) {
 			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.min', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'min') || 0))
 			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
 			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'max') || 0))
-			)
+		);
 			/*
 			.append($('<select>')
 				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
@@ -212,7 +273,6 @@ Hooks.on('ready', () => {
 
 Hooks.on('init', async () => {
 	game.socket.on('module.enhanced-terrain-layer', async (data) => {
-		console.log(data);
 		canvas.terrain[data.action].apply(canvas.terrain, data.arguments);
 	});
 
@@ -220,24 +280,92 @@ Hooks.on('init', async () => {
 	registerLayer();
 
 	//remove old layer's controls
-	let oldGetControlButtons = SceneControls.prototype._getControlButtons;
-	SceneControls.prototype._getControlButtons = function () {
-		let controls = oldGetControlButtons();
+	let getControlButtons = function (wrapped, ...args) {
+		let controls = wrapped.call(this, ...args);
 		controls.findSplice(c => c.name == 'terrain' && c.flags == undefined);
 		return controls;
 	}
 
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "SceneControls.prototype._getControlButtons", getControlButtons, "WRAPPER");
+	} else {
+		const oldGetControlButtons = SceneControls.prototype._getControlButtons;
+		SceneControls.prototype._getControlButtons = function (event) {
+			return getControlButtons.call(this, oldGetControlButtons.bind(this), ...arguments);
+		}
+	}
+
+	let onDragLeftStart = async function (wrapped, ...args) {
+		wrapped(...args);
+		if (canvas != null) {
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			canvas.terrain.visible = isVisible;
+			//log('Terrain visible: Start', canvas.terrain.visible);
+		}
+	}
+
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftStart", onDragLeftStart, "WRAPPER");
+	} else {
+		const oldOnDragLeftStart = Token.prototype._onDragLeftStart;
+		Token.prototype._onDragLeftStart = function (event) {
+			return onDragLeftStart.call(this, oldOnDragLeftStart.bind(this), ...arguments);
+		}
+	}
+
+	let onDragLeftDrop = async function (wrapped, ...args) {
+		wrapped(...args);
+		if (canvas != null) {
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			canvas.terrain.visible = isVisible;
+			//log('Terrain visible: Drop', canvas.terrain.visible);
+		}
+	}
+
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftDrop", onDragLeftDrop, "WRAPPER");
+	} else {
+		const oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
+		Token.prototype._onDragLeftDrop = function (event) {
+			return onDragLeftDrop.call(this, oldOnDragLeftDrop.bind(this), ...arguments);
+		}
+	}
+
+	let onDragLeftCancel = async function (wrapped, ...args) {
+		const ruler = canvas.controls.ruler;
+
+		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
+			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
+
+		wrapped(...args);
+	}
+
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Token.prototype._onDragLeftCancel", onDragLeftCancel, "WRAPPER");
+	} else {
+		const oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
+		Token.prototype._onDragLeftCancel = function (event) {
+			return onDragLeftCancel.call(this, oldOnDragLeftCancel.bind(this), ...arguments);
+		}
+	}
+	/*
 	let oldOnDragLeftStart = Token.prototype._onDragLeftStart;
 	Token.prototype._onDragLeftStart = function (event) {
 		oldOnDragLeftStart.apply(this, [event])
-		if (canvas != null)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+		if (canvas != null) {
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			canvas.terrain.visible = isVisible;
+			log('Terrain visible: Start', canvas.terrain.visible);
+		}
 	}
 
 	let oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
 	Token.prototype._onDragLeftDrop = function (event) {
-		if (canvas != null)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+		if (canvas != null) {
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			canvas.terrain.visible = isVisible;
+			log('Terrain visible: Drop', canvas.terrain.visible);
+		}
 		oldOnDragLeftDrop.apply(this, [event]);
 	}
 	let oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
@@ -250,15 +378,6 @@ Hooks.on('init', async () => {
 			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
 
 		oldOnDragLeftCancel.apply(this, [event])
-	}
-
-	//let handleDragCancel = MouseInteractionManager.prototype._handleDragCancel;
-
-	/*
-	MouseInteractionManager.prototype._handleDragCancel = function (event) {
-		if (canvas != null) 
-			canvas.terrain.highlight.children[0].visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
-		handleDragCancel.apply(this, [event])
 	}*/
 
 	if (game.system.id == 'dnd5e') {
@@ -294,23 +413,28 @@ Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
 	$(html).css({ height: height + 90});
 })
 
-/*
-Hooks.on('canvasReady', () => {
-	canvas.terrain._costGrid = null;
-});*/
-
 Hooks.on("renderSceneConfig", (app, html, data) => {
 	let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
 
-	let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
-
 	//add default color
-	$('<div>').addClass('form-group')
+	let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
+	const color = $('<div>').addClass('form-group')
 		.append($('<label>').html(i18n("EnhancedTerrainLayer.DefaultTerrainColor")))
 		.append($('<div>').addClass('form-fields')
 			.append($('<input>').attr('type', 'text').attr('name', 'flags.enhanced-terrain-layer.defaultcolor').attr('data-dtype', 'String').val(defaultColor))
 			.append($('<input>').attr('type', 'color').attr('data-edit', 'flags.enhanced-terrain-layer.defaultcolor').val(defaultColor)))
 		.insertAfter(backgroundRow);
+
+	//add default opacity
+	let opacity = app.object.getFlag("enhanced-terrain-layer", "opacity") || setting("opacity") || 1;
+	$('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.opacity.name")))
+		.append($('<div>').addClass('form-fields')
+			.append($('<input>')
+				.attr({ 'type': 'range', 'dtype': 'Number', 'min': '0', 'max': '1.0', 'step': '0.1', 'name': 'flags.enhanced-terrain-layer.opacity' })
+				.val(opacity))
+			.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(opacity))
+	).insertAfter(color);
 
 	//add the environment
 	addControls(app, html, true);

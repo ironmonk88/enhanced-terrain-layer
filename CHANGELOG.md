@@ -6,6 +6,12 @@ Fixed issue with dashedPolygon.
 
 Added more support for consistency with other layers.
 
+Added opacity to individual scenes
+
+Fixed issue with Tile HUD not updating the cost when using the up and down arrows
+
+Added libWrapper support
+
 # Version 1.0.32
 
 Added support for Levels module

@@ -27,8 +27,8 @@
   "EnhancedTerrainLayer.Inactive": "Inactive",
   "EnhancedTerrainLayer.Locked": "Locked",
 
-  "EnhancedTerrainLayer.opacity.name": "Terrain Icon Opacity",
-  "EnhancedTerrainLayer.opacity.hint": "Opacity of the Icon and Number.",
+  "EnhancedTerrainLayer.opacity.name": "Terrain Opacity",
+  "EnhancedTerrainLayer.opacity.hint": "Opacity of the terrain layer",
   "EnhancedTerrainLayer.show-text.name": "Show Text",
   "EnhancedTerrainLayer.show-text.hint": "Show the text of how difficult the terrain is.",
   "EnhancedTerrainLayer.show-icon.name": "Show Icons",

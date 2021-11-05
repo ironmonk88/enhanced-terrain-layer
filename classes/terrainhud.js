@@ -130,7 +130,11 @@ export class TerrainHUD extends BasePlaceableHUD {
             idx = Math.clamped((increase ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
             return { _id: o.id, multiple: TerrainLayer.multipleOptions[idx] };
         });
-        return canvas.scene.updateEmbeddedDocuments("Terrain", updates);
+
+        let that = this;
+        return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
+            $('.terrain-cost', that.element).html(`&times;${TerrainLayer.multipleText(that.object.multiple)}`);
+        });
 
         /*
         this.layer.updateMany(updates).then(() => {

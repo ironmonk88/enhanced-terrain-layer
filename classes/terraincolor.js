@@ -39,8 +39,6 @@ export class TerrainColor extends FormApplication {
     }
 
     saveChanges(ev) {
-        log('submit');
-
         let colors = setting('environment-color');
         let updateColor = function (id, value) {
             if (value == '') {

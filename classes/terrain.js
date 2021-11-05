@@ -96,6 +96,10 @@ export class Terrain extends PlaceableObject {
         return this.data.drawcolor || setting('environment-color')[this.environment?.id] || this.environment?.color || canvas.scene.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
     }
 
+    get opacity() {
+        return this.data.opacity || canvas.scene.getFlag('enhanced-terrain-layer', 'opacity') || setting('opacity') || 1;
+    }
+
     /*
     get environment() {
         return this.data.environment;
@@ -398,7 +402,7 @@ export class Terrain extends PlaceableObject {
         mergeObject(lStyle, { width: s / 20, color: sc, alpha: (setting('draw-border') ? 1 : 0), cap: PIXI.LINE_CAP.ROUND, join: PIXI.LINE_JOIN.ROUND, visible: true });
         this.drawing.lineStyle(lStyle);
 
-        let drawAlpha = (ui.controls.activeControl == 'terrain' ? 1.0 : setting('opacity')); //this.data.hidden ? 0.5
+        let drawAlpha = (ui.controls.activeControl == 'terrain' ? 1.0 : this.opacity);
 
         // Fill Color or Texture
         if (this.texture) {
