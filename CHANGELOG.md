@@ -1,3 +1,7 @@
+# Version 1.0.34
+
+Fixing issues with wrapping some functions.
+
 # Version 1.0.33
 
 Fixed issue with terrain being created that doesn't have the minimum number of points.
@@ -8,9 +12,11 @@ Added more support for consistency with other layers.
 
 Added opacity to individual scenes
 
-Fixed issue with Tile HUD not updating the cost when using the up and down arrows
+Fixed issue with Terrain HUD not updating the cost when using the up and down arrows
 
 Added libWrapper support
+
+Added German translations, thank you BlueSkyBlackBird!
 
 # Version 1.0.32
 

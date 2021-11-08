@@ -39,14 +39,14 @@ function registerLayer() {
 			context.pack = this.pack;
 			return TerrainDocument.createDocuments(updates, context);
 		} else
-			wrapped(...args);
+			return wrapped(...args);
 	}
 
 	if (game.modules.get("lib-wrapper")?.active) {
 		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.createEmbeddedDocuments", createEmbeddedDocuments, "MIXED");
 	} else {
 		const oldCreateEmbeddedDocuments = Scene.prototype.createEmbeddedDocuments;
-		Scene.prototype.createEmbeddedDocuments = function (event) {
+		Scene.prototype.createEmbeddedDocuments = async function (event) {
 			return createEmbeddedDocuments.call(this, oldCreateEmbeddedDocuments.bind(this), ...arguments);
 		}
 	}
@@ -69,14 +69,14 @@ function registerLayer() {
 			context.pack = this.pack;
 			return TerrainDocument.updateDocuments(updates, context);
 		} else
-			wrapped(...args);
+			return wrapped(...args);
 	}
 
 	if (game.modules.get("lib-wrapper")?.active) {
 		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.updateEmbeddedDocuments", updateEmbeddedDocuments, "MIXED");
 	} else {
 		const oldUpdateEmbeddedDocuments = Scene.prototype.updateEmbeddedDocuments;
-		Scene.prototype.updateEmbeddedDocuments = function (event) {
+		Scene.prototype.updateEmbeddedDocuments = async function (event) {
 			return updateEmbeddedDocuments.call(this, oldUpdateEmbeddedDocuments.bind(this), ...arguments);
 		}
 	}
@@ -99,14 +99,14 @@ function registerLayer() {
 			context.pack = this.pack;
 			return TerrainDocument.deleteDocuments(updates, context);
 		} else
-			wrapped(...args);
+			return wrapped(...args);
 	}
 
 	if (game.modules.get("lib-wrapper")?.active) {
 		libWrapper.register("enhanced-terrain-layer", "Scene.prototype.deleteEmbeddedDocuments", deleteEmbeddedDocuments, "MIXED");
 	} else {
 		const oldDeleteEmbeddedDocuments = Scene.prototype.deleteEmbeddedDocuments;
-		Scene.prototype.deleteEmbeddedDocuments = function (event) {
+		Scene.prototype.deleteEmbeddedDocuments = async function (event) {
 			return deleteEmbeddedDocuments.call(this, oldDeleteEmbeddedDocuments.bind(this), ...arguments);
 		}
 	}
