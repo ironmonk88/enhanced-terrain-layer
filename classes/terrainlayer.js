@@ -35,7 +35,17 @@ export class TerrainLayer extends PlaceablesLayer {
             controllableObjects: game.user.isGM,
             rotatableObjects: false,
             objectClass: Terrain,
-            sheetClass: TerrainConfig
+            //sheetClass: TerrainConfig,
+            sheetClasses: {
+                base: {
+                    "enhanced-terrain-layer.TerrainSheet": {
+                        id: "enhanced-terrain-layer.TerrainSheet",
+                        label: "Enhanced Terrain Sheet",
+                        "default": true,
+                        cls: TerrainConfig
+                    }
+                }
+            }
         });
     }
 

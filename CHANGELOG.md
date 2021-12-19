@@ -1,3 +1,7 @@
+# Version 1.0.35
+
+Adding v9 support
+
 # Version 1.0.34
 
 Fixing issues with wrapping some functions.

@@ -66,7 +66,13 @@ Hooks.on('renderTerrainLayerToolBar', () => {
 	const tools = $(canvas.terrain.toolbar.form).parent();
 	if (!tools)
 		return;
-	const controltools = $('li[data-control="terrain"] ol.control-tools');
-	const offset = controltools.offset();
-	tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width() + 6}px` });
+	if (isNewerVersion(game.version, "9")) {
+		const controltools = $('li[data-tool="addterrain"]').closest('.sub-controls');
+		const offset = controltools.offset();
+		tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width()}px` });
+	} else {
+		const controltools = $('li[data-control="terrain"] ol.control-tools');
+		const offset = controltools.offset();
+		tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width() + 6}px` });
+    }
 });

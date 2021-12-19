@@ -24,11 +24,24 @@ export let setting = key => {
 };
 
 function registerLayer() {
-	CONFIG.Canvas.layers.terrain = TerrainLayer;
+	if (isNewerVersion(game.version, "9"))
+		CONFIG.Canvas.layers.terrain = { group: "primary", layerClass: TerrainLayer };
+	else
+		CONFIG.Canvas.layers.terrain = TerrainLayer;
 	CONFIG.Terrain = {
 		documentClass: TerrainDocument,
 		layerClass: TerrainLayer,
-		sheetClass: TerrainConfig,
+		//sheetClass: TerrainConfig,
+		sheetClasses: {
+			base: {
+				"enhanced-terrain-layer.TerrainSheet": {
+					id: "enhanced-terrain-layer.TerrainSheet",
+					label: "Enhanced Terrain Sheet",
+					"default": true,
+					cls: TerrainConfig
+				}
+			}
+		},
 		objectClass: Terrain
 	};
 
@@ -240,6 +253,37 @@ function addControls(app, html, addheader) {
 	}
 }
 
+async function addControlsv9(app, dest, full) {
+	//add the environment
+	var obs = [];
+	var env = canvas.terrain.getEnvironments().reduce(function (map, obj) {
+		let opt = { name: i18n(obj.text), value: obj.id };
+		(obj.obstacle === true ? obs : map).push(opt);
+		return map;
+	}, []);
+
+	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
+	let data = {
+		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || {}),
+		environments: env,
+		obstacles: obs,
+		full: full
+	};
+	data.data.multiple = data.data.multiple || 1
+
+	let html = await renderTemplate(template, data);
+	//if (full)
+		dest.append(html);
+	/*else {
+		let ctrl = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', dest);
+		if (ctrl.length > 0) {
+			let group = ctrl.get(0).closest(".form-group");
+			if (group)
+				$(html).insertAfter(group);
+		}
+    }*/
+}
+
 Hooks.on('canvasInit', () => {
 	canvas.hud.terrain = new TerrainHUD();
 	//Scene.constructor.config.embeddedEntities.Terrain = "terrain";
@@ -407,37 +451,52 @@ Hooks.on('init', async () => {
 })
 
 Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
-	addControls(config, html);
+	if (isNewerVersion(game.version, "9")) {
+		let base = $('form', html);
+		addControlsv9(config, base).then(() => {
+			$('button[name="submit"]', base).appendTo(base);
+			config.setPosition({ height: 'auto' });
+		});
+	} else {
+		addControls(config, html);
 
-	let height = $(html).height();
-	$(html).css({ height: height + 90});
+		let height = $(html).height();
+		$(html).css({ height: height + 90 });
+	}
 })
 
-Hooks.on("renderSceneConfig", (app, html, data) => {
-	let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
+Hooks.on("renderSceneConfig", async (app, html, data) => {
+	if (isNewerVersion(game.version, "9")) {
+		$('.sheet-tabs', html).append($('<a>').addClass('item').attr('data-tab', "terrain").html('<i class="fas fa-mountain"></i> Terrain'));
+		let tab = $('<div>').addClass('tab').attr('data-tab', "terrain").insertAfter($('div[data-tab="ambience"]', html));
 
-	//add default color
-	let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
-	const color = $('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.DefaultTerrainColor")))
-		.append($('<div>').addClass('form-fields')
-			.append($('<input>').attr('type', 'text').attr('name', 'flags.enhanced-terrain-layer.defaultcolor').attr('data-dtype', 'String').val(defaultColor))
-			.append($('<input>').attr('type', 'color').attr('data-edit', 'flags.enhanced-terrain-layer.defaultcolor').val(defaultColor)))
-		.insertAfter(backgroundRow);
+		addControlsv9(app, tab, true);
+	} else {
+		let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
 
-	//add default opacity
-	let opacity = app.object.getFlag("enhanced-terrain-layer", "opacity") || setting("opacity") || 1;
-	$('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.opacity.name")))
-		.append($('<div>').addClass('form-fields')
-			.append($('<input>')
-				.attr({ 'type': 'range', 'dtype': 'Number', 'min': '0', 'max': '1.0', 'step': '0.1', 'name': 'flags.enhanced-terrain-layer.opacity' })
-				.val(opacity))
-			.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(opacity))
-	).insertAfter(color);
+		//add default color
+		let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
+		const color = $('<div>').addClass('form-group')
+			.append($('<label>').html(i18n("EnhancedTerrainLayer.DefaultTerrainColor")))
+			.append($('<div>').addClass('form-fields')
+				.append($('<input>').attr('type', 'text').attr('name', 'flags.enhanced-terrain-layer.defaultcolor').attr('data-dtype', 'String').val(defaultColor))
+				.append($('<input>').attr('type', 'color').attr('data-edit', 'flags.enhanced-terrain-layer.defaultcolor').val(defaultColor)))
+			.insertAfter(backgroundRow);
 
-	//add the environment
-	addControls(app, html, true);
+		//add default opacity
+		let opacity = app.object.getFlag("enhanced-terrain-layer", "opacity") || setting("opacity") || 1;
+		$('<div>').addClass('form-group')
+			.append($('<label>').html(i18n("EnhancedTerrainLayer.opacity.name")))
+			.append($('<div>').addClass('form-fields')
+				.append($('<input>')
+					.attr({ 'type': 'range', 'dtype': 'Number', 'min': '0', 'max': '1.0', 'step': '0.1', 'name': 'flags.enhanced-terrain-layer.opacity' })
+					.val(opacity))
+				.append($('<span>').addClass('range-value').css({ 'flex': '0 1 48px' }).html(opacity))
+			).insertAfter(color);
+
+		//add the environment
+		addControls(app, html, true);
+	}
 });
 
 Hooks.on("updateScene", (scene, data) => {
@@ -445,8 +504,15 @@ Hooks.on("updateScene", (scene, data) => {
 });
 
 Hooks.on("renderItemSheet", (app, html) => {
-	if(app.object.type == 'spell')
-		addControls(app, html);
+	if (app.object.type == 'spell') {
+		if (isNewerVersion(game.version, "9")) {
+			let details = $('.tab[data-tab="details"]', html);
+			details.append($('<h3>').addClass('form-header').html('Terrain Effects'));
+			addControlsv9(app, details).then(() => { app.setPosition({ height: 'auto' }); });
+		} else {
+			addControls(app, html);
+		}
+	}
 });
 
 Hooks.on("controlToken", (app, html) => {
