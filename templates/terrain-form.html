@@ -1,0 +1,55 @@
+<div class="form-group">
+    <label for="multiple">{{localize "EnhancedTerrainLayer.TerrainCost"}}</label>
+    <div class="form-fields">
+        <input type="range" name="flags.enhanced-terrain-layer.multiple" data-dtype="Number" value="{{data.multiple}}" min="0" max="4" step="1">
+        <span class="range-value" style="flex: 0 1 48px; line-height: 17px; ">{{data.multiple}}</span>
+    </div>
+</div>
+<div class="form-group">
+    <label for="terrainheight">{{localize "EnhancedTerrainLayer.TerrainHeight"}}</label>
+    <div class="form-fields" style="position:relative;">
+        <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Min"}}</label>
+        <input type="number" style="text-align:right;" name="flags.enhanced-terrain-layer.min" data-dtype="Number" value="{{data.min}}">
+        <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Max"}}</label>
+        <input type="number" style="text-align:right;" name="flags.enhanced-terrain-layer.max" data-dtype="Number" value="{{data.max}}">
+    </div>
+</div>
+<div class="form-group">
+    <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
+    <div class="form-fields">
+        <select name="flags.enhanced-terrain-layer.environment" data-dtype="String">
+            <option value=""></option>
+            <optgroup label="{{localize "EnhancedTerrainLayer.Environment"}}" data-type="environment">
+                {{ selectOptions environments selected=data.environment }}
+            </optgroup>
+            <optgroup label="{{localize "EnhancedTerrainLayer.Obstacle"}}" data-type="obstacle">
+                {{ selectOptions obstacles selected=data.environment }}
+            </optgroup>
+        </select>
+    </div>
+</div>
+{{#if useObstacles}}
+<div class="form-group">
+    <label for="obstacle">{{localize "EnhancedTerrainLayer.Obstacle"}}</label>
+    <div class="form-fields">
+        <select name="flags.enhanced-terrain-layer.obstacle" data-dtype="String">
+            {{ selectOptions obstacles selected=data.obstacle blank=' ' nameValue="name" nameValue="name" }}
+        </select>
+    </div>
+</div>
+{{/if}}
+{{#if full}}
+<div class="form-group">
+    <label for="flags.enhanced-terrain-layer.drawcolor">{{localize "EnhancedTerrainLayer.TerrainColor"}}</label>
+    <div class="form-fields">
+        {{ colorPicker name="drawcolor" value=data.drawcolor}}
+    </div>
+</div>
+<div class="form-group">
+    <label>{{localize "EnhancedTerrainLayer.opacity.name"}}</label>
+    <div class="form-fields">
+        <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="flags.enhanced-terrain-layer.opacity" value="{{data.opacity}}">
+        <span class="range-value" style="flex: 0 1 48px;">{{data.opacity}}</span>
+    </div>
+</div>
+{{/if}}

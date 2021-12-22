@@ -212,12 +212,6 @@ function addControls(app, html, addheader) {
 			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
 			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'max') || 0))
 		);
-			/*
-			.append($('<select>')
-				.attr('name', 'flags.enhanced-terrain-layer.terraintype')
-				.attr('data-type', 'String')
-				.append(function () { return canvas.terrain.getTerrainTypes().map(v => { return $('<option>').attr('value', v.id).html(i18n(v.text)); }) })
-				.val(app.object.getFlag('enhanced-terrain-layer', 'terraintype') || 'ground')));*/
 
 	//add the environment
 	var obs = [];
@@ -255,12 +249,11 @@ function addControls(app, html, addheader) {
 
 async function addControlsv9(app, dest, full) {
 	//add the environment
-	var obs = [];
+	var obs = {};
 	var env = canvas.terrain.getEnvironments().reduce(function (map, obj) {
-		let opt = { name: i18n(obj.text), value: obj.id };
-		(obj.obstacle === true ? obs : map).push(opt);
+		(obj.obstacle === true ? obs : map)[obj.id] = i18n(obj.text);
 		return map;
-	}, []);
+	}, {});
 
 	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
 	let data = {
@@ -269,19 +262,10 @@ async function addControlsv9(app, dest, full) {
 		obstacles: obs,
 		full: full
 	};
-	data.data.multiple = data.data.multiple || 1
+	data.data.multiple = data.data.multiple || 1;
 
 	let html = await renderTemplate(template, data);
-	//if (full)
-		dest.append(html);
-	/*else {
-		let ctrl = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', dest);
-		if (ctrl.length > 0) {
-			let group = ctrl.get(0).closest(".form-group");
-			if (group)
-				$(html).insertAfter(group);
-		}
-    }*/
+	dest.append(html);
 }
 
 Hooks.on('canvasInit', () => {
@@ -289,13 +273,14 @@ Hooks.on('canvasInit', () => {
 	//Scene.constructor.config.embeddedEntities.Terrain = "terrain";
 });
 
-Hooks.on('ready', () => {
+//Hooks.on('ready', () => {
 	/*
 	if (game.user.isGM && !setting('conversion')) {
 		checkUpgrade();
 		game.settings.set('enhanced-terrain-layer', 'conversion', true);
 	}*/
 
+	/*
 	window.setTimeout(function () {
 		if (canvas.terrain.getObstacles != undefined && !canvas.terrain.updateObstacles) {
 			warn('getObstacles is deprecated, please use getEnvironment and set the obstacle property to true');
@@ -313,7 +298,8 @@ Hooks.on('ready', () => {
 			canvas.terrain.updateObstacles = true;
 		}
 	}, 100);
-})
+	*/
+//})
 
 Hooks.on('init', async () => {
 	game.socket.on('module.enhanced-terrain-layer', async (data) => {

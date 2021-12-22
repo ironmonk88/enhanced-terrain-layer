@@ -1,3 +1,7 @@
+# Version 1.0.36
+
+Well... this is embarassing.  I guess in the effort to get modules up to date, I forgot to include a template.  Should be fixed now.
+
 # Version 1.0.35
 
 Adding v9 support
