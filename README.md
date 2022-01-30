@@ -25,6 +25,10 @@ You can also set the environment that the difficult terrain represents.  So if y
 
 You can set the color of the terrain, on an individual basis, a default colour for that environment, a default for the scene, or a general color.
 
+## Rulers and measuring distance
+
+Enhanced Terrain Layer only records difficult terrain, it doesn't do any measuring based on that information.  To get drag distances for Tokens I'd recommend using both Terrain Ruler and Drag Ruler.  Terrain Ruler will calculate the correct distance based on difficult terrain, and Drag Ruler provides a more visual representation of drag distances.
+
 ## Coding
 For those who are developing Rulers based on the Enhanced Terrain Layer, to get access to the difficulty cost of terrain grid you call the cost function.
 `canvas.terrain.cost(pts, options);`
