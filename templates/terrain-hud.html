@@ -1,7 +1,8 @@
 <form id="{{id}}" class="{{classes}}" data-appid="{{appId}}" autocomplete="off" onsubmit="event.preventDefault();">
     <div class="col left" style="justify-content: center;">
-        <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
-            <span class="terrain-cost" title="{{localize "EnhancedTerrainLayer.TerrainCost"}}">&times;{{{cost}}}</span>
+        <div class="attribute control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
+            <i class="fas fa-times"></i>
+            <span class="terrain-cost" title="{{localize "EnhancedTerrainLayer.TerrainCost"}}">{{{cost}}}</span>
         </div>
 
         <div class="control-icon environments" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
@@ -13,8 +14,13 @@
             </div>
         </div>
 
-        <div class="control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
-            <div class="terrain-height {{this.heightclass}}" title="{{localize "EnhancedTerrainLayer.TerrainHeight"}}">{{this.height}} ft</div>
+        <div class="attribute control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
+            <i class="fas fa-angle-up"></i>
+            <div class="terrain-elevation" title="{{localize "EnhancedTerrainLayer.TerrainElevation"}}">{{this.elevation}}</div>
+        </div>
+        <div class="attribute control-icon" style="font-size: 18px;flex: 0 0 30px;height: 30px;line-height: 30px;">
+            <i class="fas fa-arrows-alt-v"></i>
+            <div class="terrain-depth" title="{{localize "EnhancedTerrainLayer.TerrainDepth"}}">{{this.depth}}</div>
         </div>
     </div>
 

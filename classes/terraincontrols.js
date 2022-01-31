@@ -34,9 +34,16 @@ export class TerrainLayerToolBar extends FormApplication {
 
     _onHandleClick(event) {
         const btn = event.currentTarget;
+
+        let inc = ($(btn).attr('id') == 'tl-inc-cost');
+        canvas.terrain.defaultmultiple = TerrainLayer.alterMultiple(canvas.terrain.defaultmultiple, inc);
+        $('#tl-defaultcost', this.element).html(TerrainLayer.multipleText(canvas.terrain.defaultmultiple));
+
+        /*
         let idx = TerrainLayer.multipleOptions.indexOf(canvas.terrain.defaultmultiple);
         idx = Math.clamped(($(btn).attr('id') == 'tl-inc-cost' ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
         canvas.terrain.defaultmultiple = TerrainLayer.multipleOptions[idx];
         $('#tl-defaultcost', this.element).html(TerrainLayer.multipleText(canvas.terrain.defaultmultiple));
+        */
     }
 }

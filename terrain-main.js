@@ -203,15 +203,19 @@ function addControls(app, html, addheader) {
 		);
 
 	//add the terrain type
-	let type = $('<div>').addClass('form-group')
-		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainHeight")))
+	let type = [$('<div>').addClass('form-group')
+		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainElevation")))
 		.append($('<div>')
 			.addClass('form-fields')
-			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Min")))
-			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.min', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'min') || 0))
-			.append($('<label>').addClass('terrainheight-label').html(i18n("EnhancedTerrainLayer.Max")))
-			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.max', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'max') || 0))
-		);
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.elevation', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'elevation') || 0))
+	),
+		$('<div>').addClass('form-group')
+			.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainDepth")))
+			.append($('<div>')
+				.addClass('form-fields')
+				.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.depth', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'depth') || 0))
+			)
+	];
 
 	//add the environment
 	var obs = [];
@@ -257,12 +261,15 @@ async function addControlsv9(app, dest, full) {
 
 	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
 	let data = {
-		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || {}),
+		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || { elevation: 0, depth: 0 }),
 		environments: env,
 		obstacles: obs,
 		full: full
 	};
 	data.data.multiple = data.data.multiple || 1;
+	data.data.elevation = data.data.elevation || 0;
+	data.data.depth = data.data.depth || 0;
+	data.data.opacity = data.data.opacity || setting('opacity');
 
 	let html = await renderTemplate(template, data);
 	dest.append(html);
@@ -328,7 +335,7 @@ Hooks.on('init', async () => {
 	let onDragLeftStart = async function (wrapped, ...args) {
 		wrapped(...args);
 		if (canvas != null) {
-			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || canvas.terrain.showOnDrag);
 			canvas.terrain.visible = isVisible;
 			//log('Terrain visible: Start', canvas.terrain.visible);
 		}
@@ -346,7 +353,7 @@ Hooks.on('init', async () => {
 	let onDragLeftDrop = async function (wrapped, ...args) {
 		wrapped(...args);
 		if (canvas != null) {
-			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
+			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || canvas.terrain.showOnDrag);
 			canvas.terrain.visible = isVisible;
 			//log('Terrain visible: Drop', canvas.terrain.visible);
 		}
@@ -378,37 +385,6 @@ Hooks.on('init', async () => {
 			return onDragLeftCancel.call(this, oldOnDragLeftCancel.bind(this), ...arguments);
 		}
 	}
-	/*
-	let oldOnDragLeftStart = Token.prototype._onDragLeftStart;
-	Token.prototype._onDragLeftStart = function (event) {
-		oldOnDragLeftStart.apply(this, [event])
-		if (canvas != null) {
-			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
-			canvas.terrain.visible = isVisible;
-			log('Terrain visible: Start', canvas.terrain.visible);
-		}
-	}
-
-	let oldOnDragLeftDrop = Token.prototype._onDragLeftDrop;
-	Token.prototype._onDragLeftDrop = function (event) {
-		if (canvas != null) {
-			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || setting('show-on-drag'));
-			canvas.terrain.visible = isVisible;
-			log('Terrain visible: Drop', canvas.terrain.visible);
-		}
-		oldOnDragLeftDrop.apply(this, [event]);
-	}
-	let oldOnDragLeftCancel = Token.prototype._onDragLeftCancel;
-	Token.prototype._onDragLeftCancel = function (event) {
-		//event.stopPropagation();
-		const ruler = canvas.controls.ruler;
-
-		log('ruler', ruler);
-		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
-
-		oldOnDragLeftCancel.apply(this, [event])
-	}*/
 
 	if (game.system.id == 'dnd5e') {
 		let fromItem = function(wrapped, ...args) {
@@ -494,7 +470,15 @@ Hooks.on("renderItemSheet", (app, html) => {
 		if (isNewerVersion(game.version, "9")) {
 			let details = $('.tab[data-tab="details"]', html);
 			details.append($('<h3>').addClass('form-header').html('Terrain Effects'));
-			addControlsv9(app, details).then(() => { app.setPosition({ height: 'auto' }); });
+			addControlsv9(app, details).then(() => {
+				const selectors = app.options.scrollY || [];
+				const positions = app._scrollPositions || {};
+				app.setPosition({ height: 'auto' });
+				for (let sel of selectors) {
+					const el = html.find(sel);
+					el.each((i, el) => el.scrollTop = positions[sel]?.[i] || 0);
+				}
+			});
 		} else {
 			addControls(app, html);
 		}

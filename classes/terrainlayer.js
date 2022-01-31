@@ -20,7 +20,7 @@ export let obstacles = key => {
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
         super();
-        this.showterrain = game.settings.get("enhanced-terrain-layer", "showterrain");
+        this._showterrain = game.settings.get("enhanced-terrain-layer", "showterrain");
         this.defaultmultiple = 2;
     }
 
@@ -93,24 +93,40 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     static multipleText(multiple) {
-        return (parseInt(multiple) == 0 || parseInt(multiple) == 0.5 ? '&frac12;' : multiple);
+        return (parseFloat(multiple) == 0.5 ? '&frac12;' : multiple);
     }
 
-/* -------------------------------------------- */
-    //Remove once moved off TerrainLayer
-    /*get costGrid() {
-        console.warn('costGrid is deprecated, please use the cost function instead');
-        if (this._costGrid == undefined) {
-            this.buildCostGrid(canvas.terrain.placeables);
-        }
-        return this._costGrid;
+    static alterMultiple(multiple, increase = true) {
+        let step = 1;
+        if (multiple < 1 || (multiple == 1 && !increase))
+            step = 0.5;
+
+        let newmult = multiple + (step * (increase ? 1 : -1));
+        if (newmult >= 1)
+            newmult = parseInt(newmult);
+        else
+            newmult = Math.round(newmult * 2) / 2;
+
+        newmult = Math.clamped(newmult, setting('minimum-cost'), setting('maximum-cost'))
+
+        return newmult;
     }
 
-    get highlight() {
-        return { children: [{visible: false}] };
-    }*/
+    //Do not touch these as other modules rely on them
+    get showOnDrag() {
+        return setting('show-on-drag');
+    }
 
-/* -------------------------------------------- */
+    get showterrain() {
+        return this._showterrain;
+    }
+
+    set showterrain(value) {
+        this._showterrain = value;
+        canvas.terrain.visible = this._showterrain;
+        if (game.user.isGM)
+            game.settings.set("enhanced-terrain-layer", "showterrain", this._showterrain);
+    }
 
     cost(pts, options = {}) {
         let reduceFn = function (cost, reduce) {
@@ -167,7 +183,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = ty - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
-                    !(elevation < terrain.data.min || elevation > terrain.data.max) &&
+                    !(elevation < terrain.data.bottom || elevation > terrain.data.top) &&
                     terrain?.shape?.contains(testX, testY)) {
                     let detail = {object:terrain};
                     let terraincost = terrain.cost(options);
@@ -198,13 +214,13 @@ export class TerrainLayer extends PlaceablesLayer {
                 let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
                 if (terrainFlag) {
                     let terraincost = terrainFlag.multiple || 2;
-                    let terrainmin = terrainFlag.min || Terrain.defaults.min; //{ min: 0, max: 0 };
-                    let terrainmax = terrainFlag.max || Terrain.defaults.max;
+                    let terrainbottom = terrainFlag.elevation || Terrain.defaults.elevation;
+                    let terraintop = terrainbottom + (terrainFlag.depth || Terrain.defaults.depth);
                     let environment = terrainFlag.environment || '';
                     let obstacle = terrainFlag.obstacle || '';
                     if (terraincost &&
                         !options.ignore?.includes(environment) &&
-                        !(elevation < terrainmin || elevation > terrainmax) &&
+                        !(elevation < terrainbottom || elevation > terraintop) &&
                         measure.shape.contains(testX, testY)) {
 
                         let detail = { object: measure, cost: terraincost };
@@ -225,11 +241,14 @@ export class TerrainLayer extends PlaceablesLayer {
                 }
             }
 
-            if (setting("tokens-cause-difficult") && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS) {
+            if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
 				//get the cost for walking through another creatures square
                 for (let token of canvas.tokens.placeables) {
                     let dead = token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId);
-                    if (token.id != tokenId && !token.data.hidden && (elevation == undefined || token.data.elevation == elevation) && (!dead || setting("dead-cause-difficult"))) {
+                    if (token.id != tokenId &&
+                        !token.data.hidden &&
+                        (elevation == undefined || token.data.elevation == elevation) &&
+                        ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead))) {
 						const testX = tx;
 						const testY = ty;
 						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
@@ -320,11 +339,12 @@ export class TerrainLayer extends PlaceablesLayer {
                             v.obstacle = '';
                             change = true;
                         }
-                        if (v.min == undefined || v.max == undefined) {
+                        if (v.elevation == undefined || v.depth == undefined) {
                             if (v.terrainheight != undefined && typeof v.terrainheight === 'string')
                                 v.terrainheight = JSON.parse(v.terrainheight);
-                            v.min = (v.terrainheight != undefined ? v.terrainheight.min : (v.terraintype == 'air' ? 5 : 0)) || 0;
-                            v.max = (v.terrainheight != undefined ? v.terrainheight.max : (v.terraintype == 'air' || v.terraintype == 'both' ? 100 : 0)) || 0;
+                            v.elevation = v.min || (v.terrainheight != undefined ? v.terrainheight.min : (v.terraintype == 'air' ? 5 : 0)) || 0;
+                            let max = v.max || (v.terrainheight != undefined ? v.terrainheight.max : (v.terraintype == 'air' || v.terraintype == 'both' ? 100 : 0)) || 0;
+                            v.depth = max - v.elevation;
                             change = true;
                         }
 
@@ -364,51 +384,12 @@ export class TerrainLayer extends PlaceablesLayer {
         return this;
     }
 
-    /*
-    async buildCostGrid(data) {
-        this._costGrid = {};
-        for (let terrain of data) {
-            const grid = canvas.grid;
-            const d = canvas.dimensions;
-
-            // Get number of rows and columns
-            const nr = Math.ceil(terrain.data.height / grid.h);//Math.ceil(((terrain.height * 1.5) / d.distance) / (d.size / grid.h));
-            const nc = Math.ceil(terrain.data.width / grid.w);//Math.ceil(((terrain.width * 1.5) / d.distance) / (d.size / grid.w));
-
-            // Get the offset of the terrain origin relative to the top-left grid space
-            const [tx, ty] = canvas.grid.getTopLeft(terrain.data.x, terrain.data.y);
-            const [row0, col0] = grid.grid.getGridPositionFromPixels(tx, ty);
-            const hx = canvas.grid.w / 2;
-            const hy = canvas.grid.h / 2;
-
-            // Identify grid coordinates covered by the template Graphics
-            for (let r = 0; r < nr; r++) {
-                for (let c = 0; c < nc; c++) {
-                    let tr = row0 + r;
-                    let tc = col0 + c;
-                    let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(tr, tc);
-                    const testX = (gx + hx) - terrain.x;
-                    const testY = (gy + hy) - terrain.y;
-                    let contains = terrain.shape.contains(testX, testY);
-                    if (!contains) continue;
-                    if (typeof this._costGrid[tr] === 'undefined')
-                        this._costGrid[tr] = {};
-                    this._costGrid[tr][tc] = { multiple: terrain.multiple, type: terrain.type };
-                }
-            }
-        }
-    }*/
-
     async toggle(show, emit = false) {
         if (show == undefined)
             show = !this.showterrain;
         this.showterrain = show;
-        canvas.terrain.visible = this.showterrain;
-        if (game.user.isGM) {
-            game.settings.set("enhanced-terrain-layer", "showterrain", this.showterrain);
-            if (emit)
-                game.socket.emit('module.enhanced-terrain-layer', { action: 'toggle', arguments: [this.showterrain] })
-        }
+        if (game.user.isGM && emit)
+            game.socket.emit('module.enhanced-terrain-layer', { action: 'toggle', arguments: [this._showterrain] });
     }
 
     deactivate() {
@@ -417,115 +398,6 @@ export class TerrainLayer extends PlaceablesLayer {
             if (this.objects) this.objects.visible = true;
         //}
     }
-
-    /*
-    async updateMany(data, options = {diff: true}) {
-        const user = game.user;
-
-        const pending = new Map();
-        data = data instanceof Array ? data : [data];
-        for (let d of data) {
-            if (!d._id) throw new Error("You must provide an id for every Embedded Entity in an update operation");
-            pending.set(d._id, d);
-        }
-
-        // Difference each update against existing data
-        let nonupdate = [];
-        let updates = canvas.scene.data.terrain.reduce((arr, d) => {
-            if (!pending.has(d._id)) return arr;
-            let update = pending.get(d._id);
-
-            // Diff the update against current data
-            if (options.diff) {
-                update = diffObject(d, expandObject(update));
-                update["_id"] = d._id;
-                if (isObjectEmpty(update)) {
-                    nonupdate.push(update);
-                    return arr;
-                }
-            }
-
-            // Call pre-update hooks to ensure the update is allowed to proceed
-            if (!options.noHook) {
-                const allowed = Hooks.call(`preUpdateTerrain`, this, d, update, options, user._id);
-                if (allowed === false) {
-                    debug(`Terrain update prevented by preUpdate hook`);
-                    return arr;
-                }
-            }
-
-            // Stage the update
-            arr.push(update);
-            return arr;
-        }, []);
-
-        //refresh any of the non-updates so that they don't disappear
-        if (nonupdate.length) {
-            for (let update of nonupdate) {
-                let terrain = this.placeables.find(t => { return t.id == update._id });
-                if (terrain != undefined)
-                    terrain.refresh();
-            }
-        }
-
-        //drop out of the function if nothing is being updated
-        if (!updates.length) return [];
-
-        let flags = {};
-        for (let u of updates) {
-            let key = `flags.enhanced-terrain-layer.terrain${u._id}`;
-            flags[key] = u;
-        }
-
-        this._costGrid = null;
-
-        return canvas.scene.update(flags).then(() => {
-            this.updateTerrain(updates);
-            return updates;
-        });
-    }*/
-    /*
-    updateTerrain(data, options) {
-        data = data instanceof Array ? data : [data];
-        for (let update of data) {
-            let terrain = this.placeables.find(t => { return t.id == update._id });
-            if (terrain != undefined)
-                terrain.update(update, { save: false });
-        }
-        if (game.user.isGM) {
-            game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data]});
-        }
-    }
-    */
-    /*
-    async deleteMany(ids, options = {}) {
-        //+++ need to update this to only respond to actual deletions
-        let updates = {};
-        let originals = [];
-        for (let id of ids) {
-            const object = this.get(id);
-            log('Removing terrain', object.data.x, object.data.y);
-            if(!options.isUndo)
-                originals.push(object.data);
-            this.objects.removeChild(object);
-            delete this._controlled[id];
-            object._onDelete(options, game.user.id);
-            object.destroy({ children: true });
-            canvas.scene.data.terrain.findSplice(t => { return t._id == id; });
-            let key = `flags.enhanced-terrain-layer.-=terrain${id}`;
-            updates[key] = null;
-
-            if (game.user.isGM)
-                game.socket.emit('module.enhanced-terrain-layer', { action: '_deleteTerrain', arguments: [id] });
-        }
-
-        if (!options.isUndo)
-            this.storeHistory("delete", originals);
-
-        this._costGrid = null;
-
-        canvas.scene.update(updates);
-    }*/
 
     _getNewTerrainData(origin) {
         const data = mergeObject(Terrain.defaults, {

@@ -15,8 +15,8 @@ export class TerrainData extends DocumentData {
             hidden: fields.BOOLEAN_FIELD,
             points: fields.OBJECT_FIELD,
             multiple: fields.NUMERIC_FIELD,
-            min: fields.NUMERIC_FIELD,
-            max: fields.NUMERIC_FIELD,
+            elevation: fields.NUMERIC_FIELD,
+            depth: fields.NUMERIC_FIELD,
             drawcolor: fields.STRING_FIELD,
             environment: fields.STRING_FIELD,
             obstacle: fields.STRING_FIELD,
@@ -155,9 +155,14 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         await this._onUpdateDocuments(updated, context);
         return updated;*/
 
+        let originals = [];
         let updated = [];
         for (let update of updates) {
             let terrain = canvas.scene.data.terrain.get(update._id);
+
+            if (game.user.isGM) {
+                originals.push(terrain.toObject());
+            }
             //update this object
             //mergeObject(this.data, data);
             let changes = terrain.data.update(update, { diff: (options.diff !== undefined ? options.diff : true)});
@@ -183,6 +188,9 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
                 updated.push(terrain);
             }
         }
+
+        if (originals.length && !options.isUndo)
+            canvas.terrain.storeHistory("update", originals);
 
         if (game.user.isGM)
             game.socket.emit('module.enhanced-terrain-layer', { action: '_updateTerrain', arguments: [updated] });

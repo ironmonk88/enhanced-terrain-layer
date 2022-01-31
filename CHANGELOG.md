@@ -1,3 +1,17 @@
+# Version 1.0.37
+
+Changed from using min/max to elevation and depth
+
+Added the option to set custom terrain cost.  So you can set a minimum and a maximum range, and set the value within that range.
+
+Fixed issue with newly created terrain, making a change, then hitting undo. Instead of undoing the move, it was undoing the create.
+
+Allowed tokens causing difficult terrain and dead tokens causing difficult terrain to work idependantly. 
+
+Allow terrain height to use decimal numbers.
+
+Fixed issue where Enhanced Terrain layer was resetting the scroll position after a change.
+
 # Version 1.0.36
 
 Well... this is embarassing.  I guess in the effort to get modules up to date, I forgot to include a template.  Should be fixed now.

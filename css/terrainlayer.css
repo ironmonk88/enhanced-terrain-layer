@@ -94,6 +94,18 @@
     text-align: left;
 }
 
+#terrain-hud .attribute {
+    position: relative;
+}
+
+#terrain-hud .attribute i.fas {
+    position: absolute;
+    top: -5px;
+    left: -3px;
+    font-size: var(--font-size-18);
+    color: var(--color-text-light-5);
+}
+
 #terrain-hud .environment-list.active {
     visibility: visible;
 }

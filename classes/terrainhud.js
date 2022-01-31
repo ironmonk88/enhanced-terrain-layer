@@ -40,10 +40,8 @@ export class TerrainHUD extends BasePlaceableHUD {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
             cost: TerrainLayer.multipleText(this.object.multiple),
-            height: (this.object.min == this.object.max ? this.object.min : this.object.min + " - " + this.object.max),
-            heightclass: (this.object.min == this.object.max ? '' : 'smaller'),
-            min: this.object.min,
-            max: this.object.max,
+            elevation: this.object.elevation,
+            depth: this.object.depth,
             environment: this.object.environment,
             environments: _environments
         });
@@ -125,15 +123,15 @@ export class TerrainHUD extends BasePlaceableHUD {
 
     _onHandleClick(increase, event) {
         const updates = this.layer.controlled.map(o => {
-            let mult = o.data.multiple;
-            let idx = TerrainLayer.multipleOptions.indexOf(mult);
-            idx = Math.clamped((increase ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
-            return { _id: o.id, multiple: TerrainLayer.multipleOptions[idx] };
+            let mult = TerrainLayer.alterMultiple(o.data.multiple, increase);
+            //let idx = TerrainLayer.multipleOptions.indexOf(mult);
+            //idx = Math.clamped((increase ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
+            return { _id: o.id, multiple: mult }; //TerrainLayer.multipleOptions[idx] };
         });
 
         let that = this;
         return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
-            $('.terrain-cost', that.element).html(`&times;${TerrainLayer.multipleText(that.object.multiple)}`);
+            $('.terrain-cost', that.element).html(`${TerrainLayer.multipleText(that.object.multiple)}`);
         });
 
         /*

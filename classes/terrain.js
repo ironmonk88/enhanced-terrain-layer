@@ -51,9 +51,9 @@ export class Terrain extends PlaceableObject {
             locked: false,
             hidden: false,
             points: [],
-            multiple: this.layer.defaultmultiple,
-            min: 0,
-            max: 0,
+            multiple: canvas.scene.getFlag('enhanced-terrain-layer', 'multiple') || this.layer.defaultmultiple,
+            elevation: canvas.scene.getFlag('enhanced-terrain-layer', 'elevation') || 0,
+            depth: canvas.scene.getFlag('enhanced-terrain-layer', 'depth') || 0,
             environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
             obstacle: null
         }
@@ -71,25 +71,43 @@ export class Terrain extends PlaceableObject {
     }
 
     get multiple() {
-        return this.data.multiple || Terrain.defaults.multiple;
+        return (this.data.multiple == undefined ? Terrain.defaults.multiple : this.data.multiple);
     }
 
     get terraintype() {
-        debug('terraintype is deprecated, please use min/max');
+        warn('terraintype is deprecated, please use environment');
         return '';
     }
 
     get terrainheight() {
-        debug('terrainheight is deprecated, please use min/max');
-        return { min: this.min, max: this.max };
+        warn('terrainheight is deprecated, please use min/max');
+        return { min: this.bottom, max: this.top };
     }
 
     get min() {
-        return this.data.min || Terrain.defaults.min;
+        warn('min is deprecated, please use elevation');
+        return this.elevation;
     }
 
     get max() {
+        warn('max is deprecated, please use top');
         return this.data.max || Terrain.defaults.max;
+    }
+
+    get elevation() {
+        return this.data.elevation || Terrain.defaults.elevation;
+    }
+
+    get depth() {
+        return this.data.depth || 0;
+    }
+
+    get top() {
+        return this.elevation + this.depth;
+    }
+
+    get bottom() {
+        return this.elevation;
     }
 
     get color() {
@@ -230,6 +248,13 @@ export class Terrain extends PlaceableObject {
         this.clear();
 
         let mult = Math.clamped(this.data.multiple, setting('minimum-cost'), setting('maximum-cost'));
+        if (mult > 4)
+            mult = 4;
+        if (mult >= 1)
+            mult = parseInt(mult);
+        if (mult < 1)
+            mult = 0.5;
+
         let image = setting('terrain-image');
         this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${image}${mult}x.svg`) : null);
 
@@ -437,13 +462,6 @@ export class Terrain extends PlaceableObject {
         this.drawing.endFill();
         this.drawing.alpha = drawAlpha;
 
-        /*
-        // Set shape rotation, pivoting about the non-rotated center
-        this.drawing.pivot.set(this.data.width / 2, this.data.height / 2);
-        this.drawing.position.set(this.data.width / 2, this.data.height / 2);
-        this.drawing.rotation = toRadians(this.data.rotation || 0);
-        */
-
         let showicon = setting('show-icon') && this.icon && !this.icon._destroyed;
 
         this.text.visible = setting('show-text') && this.multiple != 1;
@@ -475,7 +493,7 @@ export class Terrain extends PlaceableObject {
 
         if (this.visible && game.modules.get("levels")?.active && canvas.tokens.controlled[0]) {
             const token = canvas.tokens.controlled[0];
-            if (token.data.elevation > this.max || token.data.elevation < this.min)
+            if (token.data.elevation > this.bottom || token.data.elevation < this.top)
                 this.visible = false;
         }
 
@@ -573,6 +591,8 @@ export class Terrain extends PlaceableObject {
 
         if (data.environment != undefined)
             this.updateEnvironment();
+
+        data.multiple = Math.clamped(data.multiple, setting('minimum-cost'), setting('maximum-cost'));
 
         // Full re-draw or partial refresh
         if (changed.has("multiple") || changed.has("environment"))

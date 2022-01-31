@@ -132,7 +132,7 @@ export const registerSettings = function () {
 		name: "EnhancedTerrainLayer.minimum-cost.name",
 		hint: "EnhancedTerrainLayer.minimum-cost.hint",
 		scope: "world",
-		config: false,
+		config: true,
 		default: 0.5,
 		type: Number
 	});
@@ -140,7 +140,7 @@ export const registerSettings = function () {
 		name: "EnhancedTerrainLayer.maximum-cost.name",
 		hint: "EnhancedTerrainLayer.maximum-cost.hint",
 		scope: "world",
-		config: false,
+		config: true,
 		default: 4,
 		type: Number
 	});

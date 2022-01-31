@@ -63,6 +63,7 @@ export class TerrainConfig extends DocumentSheet {
         if (!game.user.isGM) throw "You do not have the ability to configure a Terrain object.";
 
         let data = expandObject(formData);
+        data.multiple = Math.clamped(data.multiple, setting('minimum-cost'), setting('maximum-cost'));
         if (this.document.id) {
             /*
             if (game.user.isGM) {

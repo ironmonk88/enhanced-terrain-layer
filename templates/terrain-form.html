@@ -1,18 +1,26 @@
+{{#if full}}
 <div class="form-group">
-    <label for="multiple">{{localize "EnhancedTerrainLayer.TerrainCost"}}</label>
+    <label>{{localize "EnhancedTerrainLayer.opacity.name"}}</label>
     <div class="form-fields">
-        <input type="range" name="flags.enhanced-terrain-layer.multiple" data-dtype="Number" value="{{data.multiple}}" min="0" max="4" step="1">
-        <span class="range-value" style="flex: 0 1 48px; line-height: 17px; ">{{data.multiple}}</span>
+        <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="flags.enhanced-terrain-layer.opacity" value="{{data.opacity}}">
+        <span class="range-value" style="flex: 0 1 48px;">{{data.opacity}}</span>
     </div>
+    <p class="notes">Set the opacity for all terrain on this scene</p>
+</div>
+<hr />
+<p class="notes">Set the default settings when terrain is created on this scene</p>
+{{/if}}
+<div class="form-group">
+    <label for="multiple">{{localize "EnhancedTerrainLayer.Cost"}}</label>
+    <input type="text" name="flags.enhanced-terrain-layer.multiple" data-dtype="Number" value="{{data.multiple}}" style="flex: 0 0 80px; text-align: right;">
 </div>
 <div class="form-group">
-    <label for="terrainheight">{{localize "EnhancedTerrainLayer.TerrainHeight"}}</label>
-    <div class="form-fields" style="position:relative;">
-        <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Min"}}</label>
-        <input type="number" style="text-align:right;" name="flags.enhanced-terrain-layer.min" data-dtype="Number" value="{{data.min}}">
-        <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Max"}}</label>
-        <input type="number" style="text-align:right;" name="flags.enhanced-terrain-layer.max" data-dtype="Number" value="{{data.max}}">
-    </div>
+    <label for="elevation">{{localize "EnhancedTerrainLayer.TerrainElevation"}}</label>
+    <input type="number" name="flags.enhanced-terrain-layer.elevation" step="any" data-dtype="Number" value="{{data.elevation}}" style="flex: 0 0 80px; text-align: right;">
+</div>
+<div class="form-group">
+    <label for="depth">{{localize "EnhancedTerrainLayer.TerrainDepth"}}</label>
+    <input type="number" name="flags.enhanced-terrain-layer.depth" step="any" data-dtype="Number" value="{{data.depth}}" style="flex: 0 0 80px; text-align: right;">
 </div>
 <div class="form-group">
     <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>
@@ -43,13 +51,6 @@
     <label for="flags.enhanced-terrain-layer.drawcolor">{{localize "EnhancedTerrainLayer.TerrainColor"}}</label>
     <div class="form-fields">
         {{ colorPicker name="drawcolor" value=data.drawcolor}}
-    </div>
-</div>
-<div class="form-group">
-    <label>{{localize "EnhancedTerrainLayer.opacity.name"}}</label>
-    <div class="form-fields">
-        <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="flags.enhanced-terrain-layer.opacity" value="{{data.opacity}}">
-        <span class="range-value" style="flex: 0 1 48px;">{{data.opacity}}</span>
     </div>
 </div>
 {{/if}}

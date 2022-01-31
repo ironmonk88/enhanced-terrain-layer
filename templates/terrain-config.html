@@ -25,8 +25,7 @@
     <div class="form-group">
         <label for="multiple">{{localize "EnhancedTerrainLayer.Cost"}}</label>
         <div class="form-fields">
-            <input type="range" name="multiple" data-dtype="Number" value="{{object.multiple}}" min="0" max="4" step="1">
-            <span class="range-value">{{object.multiple}}</span>
+            <input type="text" name="multiple" data-dtype="Number" value="{{object.multiple}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">
@@ -36,12 +35,15 @@
         </div>
     </div>
     <div class="form-group">
-        <label for="terrainheight">{{localize "EnhancedTerrainLayer.TerrainHeight"}}</label>
+        <label for="elevation">{{localize "EnhancedTerrainLayer.TerrainElevation"}}</label>
         <div class="form-fields" style="position:relative;">
-            <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Min"}}</label>
-            <input type="number" name="min" data-dtype="Number" value="{{object.min}}">
-            <label class="terrainheight-label">{{localize "EnhancedTerrainLayer.Max"}}</label>
-            <input type="number" name="max" data-dtype="Number" value="{{object.max}}">
+            <input type="number" name="elevation" step="any" data-dtype="Number" value="{{object.elevation}}" style="text-align: right;">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="depth">{{localize "EnhancedTerrainLayer.TerrainDepth"}}</label>
+        <div class="form-fields" style="position:relative;">
+            <input type="number" name="depth" step="any" data-dtype="Number" value="{{object.depth}}" style="text-align: right;">
         </div>
     </div>
     <div class="form-group">
