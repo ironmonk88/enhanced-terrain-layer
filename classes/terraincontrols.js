@@ -1,4 +1,5 @@
 import { TerrainLayer } from './terrainlayer.js';
+import { setting, i18n } from '../terrain-main.js';
 
 export class TerrainLayerToolBar extends FormApplication {
     constructor() {
@@ -11,7 +12,7 @@ export class TerrainLayerToolBar extends FormApplication {
             popOut: false,
             template: 'modules/enhanced-terrain-layer/templates/terrain-controls.html',
             id: 'terrainlayer-config',
-            title: game.i18n.localize('Default Terrain Cost'),
+            title: i18n('Default Terrain Cost'),
             closeOnSubmit: false,
             submitOnChange: false,
             submitOnClose: false
@@ -27,8 +28,11 @@ export class TerrainLayerToolBar extends FormApplication {
     }
 
     getData(options) {
+        let sceneMult = canvas.scene.getFlag('enhanced-terrain-layer', 'multiple');
+        let multiple = (sceneMult == undefined || sceneMult == "" ? canvas.terrain.defaultmultiple : Math.clamped(parseInt(sceneMult), setting('minimum-cost'), setting('maximum-cost')))
         return {
-            multiple: TerrainLayer.multipleText(canvas.terrain.defaultmultiple)
+            multiple: TerrainLayer.multipleText(multiple),
+            disabled: !(sceneMult == undefined || sceneMult == "")
         };
     }
 

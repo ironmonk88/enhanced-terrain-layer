@@ -261,15 +261,12 @@ async function addControlsv9(app, dest, full) {
 
 	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
 	let data = {
-		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || { elevation: 0, depth: 0 }),
+		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || {}),
 		environments: env,
 		obstacles: obs,
 		full: full
 	};
-	data.data.multiple = data.data.multiple || 1;
-	data.data.elevation = data.data.elevation || 0;
-	data.data.depth = data.data.depth || 0;
-	data.data.opacity = data.data.opacity || setting('opacity');
+	data.data.multiple = (data.data.multiple == "" || data.data.multiple == undefined ? "" : Math.clamped(parseInt(data.data.multiple), setting('minimum-cost'), setting('maximum-cost')));
 
 	let html = await renderTemplate(template, data);
 	dest.append(html);
@@ -463,6 +460,7 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 
 Hooks.on("updateScene", (scene, data) => {
 	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
+	canvas.terrain.toolbar.render(true);
 });
 
 Hooks.on("renderItemSheet", (app, html) => {

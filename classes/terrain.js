@@ -44,6 +44,9 @@ export class Terrain extends PlaceableObject {
     }
 
     static get defaults() {
+        let sceneMult = canvas.scene.getFlag('enhanced-terrain-layer', 'multiple');
+        let sceneElev = canvas.scene.getFlag('enhanced-terrain-layer', 'elevation');
+        let sceneDepth = canvas.scene.getFlag('enhanced-terrain-layer', 'depth');
         return {
             width: 0,
             height: 0,
@@ -51,9 +54,9 @@ export class Terrain extends PlaceableObject {
             locked: false,
             hidden: false,
             points: [],
-            multiple: canvas.scene.getFlag('enhanced-terrain-layer', 'multiple') || this.layer.defaultmultiple,
-            elevation: canvas.scene.getFlag('enhanced-terrain-layer', 'elevation') || 0,
-            depth: canvas.scene.getFlag('enhanced-terrain-layer', 'depth') || 0,
+            multiple: (sceneMult == undefined || sceneMult == "" ? this.layer.defaultmultiple : Math.clamped(parseInt(sceneMult), setting('minimum-cost'), setting('maximum-cost'))),
+            elevation: (sceneElev == undefined || sceneElev == "" ? 0 : sceneElev),
+            depth: (sceneDepth == undefined || sceneDepth == "" ? 0 : sceneDepth),
             environment: canvas.scene.getFlag('enhanced-terrain-layer', 'environment') || null,
             obstacle: null
         }

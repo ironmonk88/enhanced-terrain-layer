@@ -2,15 +2,15 @@
     <form id="terrainlayer-tools-form">
         <ol class="control-tools">
             <li title="{{localize "EnhancedTerrainLayer.IncreaseCost"}}">
-                <button class="control-tool" id="tl-inc-cost" data-tool="inc-cost" value="" type="button">
+                <button class="control-tool" id="tl-inc-cost" data-tool="inc-cost" value="" type="button"{{#if disabled}} disabled{{/if}}>
                     <i class="fas fa-chevron-up"></i>
                 </button>
             </li>
             <li title="{{localize "EnhancedTerrainLayer.Cost"}}">
-                <div class="control-tool" id="tl-defaultcost">{{{multiple}}}</div>
+                <div class="control-tool" id="tl-defaultcost" {{#if disabled}}title="value set from the Scene configuration"{{/if}}>{{{multiple}}}</div>
             </li>
             <li title="{{localize "EnhancedTerrainLayer.DecreaseCost"}}">
-                <button class="control-tool" id="tl-dec-cost" data-tool="dec-cost" value="" type="button">
+                <button class="control-tool" id="tl-dec-cost" data-tool="dec-cost" value="" type="button"{{#if disabled}} disabled{{/if}}>
                     <i class="fas fa-chevron-down"></i>
                 </button>
             </li>

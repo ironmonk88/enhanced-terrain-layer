@@ -1,3 +1,11 @@
+# Version 1.0.38
+
+Fixed issue with the default values for scenes.
+
+Updated the terrain controls so that if a scene had a default it would show that it was being overridden and what the value was.
+
+Added API to get the elevation from a set of points.
+
 # Version 1.0.37
 
 Changed from using min/max to elevation and depth

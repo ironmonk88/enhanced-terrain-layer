@@ -12,15 +12,15 @@
 {{/if}}
 <div class="form-group">
     <label for="multiple">{{localize "EnhancedTerrainLayer.Cost"}}</label>
-    <input type="text" name="flags.enhanced-terrain-layer.multiple" data-dtype="Number" value="{{data.multiple}}" style="flex: 0 0 80px; text-align: right;">
+    <input type="number" name="flags.enhanced-terrain-layer.multiple" step="any" value="{{data.multiple}}" style="flex: 0 0 80px; text-align: right;">
 </div>
 <div class="form-group">
     <label for="elevation">{{localize "EnhancedTerrainLayer.TerrainElevation"}}</label>
-    <input type="number" name="flags.enhanced-terrain-layer.elevation" step="any" data-dtype="Number" value="{{data.elevation}}" style="flex: 0 0 80px; text-align: right;">
+    <input type="number" name="flags.enhanced-terrain-layer.elevation" step="any" value="{{data.elevation}}" style="flex: 0 0 80px; text-align: right;">
 </div>
 <div class="form-group">
     <label for="depth">{{localize "EnhancedTerrainLayer.TerrainDepth"}}</label>
-    <input type="number" name="flags.enhanced-terrain-layer.depth" step="any" data-dtype="Number" value="{{data.depth}}" style="flex: 0 0 80px; text-align: right;">
+    <input type="number" name="flags.enhanced-terrain-layer.depth" step="any" value="{{data.depth}}" style="flex: 0 0 80px; text-align: right;">
 </div>
 <div class="form-group">
     <label for="environment">{{localize "EnhancedTerrainLayer.Environment"}}</label>

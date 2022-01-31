@@ -34,6 +34,12 @@
     box-shadow: 0 0 10px #ff6400;
 }
 
+
+#terrainlayer-tools .control-tool:disabled {
+    color: var(--color-text-dark-secondary);
+    box-shadow: none;
+}
+
 #terrainlayer-tools table {
     margin: 0;
     border: none;

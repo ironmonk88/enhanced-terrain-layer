@@ -128,6 +128,33 @@ export class TerrainLayer extends PlaceablesLayer {
             game.settings.set("enhanced-terrain-layer", "showterrain", this._showterrain);
     }
 
+    elevation(pts, options = {}) {
+        pts = pts instanceof Array ? pts : [pts];
+
+        let results = [];
+        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.w / 2);
+        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.h / 2);
+
+        for (let pt of pts) {
+            let cost = null;
+            let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
+
+            let tx = (gx + hx);
+            let ty = (gy + hy);
+
+            //get the cost for the terrain layer
+            for (let terrain of this.placeables) {
+                const testX = tx - terrain.data.x;
+                const testY = ty - terrain.data.y;
+                if (terrain?.shape?.contains(testX, testY)) {
+                    results.push({ top: terrain.top, bottom: terrain.bottom, terrain: terrain });
+                }
+            }
+        }
+
+        return results;
+    }
+
     cost(pts, options = {}) {
         let reduceFn = function (cost, reduce) {
             let value = parseFloat(reduce.value);
@@ -183,7 +210,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = ty - terrain.data.y;
                 if (terrain.multiple != 1 &&
                     !options.ignore?.includes(terrain.data.environment) &&
-                    !(elevation < terrain.data.bottom || elevation > terrain.data.top) &&
+                    !(elevation < terrain.bottom || elevation > terrain.top) &&
                     terrain?.shape?.contains(testX, testY)) {
                     let detail = {object:terrain};
                     let terraincost = terrain.cost(options);
@@ -213,7 +240,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = ty - measure.data.y;
                 let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
                 if (terrainFlag) {
-                    let terraincost = terrainFlag.multiple || 2;
+                    let terraincost = terrainFlag.multiple || 1;
                     let terrainbottom = terrainFlag.elevation || Terrain.defaults.elevation;
                     let terraintop = terrainbottom + (terrainFlag.depth || Terrain.defaults.depth);
                     let environment = terrainFlag.environment || '';
@@ -492,9 +519,9 @@ export class TerrainLayer extends PlaceablesLayer {
     _onDragLeftMove(event) {
         const { preview, createState } = event.data;
         if (!preview) return;
-        if (preview.parent === null) { // In theory this should never happen, but rarely does
-            this.preview.addChild(preview);
-        }
+        //if (preview.parent === null) { // In theory this should never happen, but rarely does
+        //    this.preview.addChild(preview);
+        //}
         if (createState >= 1) {
             preview._onMouseDraw(event);
         }
