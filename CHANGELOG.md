@@ -1,3 +1,7 @@
+# Version 1.0.39
+
+Fixing an issue rendering canvas.terrain.toolbar when it might not be there.
+
 # Version 1.0.38
 
 Fixed issue with the default values for scenes.

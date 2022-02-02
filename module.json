@@ -2,7 +2,7 @@
 	"name": "enhanced-terrain-layer",
 	"title": "Enhanced Terrain Layer",
 	"description": "A base module that adds a Terrain Layer to Foundry.  Used as a library for Rulers and other modules",
-	"version": "1.0.38",
+	"version": "1.0.39",
 	"minimumCoreVersion": "9",
 	"compatibleCoreVersion": "9",
 	"author": "IronMonk",
@@ -47,7 +47,7 @@
 	"styles": [ "css/terrainlayer.css" ],
 	"packs": [],
 	"url" : "https://github.com/ironmonk88/enhanced-terrain-layer",
-	"download" : "https://github.com/ironmonk88/enhanced-terrain-layer/archive/1.0.38.zip",
+	"download" : "https://github.com/ironmonk88/enhanced-terrain-layer/archive/1.0.39.zip",
 	"manifest" : "https://github.com/ironmonk88/enhanced-terrain-layer/releases/latest/download/module.json",
 	"bugs": "https://github.com/ironmonk88/enhanced-terrain-layer/issues",
 	"allowBugReporter": true

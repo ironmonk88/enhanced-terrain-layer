@@ -460,7 +460,8 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 
 Hooks.on("updateScene", (scene, data) => {
 	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
-	canvas.terrain.toolbar.render(true);
+	if (canvas.terrain.toolbar)
+		canvas.terrain.toolbar.render(true);
 });
 
 Hooks.on("renderItemSheet", (app, html) => {
