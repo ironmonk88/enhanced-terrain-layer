@@ -1,3 +1,15 @@
+# Version 1.0.40
+
+Improved efficiency by calling the flag data directly instead of through the getFlag function, thank you Stabchenfisch
+
+Added the option to set the background to transparent, in case you want difficult terrain to cover the entire map.
+
+Fixed issues with the placement of the terrain controls
+
+Fixed issue with clearing all the terrain objects from a Scene.
+
+Improved the effeciency of the function that calculates the cost of movement.
+
 # Version 1.0.39
 
 Fixing an issue rendering canvas.terrain.toolbar when it might not be there.

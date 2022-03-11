@@ -1,7 +1,7 @@
 import { TerrainLayer } from './terrainlayer.js';
-import { setting, i18n } from '../terrain-main.js';
+import { setting, i18n, getflag } from '../terrain-main.js';
 
-export class TerrainLayerToolBar extends FormApplication {
+export class TerrainLayerToolBar extends Application {
     constructor() {
         super(...arguments);
     }
@@ -24,15 +24,17 @@ export class TerrainLayerToolBar extends FormApplication {
     activateListeners(html) {
         super.activateListeners(html);
 
-        $('.control-tool[data-tool]', html).on("click", this._onHandleClick.bind(this));
+        $('.control-btn[data-tool]', html).on("click", this._onHandleClick.bind(this));
     }
 
     getData(options) {
-        let sceneMult = canvas.scene.getFlag('enhanced-terrain-layer', 'multiple');
-        let multiple = (sceneMult == undefined || sceneMult == "" ? canvas.terrain.defaultmultiple : Math.clamped(parseInt(sceneMult), setting('minimum-cost'), setting('maximum-cost')))
+        let sceneMult = getflag(canvas.scene, 'multiple');
+        let multiple = (sceneMult == undefined || sceneMult == "" ? canvas.terrain.defaultmultiple : Math.clamped(parseInt(sceneMult), setting('minimum-cost'), setting('maximum-cost')));
+        let disabled = !(sceneMult == undefined || sceneMult == "");
         return {
             multiple: TerrainLayer.multipleText(multiple),
-            disabled: !(sceneMult == undefined || sceneMult == "")
+            disabled: disabled,
+            title: (disabled ? i18n("EnhancedTerrainLayer.DefaultCost") : i18n("EnhancedTerrainLayer.Cost"))
         };
     }
 
@@ -42,12 +44,10 @@ export class TerrainLayerToolBar extends FormApplication {
         let inc = ($(btn).attr('id') == 'tl-inc-cost');
         canvas.terrain.defaultmultiple = TerrainLayer.alterMultiple(canvas.terrain.defaultmultiple, inc);
         $('#tl-defaultcost', this.element).html(TerrainLayer.multipleText(canvas.terrain.defaultmultiple));
+    }
 
-        /*
-        let idx = TerrainLayer.multipleOptions.indexOf(canvas.terrain.defaultmultiple);
-        idx = Math.clamped(($(btn).attr('id') == 'tl-inc-cost' ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
-        canvas.terrain.defaultmultiple = TerrainLayer.multipleOptions[idx];
-        $('#tl-defaultcost', this.element).html(TerrainLayer.multipleText(canvas.terrain.defaultmultiple));
-        */
+    async _render(...args) {
+        await super._render(...args);
+        $('#controls').append(this.element);
     }
 }

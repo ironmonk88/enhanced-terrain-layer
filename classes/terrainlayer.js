@@ -2,7 +2,7 @@ import { Terrain } from './terrain.js';
 import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { TerrainDocument, TerrainData } from './terraindocument.js';
-import { makeid, log, debug, warn, error, i18n, setting } from '../terrain-main.js';
+import { makeid, log, debug, warn, error, i18n, setting, getflag } from '../terrain-main.js';
 import EmbeddedCollection from "../../../common/abstract/embedded-collection.mjs";
 
 /*export let terraintypes = key => {
@@ -22,6 +22,8 @@ export class TerrainLayer extends PlaceablesLayer {
         super();
         this._showterrain = game.settings.get("enhanced-terrain-layer", "showterrain");
         this.defaultmultiple = 2;
+
+        this._setting = {};
     }
 
     static documentName = "Terrain";
@@ -172,6 +174,13 @@ export class TerrainLayer extends PlaceablesLayer {
             return value; //Math.max(value, 0);
         }
 
+        let isDead = function (token) {
+            return token.actor?.effects.find(e => {
+                const core = e.data.flags["core"];
+                return core && core["statusId"] === CONFIG.Combat.defeatedStatusId; 
+            });
+        }
+
         let details = [];
         let total = 0;
         pts = pts instanceof Array ? pts : [pts];
@@ -208,11 +217,12 @@ export class TerrainLayer extends PlaceablesLayer {
             for (let terrain of this.placeables) {
                 const testX = tx - terrain.data.x;
                 const testY = ty - terrain.data.y;
-                if (terrain.multiple != 1 &&
-                    !options.ignore?.includes(terrain.data.environment) &&
+                if (!options.ignore?.includes(terrain.data.environment) &&
+                    terrain.multiple != 1 &&
                     !(elevation < terrain.bottom || elevation > terrain.top) &&
-                    terrain?.shape?.contains(testX, testY)) {
-                    let detail = {object:terrain};
+                    terrain?.contains(testX, testY)) {
+
+                    let detail = { object: terrain };
                     let terraincost = terrain.cost(options);
                     detail.cost = terraincost;
 
@@ -230,7 +240,6 @@ export class TerrainLayer extends PlaceablesLayer {
                     detail.total = cost;
 
                     details.push(detail);
-
                 }
             }
 
@@ -240,9 +249,9 @@ export class TerrainLayer extends PlaceablesLayer {
                 const testY = ty - measure.data.y;
                 let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
                 if (terrainFlag) {
-                    let terraincost = terrainFlag.multiple || 1;
-                    let terrainbottom = terrainFlag.elevation || Terrain.defaults.elevation;
-                    let terraintop = terrainbottom + (terrainFlag.depth || Terrain.defaults.depth);
+                    let terraincost = terrainFlag.multiple ?? 1;
+                    let terrainbottom = terrainFlag.elevation ?? Terrain.defaults.elevation;
+                    let terraintop = terrainbottom + (terrainFlag.depth ?? Terrain.defaults.depth);
                     let environment = terrainFlag.environment || '';
                     let obstacle = terrainFlag.obstacle || '';
                     if (terraincost &&
@@ -271,32 +280,33 @@ export class TerrainLayer extends PlaceablesLayer {
             if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
 				//get the cost for walking through another creatures square
                 for (let token of canvas.tokens.placeables) {
-                    let dead = token.actor?.effects.find(e => e.getFlag("core", "statusId") === CONFIG.Combat.defeatedStatusId);
                     if (token.id != tokenId &&
                         !token.data.hidden &&
-                        (elevation == undefined || token.data.elevation == elevation) &&
-                        ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead))) {
-						const testX = tx;
-						const testY = ty;
-						if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
-                            let terraincost = 2;
-                            let detail = { object: token, cost: terraincost };
+                        (elevation == undefined || token.data.elevation == elevation)) {
+                        let dead = isDead(token);
+                        if ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead)) {
+                            const testX = tx;
+                            const testY = ty;
+                            if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
+                                let terraincost = 2;
+                                let detail = { object: token, cost: terraincost };
 
-                            let reduce = options.reduce?.find(e => e.id == 'token');
-                            if (reduce) {
-                                detail.reduce = reduce;
-                                terraincost = reduceFn(terraincost, reduce);
+                                let reduce = options.reduce?.find(e => e.id == 'token');
+                                if (reduce) {
+                                    detail.reduce = reduce;
+                                    terraincost = reduceFn(terraincost, reduce);
+                                }
+
+                                if (typeof calculateFn == 'function')
+                                    cost = calculateFn(terraincost, cost, token);
+                                detail.total = cost;
+
+                                details.push(detail);
                             }
-
-                            if (typeof calculateFn == 'function')
-                                cost = calculateFn(terraincost, cost, token);
-                            detail.total = cost;
-
-                            details.push(detail);
-						}
-					}
-				}
-			}
+                        }
+                    }
+                }
+            }
 
             total += (cost != undefined ? cost : 1);
         }

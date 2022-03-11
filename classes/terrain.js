@@ -1,4 +1,4 @@
-import { makeid, log, setting, debug } from '../terrain-main.js';
+import { makeid, log, setting, debug, getflag } from '../terrain-main.js';
 import { TerrainLayer } from './terrainlayer.js';
 
 export class Terrain extends PlaceableObject {
@@ -75,7 +75,7 @@ export class Terrain extends PlaceableObject {
     }
 
     get multiple() {
-        return (this.data.multiple == undefined ? Terrain.defaults.multiple : this.data.multiple);
+        return this.data.multiple ?? Terrain.defaults.multiple;
     }
 
     get terraintype() {
@@ -99,11 +99,11 @@ export class Terrain extends PlaceableObject {
     }
 
     get elevation() {
-        return this.data.elevation || Terrain.defaults.elevation;
+        return this.data.elevation ?? Terrain.defaults.elevation;
     }
 
     get depth() {
-        return this.data.depth || 0;
+        return this.data.depth ?? 0;
     }
 
     get top() {
@@ -115,11 +115,11 @@ export class Terrain extends PlaceableObject {
     }
 
     get color() {
-        return this.data.drawcolor || setting('environment-color')[this.environment?.id] || this.environment?.color || canvas.scene.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
+        return this.data.drawcolor || setting('environment-color')[this.environment?.id] || this.environment?.color || getflag(canvas.scene, 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF";
     }
 
     get opacity() {
-        return this.data.opacity || canvas.scene.getFlag('enhanced-terrain-layer', 'opacity') || setting('opacity') || 1;
+        return this.data.opacity ?? getflag(canvas.scene, 'opacity') ?? setting('opacity') ?? 1;
     }
 
     /*
@@ -129,6 +129,13 @@ export class Terrain extends PlaceableObject {
 
     get obstacle() {
         return this.data.obstacle;
+    }
+
+    contains(x, y) {
+        if (!(x < 0 || y < 0 || x > this.data.width || y > this.data.height)) {
+            return this.shape?.contains(x, y);
+        }
+        return false;
     }
 
     static async create(data, options) {
@@ -260,7 +267,10 @@ export class Terrain extends PlaceableObject {
             mult = 0.5;
 
         let image = setting('terrain-image');
-        this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${image}${mult}x.svg`) : null);
+        if (image != 'clear')
+            this.texture = (mult != 1 ? await loadTexture(`modules/enhanced-terrain-layer/img/${image}${mult}x.svg`) : null);
+        else
+            this.texture = null;
 
         this.updateEnvironment();
 
@@ -434,7 +444,7 @@ export class Terrain extends PlaceableObject {
         let drawAlpha = (ui.controls.activeControl == 'terrain' ? 1.0 : this.opacity);
 
         // Fill Color or Texture
-        if (this.texture) {
+        if (this.texture && sc != 'transparent') {
             let sW = (canvas.grid.w / (this.texture.width * (setting('terrain-image') == 'diagonal' ? 2 : 1)));
             let sH = (canvas.grid.h / (this.texture.height * (setting('terrain-image') == 'diagonal' ? 2 : 1)));
             this.drawing.beginTextureFill({
@@ -452,7 +462,7 @@ export class Terrain extends PlaceableObject {
             this.shape = new PIXI.Polygon(points.deepFlatten());
         }
 
-        if (this.shape) {
+        if (this.shape && sc != 'transparent') {
             if (this.data.hidden) {
                 this.drawDashedPolygon.call(this.drawing, points, 0, 0, 0, 1, 5, 0);
                 lStyle.width = 0;
@@ -940,7 +950,7 @@ export class Terrain extends PlaceableObject {
         delete this.data.id; //remove the id if I've accidentally added it.  We should be using _id
         if (options.save === true) {
             //update the data and save it to the scene
-            let objectdata = duplicate(canvas.scene.getFlag("enhanced-terrain-layer", `terrain${this.data._id}`));
+            let objectdata = duplicate(getflag(canvas.scene, `terrain${this.data._id}`));
             mergeObject(objectdata, this.data);
             //let updates = {};
             //updates['flags.enhanced-terrain-layer.terrain' + this.data._id + '.multiple'] = data.multiple;
@@ -961,7 +971,7 @@ export class Terrain extends PlaceableObject {
     }
 
     async delete(options) {
-        let layerdata = duplicate(this.scene.getFlag("enhanced-terrain-layer", "data"));
+        let layerdata = duplicate(getflag(this.scene, "data"));
         let idx = layerdata.findIndex(t => { return t._id == this.id });
         layerdata.splice(idx, 1);
         await this.scene.setFlag("enhanced-terrain-layer", "data", layerdata);

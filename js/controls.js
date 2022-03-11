@@ -68,8 +68,10 @@ Hooks.on('renderTerrainLayerToolBar', () => {
 		return;
 	if (isNewerVersion(game.version, "9")) {
 		const controltools = $('li[data-tool="addterrain"]').closest('.sub-controls');
-		const offset = controltools.offset();
-		tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width()}px` });
+		controltools.addClass('terrain-controls');
+		canvas.terrain.toolbar.element.addClass('active');
+		//const offset = controltools.offset();
+		//tools.css({ top: `${offset.top}px`, left: `${offset.left + controltools.width()}px` });
 	} else {
 		const controltools = $('li[data-control="terrain"] ol.control-tools');
 		const offset = controltools.offset();

@@ -1,6 +1,6 @@
 import * as fields from "../../../common/data/fields.mjs";
 import { Document, DocumentData } from "../../../common/abstract/module.mjs";
-import { makeid, log, error, i18n, setting } from '../terrain-main.js';
+import { makeid, log, error, i18n, setting, getflag } from '../terrain-main.js';
 import { Terrain } from './terrain.js';
 
 export class TerrainData extends DocumentData {
@@ -170,7 +170,7 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
             if (Object.keys(changes).length) {
                 //update the data and save it to the scene
                 if (game.user.isGM) {
-                    let objectdata = duplicate(canvas.scene.getFlag("enhanced-terrain-layer", `terrain${terrain.id}`));
+                    let objectdata = duplicate(getflag(canvas.scene, `terrain${terrain.id}`));
                     mergeObject(objectdata, changes);
                     let key = `flags.enhanced-terrain-layer.terrain${terrain.id}`;
                     await canvas.scene.update({ [key]: objectdata }, { diff: false });
@@ -205,7 +205,8 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         let updates = [];
         let originals = [];
         let deleted = [];
-        for (let id of ids) {
+        const deleteIds = options.deleteAll ? canvas.scene.data.terrain.keys() : ids;
+        for (let id of deleteIds) {
             let terrain = canvas.scene.data.terrain.find(t => t.id == id);
 
             if (terrain == undefined)

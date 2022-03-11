@@ -1,43 +1,53 @@
+#controls .sub-controls.terrain-controls {
+    flex-grow: 0;
+    margin-right: 4px;
+}
+
+/*
 #terrainlayer-tools {
     position: absolute;
     width: auto;
     text-align: center;
-}
+}*/
 
-#terrainlayer-tools .control-tools {
+#terrainlayer-tools.control-tools {
     list-style: none;
     padding: 0;
     margin: 0;
 }
 
-#terrainlayer-tools .control-tool {
+#terrainlayer-tools.control-tools > li.control-tool.disabled:hover {
+    box-shadow: none;
+    border: 1px solid var(--color-border-dark);
+    cursor: default;
+}
+
+#terrainlayer-tools .control-btn {
     width: 36px;
     height: 36px;
     box-sizing: content-box;
     font-size: 24px;
     line-height: 36px;
-    background: rgba(0, 0, 0, 0.5);
-    box-shadow: 0 0 10px #000;
     margin: 0 0 8px;
     color: #BBB;
     text-align: center;
-    border: 1px solid #000;
+    border: 0px;
+    background: transparent;
     border-radius: 5px;
     cursor: pointer;
     padding: 0;
 }
 
-#terrainlayer-tools .control-tool:hover {
+/*
+#terrainlayer-tools .control-btn:hover {
     color: #FFF;
-    border: 1px solid red;
-    border-bottom: 1px solid #ff6400;
     box-shadow: 0 0 10px #ff6400;
-}
+}*/
 
-
-#terrainlayer-tools .control-tool:disabled {
+#terrainlayer-tools .control-btn:disabled {
     color: var(--color-text-dark-secondary);
     box-shadow: none;
+    cursor: default;
 }
 
 #terrainlayer-tools table {
@@ -55,11 +65,26 @@
     padding-left: 8px;
 }
 
+#terrainlayer-tools #tl-defaultcost {
+    cursor: default;
+    position: relative;
+}
+#terrainlayer-tools #tl-defaultcost:hover {
+    box-shadow: none;
+    border: 1px solid var(--color-border-dark);
+    box-shadow: 0 0 10px var(--color-shadow-dark);
+}
+
+#terrainlayer-tools #tl-defaultcost i {
+    position: absolute;
+    top: -5px;
+    left: -5px;
+    font-size: 14px;
+}
 /*
 .terrain-color input[type=color]::-webkit-color-swatch {
     background-color: transparent !important;
 }*/
-
 /*
 #terrain-config input[type="range"] {
     z-index: 2;
@@ -80,7 +105,6 @@
     background: none;
     color:transparent;
 }*/
-
 #terrain-hud .environment-list {
     visibility: hidden;
     position: absolute;

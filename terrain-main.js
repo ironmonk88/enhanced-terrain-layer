@@ -20,8 +20,16 @@ export let i18n = key => {
 };
 
 export let setting = key => {
-	return game.settings.get("enhanced-terrain-layer", key);
+	if (canvas.terrain._setting[key] !== undefined)
+		return canvas.terrain._setting[key];
+	else
+		return game.settings.get("enhanced-terrain-layer", key);
 };
+
+export let getflag = (obj, key) => {
+	const flags = obj.data.flags['enhanced-terrain-layer'];
+	return flags && flags[key];
+}
 
 function registerLayer() {
 	if (isNewerVersion(game.version, "9"))
@@ -191,7 +199,7 @@ export function makeid() {
 }
 
 function addControls(app, html, addheader) {
-	let multiple = app.object.getFlag("enhanced-terrain-layer", "multiple") || 1;
+	let multiple = getflag(app.object, "multiple") || 1;
 	let cost = $('<div>').addClass('form-group')
 		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainCost")))
 		.append($('<div>').addClass('form-fields')
@@ -207,13 +215,13 @@ function addControls(app, html, addheader) {
 		.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainElevation")))
 		.append($('<div>')
 			.addClass('form-fields')
-			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.elevation', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'elevation') || 0))
+			.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.elevation', 'data-type': 'Number' }).val(getflag(app.object, 'elevation') || 0))
 	),
 		$('<div>').addClass('form-group')
 			.append($('<label>').html(i18n("EnhancedTerrainLayer.TerrainDepth")))
 			.append($('<div>')
 				.addClass('form-fields')
-				.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.depth', 'data-type': 'Number' }).val(app.object.getFlag('enhanced-terrain-layer', 'depth') || 0))
+				.append($('<input>').attr({ type: 'number', name: 'flags.enhanced-terrain-layer.depth', 'data-type': 'Number' }).val(getflag(app.object, 'depth') || 0))
 			)
 	];
 
@@ -236,7 +244,7 @@ function addControls(app, html, addheader) {
 				.append($('<option>').attr('value', '').html(''))
 				.append(envGroup)
 				.append(obsGroup)
-				.val(app.object.getFlag('enhanced-terrain-layer', 'environment'))));
+				.val(getflag(app.object, 'environment'))));
 
 	let ctrl = $('[name="flags.mess.templateTexture"], [name="texture"],[name="data.target.units"],[name="data.range.value"],[name="backgroundColor"]', html);
 	if (ctrl.length > 0) {
@@ -384,7 +392,7 @@ Hooks.on('init', async () => {
 	}
 
 	if (game.system.id == 'dnd5e') {
-		let fromItem = function(wrapped, ...args) {
+		let fromItem = function (wrapped, ...args) {
 			const [item] = args;
 			const template = wrapped(...args);
 			if (!template) {
@@ -392,7 +400,7 @@ Hooks.on('init', async () => {
 			}
 			let etldata = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
 			if (etldata) {
-				let data = { flags: { 'enhanced-terrain-layer': etldata }};
+				let data = { flags: { 'enhanced-terrain-layer': etldata } };
 				template.data.update(data);
 			}
 			return template;
@@ -407,7 +415,22 @@ Hooks.on('init', async () => {
 			}
 		}
 	}
-})
+});
+
+Hooks.on("ready", () => {
+	canvas.terrain._setting["opacity"] = setting("opacity");
+	canvas.terrain._setting["draw-border"] = setting("draw-border");
+	canvas.terrain._setting["terrain-image"] = setting("terrain-image");
+	canvas.terrain._setting["show-text"] = setting("show-text");
+	canvas.terrain._setting["show-icon"] = setting("show-icon");
+	canvas.terrain._setting["show-on-drag"] = setting("show-on-drag");
+	canvas.terrain._setting["only-show-active"] = setting("only-show-active");
+	canvas.terrain._setting["tokens-cause-difficult"] = setting("tokens-cause-difficult");
+	canvas.terrain._setting["dead-cause-difficult"] = setting("dead-cause-difficult");
+	canvas.terrain._setting["use-obstacles"] = setting("use-obstacles");
+	canvas.terrain._setting["minimum-cost"] = setting("minimum-cost");
+	canvas.terrain._setting["maximum-cost"] = setting("maximum-cost");
+});
 
 Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
 	if (isNewerVersion(game.version, "9")) {
@@ -434,7 +457,7 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 		let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
 
 		//add default color
-		let defaultColor = app.object.getFlag('enhanced-terrain-layer', 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
+		let defaultColor = getflag(app.object, 'defaultcolor') || setting('environment-color')['_default'] || '#FFFFFF';
 		const color = $('<div>').addClass('form-group')
 			.append($('<label>').html(i18n("EnhancedTerrainLayer.DefaultTerrainColor")))
 			.append($('<div>').addClass('form-fields')
@@ -443,7 +466,7 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 			.insertAfter(backgroundRow);
 
 		//add default opacity
-		let opacity = app.object.getFlag("enhanced-terrain-layer", "opacity") || setting("opacity") || 1;
+		let opacity = getflag(app.object, "opacity") || setting("opacity") || 1;
 		$('<div>').addClass('form-group')
 			.append($('<label>').html(i18n("EnhancedTerrainLayer.opacity.name")))
 			.append($('<div>').addClass('form-fields')
@@ -487,3 +510,10 @@ Hooks.on("renderItemSheet", (app, html) => {
 Hooks.on("controlToken", (app, html) => {
 	canvas.terrain.refresh();
 });
+
+Hooks.on("updateSetting", (setting, data, options, userid) => {
+	if (setting.key.startsWith("enhanced-terrain-layer")) {
+		const key = setting.key.replace("enhanced-terrain-layer.", "");
+		canvas.terrain._setting[key] = data.value;
+    }
+})

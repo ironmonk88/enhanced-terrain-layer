@@ -3,13 +3,16 @@ import { TerrainColor } from "../classes/terraincolor.js";
 export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
 
+	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
+
 	let imageoptions = {
 		'solid': 'Solid',
 		'diagonal': 'Diagonal',
 		'oldschool': 'Old School',
 		'triangle': 'Triangle',
 		'horizontal': 'Horizontal',
-		'vertical': 'Vertical'
+		'vertical': 'Vertical',
+		'clear': 'Clear'
 	};
 
 	game.settings.registerMenu(modulename, 'edit-colors', {
@@ -20,7 +23,6 @@ export const registerSettings = function () {
 		restricted: true,
 		type: TerrainColor,
 		onClick: (value) => {
-			
 		}
 	});
 
@@ -59,9 +61,7 @@ export const registerSettings = function () {
 		default: 'diagonal',
 		type: String,
 		choices: imageoptions,
-		onChange: () => {
-			canvas.terrain.redraw();
-		}
+		onChange: debouncedReload
 	});
 	game.settings.register(modulename, 'show-text', {
 		name: "EnhancedTerrainLayer.show-text.name",
