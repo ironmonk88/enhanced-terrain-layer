@@ -574,7 +574,7 @@ export class Terrain extends PlaceableObject {
 
     /* -------------------------------------------- */
 
-    cost(options) {
+    cost() {
         if (this.data.hidden) {
             return 1;
         } else
