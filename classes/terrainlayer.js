@@ -112,10 +112,10 @@ class TokenTerrainInfo extends TerrainInfo {
     }
 
     get shape() {
-        const left = token.data.x;
-        const top = token.data.y;
-        const right = left + token.data.width * canvas.grid.w;
-        const bottom = top + token.data.height * canvas.grid.h;
+        const left = 0;
+        const top = 0;
+        const right = left + this.token.data.width * canvas.grid.w;
+        const bottom = top + this.token.data.height * canvas.grid.h;
         return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
     }
 }
@@ -316,7 +316,7 @@ export class TerrainLayer extends PlaceablesLayer {
                     continue;
                 let dead = isDead(token);
                 if ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead)) {
-                    let reducers = [options.reduce?.find(e => e.id == 'token')]
+                    let reducers = options.reduce?.filter(e => e.id == 'token')
                     terrainInfos.push(new TokenTerrainInfo(token, reducers));
                 }
             }
