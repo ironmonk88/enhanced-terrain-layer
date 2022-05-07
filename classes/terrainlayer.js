@@ -17,6 +17,109 @@ export let obstacles = key => {
     return canvas.terrain.getObstacles();
 };*/
 
+class TerrainInfo {
+    constructor(reducers) {
+        if (this.constructor === TerrainInfo) {
+            throw new Error("TerrainInfo is an abstract class and cannot be directly instantiated");
+        }
+        this.reducers = reducers;
+    }
+
+    get cost() {
+        let terraincost = this.rawCost;
+        if (!this.reducers)
+            return terraincost;
+        for (const reduce of this.reducers) {
+            let value = parseFloat(reduce.value);
+
+            if (typeof reduce.value == 'string' && (reduce.value.startsWith('+') || reduce.value.startsWith('-'))) {
+                value = terraincost + value;
+                if (reduce.stop) {
+                    if (reduce.value.startsWith('+'))
+                        value = Math.min(value, reduce.stop);
+                    else
+                        value = Math.max(value, reduce.stop);
+                }
+            }
+            terraincost = value; //Math.max(value, 0);
+        }
+        return terraincost;
+    }
+
+    get object() {
+        throw new Error("The getter 'object' must be implemented by subclasses of TerrainInfo");
+    }
+
+    get rawCost() {
+        throw new Error("The getter 'rawCost' must be implemented by subclasses of TerrainInfo");
+    }
+
+    get shape() {
+        throw new Error("The getter 'shape' must be implemented by subclasses of TerrainInfo");
+    }
+}
+
+class PolygonTerrainInfo extends TerrainInfo {
+    constructor(terrain, reducers) {
+        super(reducers);
+        this.terrain = terrain;
+    }
+
+    get object() {
+        return this.terrain;
+    }
+
+    get rawCost() {
+        return this.terrain.cost();
+    }
+
+    get shape() {
+        return this.terrain.shape;
+    }
+}
+
+class TemplateTerrainInfo extends TerrainInfo {
+    constructor(template, reducers) {
+        super(reducers);
+        this.template = template;
+    }
+
+    get object() {
+        return this.template;
+    }
+
+    get rawCost() {
+        return this.template.data.flags['enhanced-terrain-layer'].multiple;
+    }
+
+    get shape() {
+        return this.template.shape;
+    }
+}
+
+class TokenTerrainInfo extends TerrainInfo {
+    constructor(token, reducers) {
+        super(reducers);
+        this.token = token;
+    }
+
+    get object() {
+        return this.token;
+    }
+
+    get rawCost() {
+        return 2;
+    }
+
+    get shape() {
+        const left = 0;
+        const top = 0;
+        const right = left + this.token.data.width * canvas.grid.w;
+        const bottom = top + this.token.data.height * canvas.grid.h;
+        return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
+    }
+}
+
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
         super();
@@ -157,22 +260,55 @@ export class TerrainLayer extends PlaceablesLayer {
         return results;
     }
 
-    cost(pts, options = {}) {
-        let reduceFn = function (cost, reduce) {
-            let value = parseFloat(reduce.value);
+    calcElevationFromOptions(options) {
+        return (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
+    }
 
-            if (typeof reduce.value == 'string' && (reduce.value.startsWith('+') || reduce.value.startsWith('-'))) {
-                value = cost + value;
-                if (reduce.stop) {
-                    if (reduce.value.startsWith('+'))
-                        value = Math.min(value, reduce.stop);
-                    else
-                        value = Math.max(value, reduce.stop);
-                }
-            }
+    listTerrain(options = {}) {
+        const useObstacles = setting('use-obstacles');
+        const elevation = this.calcElevationFromOptions(options);
 
-            return value; //Math.max(value, 0);
+        const terrainInfos = [];
+        for (const terrain of this.placeables) {
+            if (elevation < terrain.bottom || elevation > terrain.top)
+                continue;
+            if (terrain.multiple == 1)
+                continue;
+            if (options.ignore?.includes(terrain.data.environment))
+                continue;
+            let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (useObstacles && e.id == terrain.obstacle));
+            terrainInfos.push(new PolygonTerrainInfo(terrain, reducers));
         }
+        return terrainInfos;
+    }
+
+    listMeasuredTerrain(options = {}) {
+        const useObstacles = setting('use-obstacles');
+        const elevation = this.calcElevationFromOptions(options);
+
+        const terrainInfos = [];
+        for (const template of canvas.templates.placeables) {
+            const terrainFlag = template.data.flags['enhanced-terrain-layer'];
+            if (!terrainFlag)
+                continue;
+            const terraincost = terrainFlag.multiple ?? 1;
+            const terrainbottom = terrainFlag.elevation ?? Terrain.defaults.elevation;
+            const terraintop = terrainbottom + (terrainFlag.depth ?? Terrain.defaults.depth);
+            const environment = terrainFlag.environment || '';
+            if (elevation < terrainbottom || elevation > terraintop)
+                continue;
+            if (terraincost == 1)
+                continue;
+            if (options.ignore?.includes(environment))
+                continue;
+            let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (useObstacles && e.id == terrain.obstacle));
+            terrainInfos.push(new TemplateTerrainInfo(template, reducers));
+        }
+        return terrainInfos;
+    }
+
+    listTokenTerrain(options = {}) {
+        const terrainInfos = [];
 
         let isDead = function (token) {
             return token.actor?.effects.find(e => {
@@ -181,8 +317,32 @@ export class TerrainLayer extends PlaceablesLayer {
             });
         }
 
-        let details = [];
-        let total = 0;
+        if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
+            const elevation = this.calcElevationFromOptions(options);
+            const tokenId = options.tokenId || options?.token?.id;
+            for (const token of canvas.tokens.placeables) {
+                if (token.id == tokenId)
+                    continue;
+                if (token.data.hidden)
+                    continue;
+                if (elevation != undefined && token.data.elevation != elevation)
+                    continue;
+                let dead = isDead(token);
+                if ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead)) {
+                    let reducers = options.reduce?.filter(e => e.id == 'token')
+                    terrainInfos.push(new TokenTerrainInfo(token, reducers));
+                }
+            }
+        }
+
+        return terrainInfos;
+    }
+
+    listAllTerrain(options = {}) {
+        return this.listTerrain(options).concat(this.listMeasuredTerrain(options), this.listTokenTerrain(options));
+    }
+
+    costWithTerrain(pts, terrain, options = {}) {
         pts = pts instanceof Array ? pts : [pts];
 
         const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.w / 2);
@@ -203,109 +363,33 @@ export class TerrainLayer extends PlaceablesLayer {
             }
         }
 
-        for (let pt of pts) {
+        const details = [];
+        let total = 0;
+        for (const pt of pts) {
             let cost = null;
-            let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
+            const [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
 
-            let elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
-            let tokenId = options.tokenId || options?.token?.id;
+            const tx = (gx + hx);
+            const ty = (gy + hy);
 
-            let tx = (gx + hx);
-            let ty = (gy + hy);
+            for (const terrainInfo of terrain) {
+                const testX = tx - terrainInfo.object.data.x;
+                const testY = ty - terrainInfo.object.data.y;
 
-            //get the cost for the terrain layer
-            for (let terrain of this.placeables) {
-                const testX = tx - terrain.data.x;
-                const testY = ty - terrain.data.y;
-                if (!options.ignore?.includes(terrain.data.environment) &&
-                    terrain.multiple != 1 &&
-                    !(elevation < terrain.bottom || elevation > terrain.top) &&
-                    terrain?.contains(testX, testY)) {
+                if (!terrainInfo.shape.contains(testX, testY))
+                    continue;
 
-                    let detail = { object: terrain };
-                    let terraincost = terrain.cost(options);
-                    detail.cost = terraincost;
-
-                    //does this check ignore certain environment types?
-                    let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (setting('use-obstacles') && e.id == terrain.obstacle));
-                    if (reducers && reducers.length > 0) {
-                        detail.reduce = reducers;
-                        for (let reduce of reducers) {
-                            terraincost = reduceFn(terraincost, reduce);
-                        }
-                    }
-                    if (typeof calculateFn == 'function')
-                        cost = calculateFn(terraincost, cost, terrain);
-
-                    detail.total = cost;
-
-                    details.push(detail);
-                }
-            }
-
-            //get the cost for any measured templates, ie spells
-            for (let measure of canvas.templates.placeables) {
-                const testX = tx - measure.data.x;
-                const testY = ty - measure.data.y;
-                let terrainFlag = measure.data.flags['enhanced-terrain-layer'];
-                if (terrainFlag) {
-                    let terraincost = terrainFlag.multiple ?? 1;
-                    let terrainbottom = terrainFlag.elevation ?? Terrain.defaults.elevation;
-                    let terraintop = terrainbottom + (terrainFlag.depth ?? Terrain.defaults.depth);
-                    let environment = terrainFlag.environment || '';
-                    let obstacle = terrainFlag.obstacle || '';
-                    if (terraincost &&
-                        !options.ignore?.includes(environment) &&
-                        !(elevation < terrainbottom || elevation > terraintop) &&
-                        measure.shape.contains(testX, testY)) {
-
-                        let detail = { object: measure, cost: terraincost };
-                        let reducers = options.reduce?.find(e => e.id == environment || (setting('use-obstacles') && e.id == obstacle));
-                        if (reducers && reducers.length > 0) {
-                            detail.reduce = reducers;
-                            for (let reduce of reducers) {
-                                terraincost = reduceFn(terraincost, reduce);
-                            }
-                        }
-
-                        if (typeof calculateFn == 'function')
-                            cost = calculateFn(terraincost, cost, measure);
-                        detail.total = cost;
-
-                        details.push(detail);
-                    }
-                }
-            }
-
-            if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
-				//get the cost for walking through another creatures square
-                for (let token of canvas.tokens.placeables) {
-                    if (token.id != tokenId &&
-                        !token.data.hidden &&
-                        (elevation == undefined || token.data.elevation == elevation)) {
-                        let dead = isDead(token);
-                        if ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead)) {
-                            const testX = tx;
-                            const testY = ty;
-                            if (!(testX < token.data.x || testX > token.data.x + (token.data.width * canvas.grid.w) || testY < token.data.y || testY > token.data.y + (token.data.height * canvas.grid.h))) {
-                                let terraincost = 2;
-                                let detail = { object: token, cost: terraincost };
-
-                                let reduce = options.reduce?.find(e => e.id == 'token');
-                                if (reduce) {
-                                    detail.reduce = reduce;
-                                    terraincost = reduceFn(terraincost, reduce);
-                                }
-
-                                if (typeof calculateFn == 'function')
-                                    cost = calculateFn(terraincost, cost, token);
-                                detail.total = cost;
-
-                                details.push(detail);
-                            }
-                        }
-                    }
-                }
+                const terraincost = terrainInfo.cost;
+                if (typeof calculateFn == 'function')
+                    cost = calculateFn(terraincost, cost, terrainInfo.object);
+                
+                const detail = {
+                    cost: terrainInfo.rawCost,
+                    object: terrainInfo.object,
+                    reduce: terrainInfo.reducers,
+                    total: cost,
+                };
+                details.push(detail);
             }
 
             total += (cost != undefined ? cost : 1);
@@ -315,6 +399,11 @@ export class TerrainLayer extends PlaceablesLayer {
             return { cost: total, details: details, calculate: calculate };
         else
             return total;
+    }
+
+    cost(pts, options = {}) {
+        const terrain = this.listAllTerrain(options);
+        return this.costWithTerrain(pts, terrain, options);
     }
 
     terrainAt(x, y) {
