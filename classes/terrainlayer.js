@@ -260,14 +260,15 @@ export class TerrainLayer extends PlaceablesLayer {
         return results;
     }
 
+    calcElevationFromOptions(options) {
+        return (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
+    }
+
     listTerrain(options = {}) {
         const useObstacles = setting('use-obstacles');
-        const elevation = (options.elevation === false ? null : (options.elevation != undefined ? options.elevation : options?.token?.data?.elevation));
-        const tokenId = options.tokenId || options?.token?.id;
+        const elevation = this.calcElevationFromOptions(options);
 
         const terrainInfos = [];
-
-        // Read terrain from the terrain layer
         for (const terrain of this.placeables) {
             if (elevation < terrain.bottom || elevation > terrain.top)
                 continue;
@@ -278,8 +279,14 @@ export class TerrainLayer extends PlaceablesLayer {
             let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (useObstacles && e.id == terrain.obstacle));
             terrainInfos.push(new PolygonTerrainInfo(terrain, reducers));
         }
+        return terrainInfos;
+    }
 
-        // Read terrain from measured templates, ie spells
+    listMeasuredTerrain(options = {}) {
+        const useObstacles = setting('use-obstacles');
+        const elevation = this.calcElevationFromOptions(options);
+
+        const terrainInfos = [];
         for (const template of canvas.templates.placeables) {
             const terrainFlag = template.data.flags['enhanced-terrain-layer'];
             if (!terrainFlag)
@@ -297,6 +304,11 @@ export class TerrainLayer extends PlaceablesLayer {
             let reducers = options.reduce?.filter(e => e.id == terrain.data.environment || (useObstacles && e.id == terrain.obstacle));
             terrainInfos.push(new TemplateTerrainInfo(template, reducers));
         }
+        return terrainInfos;
+    }
+
+    listTokenTerrain(options = {}) {
+        const terrainInfos = [];
 
         let isDead = function (token) {
             return token.actor?.effects.find(e => {
@@ -305,8 +317,9 @@ export class TerrainLayer extends PlaceablesLayer {
             });
         }
 
-        // Collect terrain from tokens, if enabled
         if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
+            const elevation = this.calcElevationFromOptions(options);
+            const tokenId = options.tokenId || options?.token?.id;
             for (const token of canvas.tokens.placeables) {
                 if (token.id == tokenId)
                     continue;
@@ -323,6 +336,10 @@ export class TerrainLayer extends PlaceablesLayer {
         }
 
         return terrainInfos;
+    }
+
+    listAllTerrain(options = {}) {
+        return this.listTerrain(options).concat(this.listMeasuredTerrain(options), this.listTokenTerrain(options));
     }
 
     costWithTerrain(pts, terrain, options = {}) {
@@ -385,7 +402,7 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     cost(pts, options = {}) {
-        const terrain = this.listTerrain(options);
+        const terrain = this.listAllTerrain(options);
         return this.costWithTerrain(pts, terrain, options);
     }
 
