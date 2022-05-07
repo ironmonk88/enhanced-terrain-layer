@@ -32,7 +32,7 @@ export class TerrainColor extends FormApplication {
         }, []);
 
         return {
-            main: colors['_default'] || { id:'_default', color:'#FFFFFF'},
+            main: { id: '_default', color: (colors['_default'] || '#FFFFFF')},
             environment: environmentColor,
             obstacle: obstacleColor
         };

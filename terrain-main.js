@@ -188,6 +188,19 @@ async function checkUpgrade() {
 		ui.notifications.info('TerrainLayer conversion complete.');
 }*/
 
+function registerKeybindings() {
+	game.keybindings.register('enhanced-terrain-layer', 'toggle-view', {
+		name: 'EnhancedTerrainLayer.ToggleView',
+		restricted: true,
+		editable: [{ key: 'KeyT', modifiers: [KeyboardManager.MODIFIER_KEYS?.ALT] }],
+		onDown: (data) => {
+			if (game.user.isGM) {
+				canvas.terrain.toggle(null, true);
+			}
+		},
+	});
+}
+
 export function makeid() {
 	var result = '';
 	var characters = 'ABCDEFGHIJKLMNOPQRSTUVWXYZabcdefghijklmnopqrstuvwxyz0123456789';
@@ -320,6 +333,7 @@ Hooks.on('init', async () => {
 
 	registerSettings();
 	registerLayer();
+	registerKeybindings();
 
 	//remove old layer's controls
 	let getControlButtons = function (wrapped, ...args) {
@@ -432,15 +446,38 @@ Hooks.on("ready", () => {
 	canvas.terrain._setting["maximum-cost"] = setting("maximum-cost");
 });
 
-Hooks.on('renderMeasuredTemplateConfig', (config, html, data) => {
+Hooks.on('renderMeasuredTemplateConfig', (app, html, data) => {
 	if (isNewerVersion(game.version, "9")) {
-		let base = $('form', html);
-		addControlsv9(config, base).then(() => {
-			$('button[name="submit"]', base).appendTo(base);
-			config.setPosition({ height: 'auto' });
-		});
+		let tab;
+		if ($('.sheet-tabs', html).length) {
+			$('.sheet-tabs', html).append($('<a>').addClass("item").attr("data-tab", "terrain").html('<i class="fas fa-mountiain"></i> Terrain'));
+			tab = $('<div>').addClass("tab action-sheet").attr('data-tab', 'terrain').insertAfter($('.tab:last', html));
+		} else {
+			let basictab = $('<div>').addClass("tab").attr('data-tab', 'basic');
+			$('form > *:not(button)', html).each(function () {
+				basictab.append(this);
+			});
+
+			tab = $('<div>').addClass("tab action-sheet").attr('data-tab', 'terrain');
+			$('form', html).prepend(tab).prepend(basictab).prepend(
+				$('<nav>')
+					.addClass("sheet-tabs tabs")
+					.append($('<a>').addClass("item active").attr("data-tab", "basic").html('<i class="fas fa-university"></i> Basic'))
+					.append($('<a>').addClass("item").attr("data-tab", "terrain").html('<i class="fas fa-mountain"></i> Terrain'))
+			);
+		}
+
+		addControlsv9(app, tab, false);
+
+		app.options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "basic" }];
+		app.options.height = "auto";
+		app._tabs = app._createTabHandlers();
+		const el = html[0];
+		app._tabs.forEach(t => t.bind(el));
+
+		app.setPosition();
 	} else {
-		addControls(config, html);
+		addControls(app, html);
 
 		let height = $(html).height();
 		$(html).css({ height: height + 90 });
@@ -488,7 +525,7 @@ Hooks.on("updateScene", (scene, data) => {
 });
 
 Hooks.on("renderItemSheet", (app, html) => {
-	if (app.object.type == 'spell') {
+	if (app.object.hasAreaTarget) {
 		if (isNewerVersion(game.version, "9")) {
 			let details = $('.tab[data-tab="details"]', html);
 			details.append($('<h3>').addClass('form-header').html('Terrain Effects'));
@@ -514,6 +551,6 @@ Hooks.on("controlToken", (app, html) => {
 Hooks.on("updateSetting", (setting, data, options, userid) => {
 	if (setting.key.startsWith("enhanced-terrain-layer")) {
 		const key = setting.key.replace("enhanced-terrain-layer.", "");
-		canvas.terrain._setting[key] = data.value;
-    }
-})
+		canvas.terrain._setting[key] = (key == "environment-color" ? JSON.parse(data.value) : data.value);
+	}
+});

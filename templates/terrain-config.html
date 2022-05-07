@@ -35,15 +35,22 @@
         </div>
     </div>
     <div class="form-group">
+        <label>{{localize "EnhancedTerrainLayer.opacity.name"}}</label>
+        <div class="form-fields">
+            <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="opacity" value="{{object.opacity}}">
+            <span class="range-value" style="flex: 0 1 48px;height: 23px;">{{object.opacity}}</span>
+        </div>
+    </div>
+    <div class="form-group">
         <label for="elevation">{{localize "EnhancedTerrainLayer.TerrainElevation"}}</label>
         <div class="form-fields" style="position:relative;">
-            <input type="number" name="elevation" step="any" data-dtype="Number" value="{{object.elevation}}" style="text-align: right;">
+            <input type="number" name="elevation" step="any" data-dtype="Number" value="{{object.elevation}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">
         <label for="depth">{{localize "EnhancedTerrainLayer.TerrainDepth"}}</label>
         <div class="form-fields" style="position:relative;">
-            <input type="number" name="depth" step="any" data-dtype="Number" value="{{object.depth}}" style="text-align: right;">
+            <input type="number" name="depth" step="any" data-dtype="Number" value="{{object.depth}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">

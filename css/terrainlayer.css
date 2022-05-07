@@ -38,12 +38,14 @@
     padding: 0;
 }
 
+#terrainlayer-tools.control-tools > li.control-tool.disabled:hover {
+    box-shadow: 0 0 10px var(--color-shadow-dark);
+}
 /*
 #terrainlayer-tools .control-btn:hover {
     color: #FFF;
     box-shadow: 0 0 10px #ff6400;
 }*/
-
 #terrainlayer-tools .control-btn:disabled {
     color: var(--color-text-dark-secondary);
     box-shadow: none;

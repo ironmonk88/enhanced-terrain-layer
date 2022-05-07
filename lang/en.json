@@ -29,6 +29,7 @@
   "EnhancedTerrainLayer.Inactive": "Inactive",
   "EnhancedTerrainLayer.Locked": "Locked",
   "EnhancedTerrainLayer.DefaultCost": "Default value set from the Scene configuration",
+  "EnhancedTerrainLayer.ToggleView": "Toggle terrain always viewed",
 
   "EnhancedTerrainLayer.opacity.name": "Terrain Opacity",
   "EnhancedTerrainLayer.opacity.hint": "Opacity of the terrain layer",

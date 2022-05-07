@@ -1,3 +1,23 @@
+# Version 1.0.41
+
+Fixed issue where editing the colours in the settings was erasing all the colour information.
+
+Added the option to set a terrain's individual opacity.
+
+Added the option to get a list of all available terrains.  Thank you Stäbchenfisch the code looks amazing.  Technically nothing should change for the interface, but this improvement can help Rulers be more effecient.
+
+Fixed an issue with how Enhanced Terrain Layer was determining if a token was dead.
+
+Added the option for Rulers to pass in a function to determine if a Token is considered dead or not.  This will allow system specific ruler to change how tokens are considered "dead".
+
+Fixed some styling with the terrain control buttons when the Scene has set the default terrain cost.  Made it more apparent what's happening, and that the buttons are no longer clickable.
+
+Added key binding to toggle terrain showing.  Used Alt-T to switch between states.
+
+Changed the interface for spells/items so that terrain controls will only appear if the spell requires a measured template.  As terrain details aren't needed otherwise.
+
+Changed the measured template config screen to have tabs, with the terrain onformation on a separate tab.  This should make the dialog a little less cluttered and add more visibility into the terrain controls.
+
 # Version 1.0.40
 
 Improved efficiency by calling the flag data directly instead of through the getFlag function, thank you Stabchenfisch

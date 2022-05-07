@@ -17,6 +17,7 @@ export class TerrainData extends DocumentData {
             multiple: fields.NUMERIC_FIELD,
             elevation: fields.NUMERIC_FIELD,
             depth: fields.NUMERIC_FIELD,
+            opacity: fields.NUMERIC_FIELD,
             drawcolor: fields.STRING_FIELD,
             environment: fields.STRING_FIELD,
             obstacle: fields.STRING_FIELD,

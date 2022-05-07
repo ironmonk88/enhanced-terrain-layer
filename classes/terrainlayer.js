@@ -2,123 +2,13 @@ import { Terrain } from './terrain.js';
 import { TerrainConfig } from './terrainconfig.js';
 import { TerrainHUD } from './terrainhud.js';
 import { TerrainDocument, TerrainData } from './terraindocument.js';
+import { PolygonTerrainInfo, TemplateTerrainInfo, TokenTerrainInfo } from './terraininfo.js';
 import { makeid, log, debug, warn, error, i18n, setting, getflag } from '../terrain-main.js';
 import EmbeddedCollection from "../../../common/abstract/embedded-collection.mjs";
-
-/*export let terraintypes = key => {
-    return canvas.terrain.getTerrainTypes();
-};*/
 
 export let environments = key => {
     return canvas.terrain.getEnvironments();
 };
-/*
-export let obstacles = key => {
-    return canvas.terrain.getObstacles();
-};*/
-
-class TerrainInfo {
-    constructor(reducers) {
-        if (this.constructor === TerrainInfo) {
-            throw new Error("TerrainInfo is an abstract class and cannot be directly instantiated");
-        }
-        this.reducers = reducers;
-    }
-
-    get cost() {
-        let terraincost = this.rawCost;
-        if (!this.reducers)
-            return terraincost;
-        for (const reduce of this.reducers) {
-            let value = parseFloat(reduce.value);
-
-            if (typeof reduce.value == 'string' && (reduce.value.startsWith('+') || reduce.value.startsWith('-'))) {
-                value = terraincost + value;
-                if (reduce.stop) {
-                    if (reduce.value.startsWith('+'))
-                        value = Math.min(value, reduce.stop);
-                    else
-                        value = Math.max(value, reduce.stop);
-                }
-            }
-            terraincost = value; //Math.max(value, 0);
-        }
-        return terraincost;
-    }
-
-    get object() {
-        throw new Error("The getter 'object' must be implemented by subclasses of TerrainInfo");
-    }
-
-    get rawCost() {
-        throw new Error("The getter 'rawCost' must be implemented by subclasses of TerrainInfo");
-    }
-
-    get shape() {
-        throw new Error("The getter 'shape' must be implemented by subclasses of TerrainInfo");
-    }
-}
-
-class PolygonTerrainInfo extends TerrainInfo {
-    constructor(terrain, reducers) {
-        super(reducers);
-        this.terrain = terrain;
-    }
-
-    get object() {
-        return this.terrain;
-    }
-
-    get rawCost() {
-        return this.terrain.cost();
-    }
-
-    get shape() {
-        return this.terrain.shape;
-    }
-}
-
-class TemplateTerrainInfo extends TerrainInfo {
-    constructor(template, reducers) {
-        super(reducers);
-        this.template = template;
-    }
-
-    get object() {
-        return this.template;
-    }
-
-    get rawCost() {
-        return this.template.data.flags['enhanced-terrain-layer'].multiple;
-    }
-
-    get shape() {
-        return this.template.shape;
-    }
-}
-
-class TokenTerrainInfo extends TerrainInfo {
-    constructor(token, reducers) {
-        super(reducers);
-        this.token = token;
-    }
-
-    get object() {
-        return this.token;
-    }
-
-    get rawCost() {
-        return 2;
-    }
-
-    get shape() {
-        const left = 0;
-        const top = 0;
-        const right = left + this.token.data.width * canvas.grid.w;
-        const bottom = top + this.token.data.height * canvas.grid.h;
-        return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
-    }
-}
 
 export class TerrainLayer extends PlaceablesLayer {
     constructor() {
@@ -268,7 +158,7 @@ export class TerrainLayer extends PlaceablesLayer {
         const useObstacles = setting('use-obstacles');
         const elevation = this.calcElevationFromOptions(options);
 
-        const terrainInfos = [];
+        const terrainInfos = options.list || [];
         for (const terrain of this.placeables) {
             if (elevation < terrain.bottom || elevation > terrain.top)
                 continue;
@@ -286,7 +176,7 @@ export class TerrainLayer extends PlaceablesLayer {
         const useObstacles = setting('use-obstacles');
         const elevation = this.calcElevationFromOptions(options);
 
-        const terrainInfos = [];
+        const terrainInfos = options.list || [];
         for (const template of canvas.templates.placeables) {
             const terrainFlag = template.data.flags['enhanced-terrain-layer'];
             if (!terrainFlag)
@@ -308,10 +198,10 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     listTokenTerrain(options = {}) {
-        const terrainInfos = [];
+        const terrainInfos = options.list || [];
 
-        let isDead = function (token) {
-            return token.actor?.effects.find(e => {
+        let isDead = options.isDead || function (token) {
+            return !!token.actor?.effects?.find(e => {
                 const core = e.data.flags["core"];
                 return core && core["statusId"] === CONFIG.Combat.defeatedStatusId; 
             });
@@ -339,7 +229,7 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     listAllTerrain(options = {}) {
-        return this.listTerrain(options).concat(this.listMeasuredTerrain(options), this.listTokenTerrain(options));
+        return this.listTokenTerrain({ list: this.listMeasuredTerrain({ list: this.listTerrain(options), ...options }), ...options })
     }
 
     costWithTerrain(pts, terrain, options = {}) {
@@ -404,23 +294,6 @@ export class TerrainLayer extends PlaceablesLayer {
     cost(pts, options = {}) {
         const terrain = this.listAllTerrain(options);
         return this.costWithTerrain(pts, terrain, options);
-    }
-
-    terrainAt(x, y) {
-        warn('terrainAt is deprecated and will be removed, please use terrainFromGrid or terrainFromPixels instead');
-        /*
-        const hx = canvas.grid.w / 2;
-        const hy = canvas.grid.h / 2;
-        let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(y, x);
-        let terrains = this.placeables.filter(t => {
-            const testX = (gx + hx) - t.data.x;
-            const testY = (gy + hy) - t.data.y;
-            return t.shape.contains(testX, testY);
-        });
-
-        return terrains;
-        */
-        return this.terrainFromGrid(x, y);
     }
 
     terrainFromGrid(x, y) {

@@ -1,6 +1,6 @@
 import { TerrainLayer } from './terrainlayer.js';
 import { TerrainDocument } from './terraindocument.js';
-import { log, setting, i18n} from '../terrain-main.js';
+import { log, setting, i18n, getflag} from '../terrain-main.js';
 
 export class TerrainConfig extends DocumentSheet {
 
@@ -35,8 +35,11 @@ export class TerrainConfig extends DocumentSheet {
             return map;
         }, {});*/
 
+        let object = duplicate(this.object.data);
+        object.opacity = this.document.object.opacity;
+
         return {
-            object: duplicate(this.object.data),
+            object: object,
             options: this.options,
             environments: _environments,
             obstacles: _obstacles,
@@ -64,6 +67,11 @@ export class TerrainConfig extends DocumentSheet {
 
         let data = expandObject(formData);
         data.multiple = Math.clamped(data.multiple, setting('minimum-cost'), setting('maximum-cost'));
+
+        let defaultOpacity = getflag(canvas.scene, 'opacity') ?? setting('opacity') ?? 1;
+        if (data.opacity == defaultOpacity)
+            data.opacity = null;
+
         if (this.document.id) {
             /*
             if (game.user.isGM) {
