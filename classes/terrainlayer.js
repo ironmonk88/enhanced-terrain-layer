@@ -131,7 +131,6 @@ export class TerrainLayer extends PlaceablesLayer {
         const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.grid.h / 2);
 
         for (let pt of pts) {
-            let cost = null;
             let [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
 
             let tx = (gx + hx);

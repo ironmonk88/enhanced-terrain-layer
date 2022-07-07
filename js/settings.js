@@ -4,6 +4,7 @@ export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
 
 	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
+	const debouncedRefresh = foundry.utils.debounce(function () { canvas.terrain.refresh(); }, 100);
 
 	let imageoptions = {
 		'solid': 'Solid',
@@ -38,9 +39,7 @@ export const registerSettings = function () {
 			max: 1,
 			step: 0.1
 		},
-		onChange: () => {
-			canvas.terrain.refresh();
-		}
+		onChange: debouncedRefresh
 	});
 	game.settings.register(modulename, 'draw-border', {
 		name: "EnhancedTerrainLayer.draw-border.name",
@@ -49,9 +48,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: () => {
-			canvas.terrain.refresh();
-		}
+		onChange: debouncedRefresh
 	});
 	game.settings.register(modulename, 'terrain-image', {
 		name: "EnhancedTerrainLayer.terrain-image.name",
@@ -70,9 +67,7 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
-		onChange: () => {
-			canvas.terrain.refresh();
-		}
+		onChange: debouncedRefresh
 	});
 	game.settings.register(modulename, 'show-icon', {
 		name: "EnhancedTerrainLayer.show-icon.name",
@@ -81,9 +76,7 @@ export const registerSettings = function () {
 		config: true,
 		default: true,
 		type: Boolean,
-		onChange: () => {
-			canvas.terrain.refresh();
-		}
+		onChange: debouncedRefresh
 	});
 	game.settings.register(modulename, 'show-on-drag', {
 		name: "EnhancedTerrainLayer.show-on-drag.name",
@@ -100,9 +93,7 @@ export const registerSettings = function () {
 		config: true,
 		default: false,
 		type: Boolean,
-		onChange: () => {
-			canvas.terrain.refresh();
-		}
+		onChange: debouncedRefresh
 	});
 	game.settings.register(modulename, 'tokens-cause-difficult', {
 		name: "EnhancedTerrainLayer.tokens-cause-difficult.name",

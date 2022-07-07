@@ -432,18 +432,20 @@ Hooks.on('init', async () => {
 });
 
 Hooks.on("ready", () => {
-	canvas.terrain._setting["opacity"] = setting("opacity");
-	canvas.terrain._setting["draw-border"] = setting("draw-border");
-	canvas.terrain._setting["terrain-image"] = setting("terrain-image");
-	canvas.terrain._setting["show-text"] = setting("show-text");
-	canvas.terrain._setting["show-icon"] = setting("show-icon");
-	canvas.terrain._setting["show-on-drag"] = setting("show-on-drag");
-	canvas.terrain._setting["only-show-active"] = setting("only-show-active");
-	canvas.terrain._setting["tokens-cause-difficult"] = setting("tokens-cause-difficult");
-	canvas.terrain._setting["dead-cause-difficult"] = setting("dead-cause-difficult");
-	canvas.terrain._setting["use-obstacles"] = setting("use-obstacles");
-	canvas.terrain._setting["minimum-cost"] = setting("minimum-cost");
-	canvas.terrain._setting["maximum-cost"] = setting("maximum-cost");
+	if (canvas.terrain) {
+		canvas.terrain._setting["opacity"] = setting("opacity");
+		canvas.terrain._setting["draw-border"] = setting("draw-border");
+		canvas.terrain._setting["terrain-image"] = setting("terrain-image");
+		canvas.terrain._setting["show-text"] = setting("show-text");
+		canvas.terrain._setting["show-icon"] = setting("show-icon");
+		canvas.terrain._setting["show-on-drag"] = setting("show-on-drag");
+		canvas.terrain._setting["only-show-active"] = setting("only-show-active");
+		canvas.terrain._setting["tokens-cause-difficult"] = setting("tokens-cause-difficult");
+		canvas.terrain._setting["dead-cause-difficult"] = setting("dead-cause-difficult");
+		canvas.terrain._setting["use-obstacles"] = setting("use-obstacles");
+		canvas.terrain._setting["minimum-cost"] = setting("minimum-cost");
+		canvas.terrain._setting["maximum-cost"] = setting("maximum-cost");
+	}
 });
 
 Hooks.on('renderMeasuredTemplateConfig', (app, html, data) => {
@@ -453,13 +455,16 @@ Hooks.on('renderMeasuredTemplateConfig', (app, html, data) => {
 			$('.sheet-tabs', html).append($('<a>').addClass("item").attr("data-tab", "terrain").html('<i class="fas fa-mountiain"></i> Terrain'));
 			tab = $('<div>').addClass("tab action-sheet").attr('data-tab', 'terrain').insertAfter($('.tab:last', html));
 		} else {
+			let root = $('form', html);
+			if (root.length == 0)
+				root = html;
 			let basictab = $('<div>').addClass("tab").attr('data-tab', 'basic');
-			$('form > *:not(button)', html).each(function () {
+			$('> *:not(button)', root).each(function () {
 				basictab.append(this);
 			});
 
 			tab = $('<div>').addClass("tab action-sheet").attr('data-tab', 'terrain');
-			$('form', html).prepend(tab).prepend(basictab).prepend(
+			$(root).prepend(tab).prepend(basictab).prepend(
 				$('<nav>')
 					.addClass("sheet-tabs tabs")
 					.append($('<a>').addClass("item active").attr("data-tab", "basic").html('<i class="fas fa-university"></i> Basic'))

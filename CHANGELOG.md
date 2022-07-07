@@ -1,3 +1,11 @@
+# Version 1.0.42
+
+Fixed icon sizing for the HUD Terrain cost.
+
+Fixed issue setting settings when the canvas terrain layer doesn't exist yet.
+
+Fixed issues with adding the Terrain tab to various config dialogs.
+
 # Version 1.0.41
 
 Fixed issue where editing the colours in the settings was erasing all the colour information.
