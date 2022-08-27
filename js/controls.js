@@ -19,9 +19,24 @@ Hooks.on('getSceneControlButtons', (controls) => {
 				icon: 'fas fa-expand'
 			},
 			{
-				name: 'addterrain',
-				title: game.i18n.localize('EnhancedTerrainLayer.add'),
-				icon: 'fas fa-marker'
+				name: "rect",
+				title: "CONTROLS.DrawingRect",
+				icon: "fa-solid fa-square"
+			},
+			{
+				name: "ellipse",
+				title: "CONTROLS.DrawingEllipse",
+				icon: "fa-solid fa-circle"
+			},
+			{
+				name: "polygon",
+				title: "CONTROLS.DrawingPoly",
+				icon: "fa-solid fa-draw-polygon"
+			},
+			{
+				name: "freehand",
+				title: "CONTROLS.DrawingFree",
+				icon: "fa-solid fa-signature"
 			},
 			{
 				name: 'terraintoggle',

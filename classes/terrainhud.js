@@ -23,7 +23,7 @@ export class TerrainHUD extends BasePlaceableHUD {
     getData() {
         var _environments = canvas.terrain.getEnvironments().map(obj => {
             obj.text = i18n(obj.text);
-            obj.active = (this.object.data.environment == obj.id);
+            obj.active = (this.object.document.environment == obj.id);
 
             return obj;
         });
@@ -39,10 +39,8 @@ export class TerrainHUD extends BasePlaceableHUD {
         return mergeObject(data, {
             lockedClass: data.locked ? "active" : "",
             visibilityClass: data.hidden ? "active" : "",
-            cost: TerrainLayer.multipleText(this.object.multiple),
-            elevation: this.object.elevation,
-            depth: this.object.depth,
-            environment: this.object.environment,
+            text: TerrainLayer.multipleText(data.multiple),
+            environment: this.object.document.environmentObject,
             environments: _environments
         });
     }
@@ -88,20 +86,15 @@ export class TerrainHUD extends BasePlaceableHUD {
         let ctrl = event.currentTarget;
         let id = ctrl.dataset.environmentId;
         $('.environment-list .environment-container.active', this.element).removeClass('active');
-        if (id != this.object.data.environment)
+        if (id != this.object.document.environment)
             $('.environment-list .environment-container[data-environment-id="' + id + '"]', this.element).addClass('active');
 
         const updates = this.layer.controlled.map(o => {
-            return { _id: o.id, environment: (id != this.object.data.environment ? id : '') };
+            return { _id: o.id, environment: (id != this.object.document.environment ? id : '') };
         });
 
         return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
-            for (let terrain of this.layer.controlled) {
-                let data = updates.find(u => { return u._id == terrain.data._id });
-                terrain.update(data, { save: false }).then(() => {
-                    $('.environments > img', this.element).attr('src', terrain?.environment?.icon || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
-                });
-            }
+            $('.environments > img', this.element).attr('src', this.object.document.environmentObject?.icon || 'data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=');
         });
     }
 
@@ -123,7 +116,7 @@ export class TerrainHUD extends BasePlaceableHUD {
 
     _onHandleClick(increase, event) {
         const updates = this.layer.controlled.map(o => {
-            let mult = TerrainLayer.alterMultiple(o.data.multiple, increase);
+            let mult = TerrainLayer.alterMultiple(o.document.multiple, increase);
             //let idx = TerrainLayer.multipleOptions.indexOf(mult);
             //idx = Math.clamped((increase ? idx + 1 : idx - 1), 0, TerrainLayer.multipleOptions.length - 1);
             return { _id: o.id, multiple: mult }; //TerrainLayer.multipleOptions[idx] };
@@ -131,7 +124,7 @@ export class TerrainHUD extends BasePlaceableHUD {
 
         let that = this;
         return canvas.scene.updateEmbeddedDocuments("Terrain", updates).then(() => {
-            $('.terrain-cost', that.element).html(`${TerrainLayer.multipleText(that.object.multiple)}`);
+            $('.terrain-cost', that.element).html(`${TerrainLayer.multipleText(that.object.document.multiple)}`);
         });
 
         /*
@@ -155,7 +148,7 @@ export class TerrainHUD extends BasePlaceableHUD {
     async _onToggleVisibility(event) {
         event.preventDefault();
 
-        const isHidden = this.object.data.hidden;
+        const isHidden = this.object.document.hidden;
 
         event.currentTarget.classList.toggle("active", !isHidden);
 
@@ -167,7 +160,7 @@ export class TerrainHUD extends BasePlaceableHUD {
     async _onToggleLocked(event) {
         event.preventDefault();
 
-        const isLocked = this.object.data.locked;
+        const isLocked = this.object.document.locked;
 
         event.currentTarget.classList.toggle("active", !isLocked);
 
@@ -182,14 +175,25 @@ export class TerrainHUD extends BasePlaceableHUD {
     /** @override */
     setPosition() {
         $('#hud').append(this.element);
-        let { x, y, width, height } = this.object.terrain.hitArea;
+        let { x, y, width, height } = this.object.hitArea;
+        /*
         const c = 70;
         const p = 0;
         const position = {
             width: width + (c * 2), // + (p * 2),
             height: height + (p * 2),
-            left: x + this.object.data.x - c - p,
-            top: y + this.object.data.y - p
+            left: x + this.object.document.x - c - p,
+            top: y + this.object.document.y - p
+        };
+        this.element.css(position);
+        */
+        const c = 70;
+        const p = -10;
+        const position = {
+            width: width + (c * 2) + (p * 2),
+            height: height + (p * 2),
+            left: x + this.object.document.x - c - p,
+            top: y + this.object.document.y - p
         };
         this.element.css(position);
     }

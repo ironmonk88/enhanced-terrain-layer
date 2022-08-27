@@ -1,3 +1,7 @@
+# Version 1.0.43
+
+Updates to support v10
+
 # Version 1.0.42
 
 Fixed icon sizing for the HUD Terrain cost.

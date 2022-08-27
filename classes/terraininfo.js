@@ -98,8 +98,8 @@ export class TokenTerrainInfo extends TerrainInfo {
     get shape() {
         const left = 0;
         const top = 0;
-        const right = left + this.token.data.width * canvas.grid.w;
-        const bottom = top + this.token.data.height * canvas.grid.h;
+        const right = left + this.token.width * canvas.dimensions.size;
+        const bottom = top + this.token.height * canvas.dimensions.size;
         return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
     }
 }

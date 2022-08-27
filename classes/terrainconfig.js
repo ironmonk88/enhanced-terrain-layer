@@ -12,6 +12,8 @@ export class TerrainConfig extends DocumentSheet {
             //title: i18n("EnhancedTerrainLayer.Configuration"),
             template: "modules/enhanced-terrain-layer/templates/terrain-config.html",
             width: 400,
+            height: "auto",
+            configureDefault: false,
             submitOnChange: false
         });
     }
@@ -22,7 +24,6 @@ export class TerrainConfig extends DocumentSheet {
     getData(options) {
         var _obstacles = {};
         var _environments = canvas.terrain.getEnvironments().reduce(function (map, obj) {
-            
             if (obj.obstacle === true) {
                 _obstacles[obj.id] = i18n(obj.text);
             }else
@@ -30,22 +31,14 @@ export class TerrainConfig extends DocumentSheet {
             return map;
         }, {});
 
-        /*var _obstacles = canvas.terrain.getObstacles().reduce(function (map, obj) {
-            map[obj.id] = i18n(obj.text);
-            return map;
-        }, {});*/
-
-        let object = duplicate(this.object.data);
-        object.opacity = this.document.object.opacity;
-
-        return {
-            object: object,
-            options: this.options,
+        const data = super.getData();
+        return mergeObject(data, {
+            author: game.users.get(this.document.author)?.name || "",
             environments: _environments,
             obstacles: _obstacles,
             useObstacles: setting('use-obstacles'),
-            submitText: this.options.preview ? "Create" : "Update"
-        }
+            submitText: this.document.id ? "Update" : "Create"
+        })
     }
 
     /* -------------------------------------------- */
@@ -54,7 +47,7 @@ export class TerrainConfig extends DocumentSheet {
     _onChangeInput(event) {
         if ($(event.target).attr('name') == 'multiple') {
             let val = $(event.target).val();
-            $(event.target).next().html(TerrainLayer.multipleText(val));
+            $(event.target).next().html(TerrainDocument.text(val));
         }
         super._onChangeInput.call(this, event);
     }
@@ -65,6 +58,19 @@ export class TerrainConfig extends DocumentSheet {
     async _updateObject(event, formData) {
         if (!game.user.isGM) throw "You do not have the ability to configure a Terrain object.";
 
+        // Un-scale the bezier factor
+        //formData.bezierFactor /= 2;
+
+        if (formData.width != this.object.width || formData.height != this.object.height) {
+            let reshape = this.object.object._rescaleDimensions(this.object, formData.width - this.object.width, formData.height - this.object.height);
+            formData["shape.width"] = reshape.shape.width;
+            formData["shape.height"] = reshape.shape.height;
+            if (this.object.object.isPolygon)
+                formData["shape.points"] = reshape.shape.points;
+        }
+        delete formData.width;
+        delete formData.height;
+
         let data = expandObject(formData);
         data.multiple = Math.clamped(data.multiple, setting('minimum-cost'), setting('maximum-cost'));
 
@@ -72,20 +78,23 @@ export class TerrainConfig extends DocumentSheet {
         if (data.opacity == defaultOpacity)
             data.opacity = null;
 
-        if (this.document.id) {
-            /*
-            if (game.user.isGM) {
-                game.socket.emit('module.enhanced-terrain-layer', { action: 'updateTerrain', arguments: [data] });
-            }*/
-            return this.document.update(data);
+        if (this.object.id) {
+            return this.object.update(data);
         }
-        return this.document.constructor.create(data);
+        return this.object.constructor.create(data);
+    }
+
+    async close(options) {
+        await super.close(options);
+        if (this.preview) {
+            this.preview.removeChildren();
+            this.preview = null;
+        }
     }
 
     activateListeners(html) {
         super.activateListeners(html);
 
-        
         if (setting('use-obstacles')) {
             $('select[name="environment"], select[name="obstacle"]', html).on('change', function () {
                 //make sure that the environment is always set if using obstacles

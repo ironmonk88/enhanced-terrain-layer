@@ -3,54 +3,54 @@
         {{localize "EnhancedTerrainLayer.Configure"}}
     </p>
     <div class="form-group">
-        <label for="x">X-Position <span class="units">(pixels)</span></label>
-        <input type="text" name="x" value="{{object.x}}" data-dtype="Number" />
+        <label for="x">X-Coordinate <span class="units">(Pixels)</span></label>
+        <input type="text" name="x" value="{{data.x}}" data-dtype="Number" />
     </div>
 
     <div class="form-group">
-        <label for="y">Y-Position <span class="units">(pixels)</span></label>
-        <input type="text" name="y" value="{{object.y}}" data-dtype="Number" />
+        <label for="y">Y-Coordinate <span class="units">(Pixels)</span></label>
+        <input type="text" name="y" value="{{data.y}}" data-dtype="Number" />
     </div>
 
     <div class="form-group">
-        <label for="width">Width <span class="units">(pixels)</span></label>
-        <input type="text" name="width" value="{{object.width}}" data-dtype="Number" />
+        <label for="width">Width <span class="units">(Pixels)</span></label>
+        <input type="text" name="width" value="{{data.shape.width}}" data-dtype="Number" />
     </div>
 
     <div class="form-group">
-        <label for="height">Height <span class="units">(pixels)</span></label>
-        <input type="text" name="height" value="{{object.height}}" data-dtype="Number" />
+        <label for="height">Height <span class="units">(Pixels)</span></label>
+        <input type="text" name="height" value="{{data.shape.height}}" data-dtype="Number" />
     </div>
 
     <div class="form-group">
         <label for="multiple">{{localize "EnhancedTerrainLayer.Cost"}}</label>
         <div class="form-fields">
-            <input type="text" name="multiple" data-dtype="Number" value="{{object.multiple}}" style="flex: 0 0 80px; text-align: right;">
+            <input type="text" name="multiple" data-dtype="Number" value="{{data.multiple}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">
         <label for="drawcolor">{{localize "EnhancedTerrainLayer.TerrainColor"}}</label>
         <div class="form-fields">
-            {{ colorPicker name="drawcolor" value=object.drawcolor}}
+            {{ colorPicker name="drawcolor" value=data.drawcolor}}
         </div>
     </div>
     <div class="form-group">
         <label>{{localize "EnhancedTerrainLayer.opacity.name"}}</label>
         <div class="form-fields">
-            <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="opacity" value="{{object.opacity}}">
-            <span class="range-value" style="flex: 0 1 48px;height: 23px;">{{object.opacity}}</span>
+            <input type="range" dtype="Number" min="0" max="1.0" step="0.1" name="opacity" value="{{data.opacity}}">
+            <span class="range-value" style="flex: 0 1 48px;height: 23px;">{{data.opacity}}</span>
         </div>
     </div>
     <div class="form-group">
         <label for="elevation">{{localize "EnhancedTerrainLayer.TerrainElevation"}}</label>
         <div class="form-fields" style="position:relative;">
-            <input type="number" name="elevation" step="any" data-dtype="Number" value="{{object.elevation}}" style="flex: 0 0 80px; text-align: right;">
+            <input type="number" name="elevation" step="any" data-dtype="Number" value="{{data.elevation}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">
         <label for="depth">{{localize "EnhancedTerrainLayer.TerrainDepth"}}</label>
         <div class="form-fields" style="position:relative;">
-            <input type="number" name="depth" step="any" data-dtype="Number" value="{{object.depth}}" style="flex: 0 0 80px; text-align: right;">
+            <input type="number" name="depth" step="any" data-dtype="Number" value="{{data.depth}}" style="flex: 0 0 80px; text-align: right;">
         </div>
     </div>
     <div class="form-group">
@@ -58,10 +58,10 @@
         <select name="environment" data-dtype="String">
             <option value=""></option>
             <optgroup label="{{localize "EnhancedTerrainLayer.Environment"}}" data-type="environment">
-                {{ selectOptions environments selected=object.environment }}
+                {{ selectOptions environments selected=data.environment }}
             </optgroup>
             <optgroup label="{{localize "EnhancedTerrainLayer.Obstacle"}}" data-type="obstacle">
-                {{ selectOptions obstacles selected=object.environment }}
+                {{ selectOptions obstacles selected=data.environment }}
             </optgroup>
         </select>
     </div>
@@ -69,18 +69,18 @@
     <div class="form-group">
         <label for="obstacle">{{localize "EnhancedTerrainLayer.Obstacle"}}</label>
         <select name="obstacle" data-dtype="String">
-            {{ selectOptions obstacles selected=object.obstacle blank=' ' }}
+            {{ selectOptions obstacles selected=data.obstacle blank=' ' }}
         </select>
     </div>
     {{/if}}
     <div class="form-group">
         <label for="hidden">{{localize "EnhancedTerrainLayer.Inactive"}}</label>
-        <input type="checkbox" name="hidden" {{checked object.hidden}} data-dtype="Boolean">
+        <input type="checkbox" name="hidden" {{checked data.hidden}} data-dtype="Boolean">
     </div>
 
     <div class="form-group">
         <label for="locked">{{localize "EnhancedTerrainLayer.Locked"}}</label>
-        <input type="checkbox" name="locked" {{checked object.locked}} data-dtype="Boolean">
+        <input type="checkbox" name="locked" {{checked data.locked}} data-dtype="Boolean">
     </div>
 
     <button type="submit" name="submit" value="1"><i class="far fa-save"></i> {{localize "EnhancedTerrainLayer.UpdateTerrain"}}</button>

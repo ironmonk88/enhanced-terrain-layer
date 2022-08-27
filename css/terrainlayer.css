@@ -10,6 +10,11 @@
     text-align: center;
 }*/
 
+#controls ol.control-tools.sub-controls {
+    flex-grow: 0;
+    margin-right: 6px;
+}
+
 #terrainlayer-tools.control-tools {
     list-style: none;
     padding: 0;

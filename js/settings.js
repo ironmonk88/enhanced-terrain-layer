@@ -74,7 +74,7 @@ export const registerSettings = function () {
 		hint: "EnhancedTerrainLayer.show-icon.hint",
 		scope: "world",
 		config: true,
-		default: true,
+		default: false,
 		type: Boolean,
 		onChange: debouncedRefresh
 	});

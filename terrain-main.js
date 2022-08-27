@@ -2,7 +2,8 @@ import { TerrainLayer } from './classes/terrainlayer.js';
 import { TerrainHUD } from './classes/terrainhud.js';
 import { TerrainConfig } from './classes/terrainconfig.js';
 import { Terrain } from './classes/terrain.js';
-import { BaseTerrain, TerrainDocument } from './classes/terraindocument.js';
+import { TerrainDocument } from './classes/terraindocument.js';
+import { TerrainShape } from './classes/terrainshape.js';
 import { registerSettings } from "./js/settings.js";
 
 let debugEnabled = 2;
@@ -27,15 +28,13 @@ export let setting = key => {
 };
 
 export let getflag = (obj, key) => {
-	const flags = obj.data.flags['enhanced-terrain-layer'];
-	return flags && flags[key];
+	return getProperty(obj, `flags.enhanced-terrain-layer.${key}`);
+	//const flags = obj.flags['enhanced-terrain-layer'];
+	//return flags && flags[key];
 }
 
 function registerLayer() {
-	if (isNewerVersion(game.version, "9"))
-		CONFIG.Canvas.layers.terrain = { group: "primary", layerClass: TerrainLayer };
-	else
-		CONFIG.Canvas.layers.terrain = TerrainLayer;
+	CONFIG.Canvas.layers.terrain = { group: "interface", layerClass: TerrainLayer };
 	CONFIG.Terrain = {
 		documentClass: TerrainDocument,
 		layerClass: TerrainLayer,
@@ -50,8 +49,11 @@ function registerLayer() {
 				}
 			}
 		},
+		typeLabels: { base: 'EnhancedTerrainLayer.Terrain' },
 		objectClass: Terrain
 	};
+
+	canvas["#scene"] = {};
 
 	let createEmbeddedDocuments = async function (wrapped, ...args) {
 		let [embeddedName, updates = [], context = {}] = args;
@@ -282,7 +284,7 @@ async function addControlsv9(app, dest, full) {
 
 	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
 	let data = {
-		data: duplicate(app.object.data.flags['enhanced-terrain-layer'] || {}),
+		data: duplicate(app.object.flags['enhanced-terrain-layer'] || {}),
 		environments: env,
 		obstacles: obs,
 		full: full
@@ -331,6 +333,36 @@ Hooks.on('init', async () => {
 		canvas.terrain[data.action].apply(canvas.terrain, data.arguments);
 	});
 
+	PrimaryCanvasGroup.prototype.addTerrain = function (terrain) {
+		let shape = this.terrain.get(terrain.objectId);
+		if (!shape) shape = this.addChild(new TerrainShape(terrain));
+		else shape.object = terrain;
+		shape.texture = terrain.texture ?? null;
+		this.terrain.set(terrain.objectId, shape);
+		return shape;
+	}
+
+	PrimaryCanvasGroup.prototype.removeTerrain = function(terrain) {
+		const shape = this.terrain.get(terrain.objectId);
+		if (shape) {
+			this.removeChild(shape);
+			this.terrain.delete(terrain.objectId);
+		}
+	}
+
+	let oldTearDown = PrimaryCanvasGroup.prototype.tearDown;
+	PrimaryCanvasGroup.prototype.tearDown = async function () {
+		oldTearDown.call(this);
+		this.terrain.clear();
+	}
+
+	let oldDraw = PrimaryCanvasGroup.prototype.draw;
+	PrimaryCanvasGroup.prototype.draw = async function () {
+		if (!this.terrain)
+			this.terrain = new foundry.utils.Collection();
+		oldDraw.call(this);
+	}
+
 	registerSettings();
 	registerLayer();
 	registerKeybindings();
@@ -354,9 +386,14 @@ Hooks.on('init', async () => {
 	let onDragLeftStart = async function (wrapped, ...args) {
 		wrapped(...args);
 		if (canvas != null) {
+			canvas.terrain._tokenDrag = true;
+			log("drag start", canvas.terrain._tokenDrag);
+			canvas.terrain.refreshVisibility();
+
 			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || canvas.terrain.showOnDrag);
-			canvas.terrain.visible = isVisible;
-			//log('Terrain visible: Start', canvas.terrain.visible);
+			canvas.terrain.visible = canvas.terrain.objects.visible = isVisible;
+			//canvas.terrain.toggleShapes(isVisible);
+			//log('Terrain visible: Start', canvas.terrain.objects.visible);
 		}
 	}
 
@@ -372,9 +409,14 @@ Hooks.on('init', async () => {
 	let onDragLeftDrop = async function (wrapped, ...args) {
 		wrapped(...args);
 		if (canvas != null) {
+			canvas.terrain._tokenDrag = false;
+			log("left drop", canvas.terrain._tokenDrag);
+			canvas.terrain.refreshVisibility();
+
 			const isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain' || canvas.terrain.showOnDrag);
-			canvas.terrain.visible = isVisible;
-			//log('Terrain visible: Drop', canvas.terrain.visible);
+			canvas.terrain.visible = canvas.terrain.objects.visible = isVisible;
+			//canvas.terrain.toggleShapes(isVisible);
+			//log('Terrain visible: Drop', canvas.terrain.objects.visible);
 		}
 	}
 
@@ -390,8 +432,15 @@ Hooks.on('init', async () => {
 	let onDragLeftCancel = async function (wrapped, ...args) {
 		const ruler = canvas.controls.ruler;
 
-		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING)
-			canvas.terrain.visible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
+		if (canvas != null && ruler._state !== Ruler.STATES.MEASURING) {
+			canvas.terrain._tokenDrag = false;
+			log("left cancel", canvas.terrain._tokenDrag);
+			canvas.terrain.refreshVisibility();
+
+			let isVisible = (canvas.terrain.showterrain || ui.controls.activeControl == 'terrain');
+			canvas.terrain.visible = canvas.terrain.objects.visible = isVisible;
+			//canvas.terrain.toggleShapes(isVisible);
+		}
 
 		wrapped(...args);
 	}
@@ -524,7 +573,9 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 });
 
 Hooks.on("updateScene", (scene, data) => {
-	canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
+	if (getProperty(data, "flags.enhanced-terrain-layer.opacity") || getProperty(data, "flags.enhanced-terrain-layer.drawcolor")) {
+		canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
+	}
 	if (canvas.terrain.toolbar)
 		canvas.terrain.toolbar.render(true);
 });
@@ -556,6 +607,12 @@ Hooks.on("controlToken", (app, html) => {
 Hooks.on("updateSetting", (setting, data, options, userid) => {
 	if (setting.key.startsWith("enhanced-terrain-layer")) {
 		const key = setting.key.replace("enhanced-terrain-layer.", "");
-		canvas.terrain._setting[key] = (key == "environment-color" ? JSON.parse(data.value) : data.value);
+		canvas.terrain._setting[key] = (key == "terrain-image" ? data.value : JSON.parse(data.value));
 	}
 });
+
+Hooks.on("sightRefresh", () => {
+	for (let t of canvas.terrain.placeables) {
+		t.visible = t.isVisible;
+	}
+})
