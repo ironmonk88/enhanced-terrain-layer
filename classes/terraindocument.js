@@ -84,8 +84,9 @@ export class BaseTerrain extends foundry.abstract.Document {
         /**
          * V10 migration to ShapeData model
          * @deprecated since v10
-         */
-        this._addDataFieldMigration(data, "type", "shape.type", "p");
+        */
+        if (getProperty(data, "shape.type") == undefined)
+            setProperty(data, "shape.type", "p");
         this._addDataFieldMigration(data, "width", "shape.width");
         this._addDataFieldMigration(data, "height", "shape.height");
         this._addDataFieldMigration(data, "points", "shape.points", d => d.points.flat());
@@ -93,7 +94,6 @@ export class BaseTerrain extends foundry.abstract.Document {
     }
 
     static shimData(data, options) {
-        this._addDataFieldShim(data, "type", "shape.type", { since: 10, until: 12 });
         this._addDataFieldShim(data, "width", "shape.width", { since: 10, until: 12 });
         this._addDataFieldShim(data, "height", "shape.height", { since: 10, until: 12 });
         this._addDataFieldShim(data, "points", "shape.points", { since: 10, until: 12 });

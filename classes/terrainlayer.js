@@ -212,7 +212,7 @@ export class TerrainLayer extends PlaceablesLayer {
         let isDead = options.isDead || function (token) {
             return !!token.actor?.effects?.find(e => {
                 const core = e.flags["core"];
-                return core && core["statusId"] === "dead"; 
+                return core && core["statusId"] === CONFIG.specialStatusEffects.DEFEATED;
             });
         }
 
@@ -345,7 +345,7 @@ export class TerrainLayer extends PlaceablesLayer {
         if (etl) {
             for (let [k, v] of Object.entries(etl)) {
                 if (k.startsWith('terrain')) {
-                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined && v._id != undefined && v.shape?.points != undefined) {
+                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined && v._id != undefined) {
                         //lets correct any changes
                         let change = false;
                         if (v.environment == '' && v.obstacle != '') {

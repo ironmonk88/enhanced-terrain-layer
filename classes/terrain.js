@@ -410,8 +410,6 @@ export class Terrain extends PlaceableObject {
         if (hidden && (!game.user.isGM || setting("only-show-active")))
             return false;
 
-        log("isVisible", canvas.terrain._tokenDrag, this.layer._tokenDrag);
-
         if (!this.layer.showterrain && !(this.layer.showOnDrag && this.layer._tokenDrag))
             return false;
 

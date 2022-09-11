@@ -1,3 +1,9 @@
+# Version 10.1
+
+Fixed issue with migrating to v10.
+
+Fixed detecting if a token is defeated.
+
 # Version 1.0.43
 
 Updates to support v10
