@@ -1,3 +1,7 @@
+# Version 10.3
+
+Fixed a spelling mistake in one of my fixes.
+
 # Version 10.2
 
 Fixed issues with checking if the terrain contains a point.
