@@ -52,6 +52,29 @@ export class TerrainShape extends DrawingShape {
         this.setPosition();
     }
 
+    get _pixishape() {
+        let shape;
+        switch (this.document.shape.type) {
+            case Drawing.SHAPE_TYPES.RECTANGLE:
+                shape = new PIXI.Rectangle(this.x, this.y, this.width, this.height);
+                break;
+            case Drawing.SHAPE_TYPES.ELLIPSE:
+                shape = new PIXI.Ellipse(this.x, this.y, this.width / 2, this.height / 2);
+                break;
+            case Drawing.SHAPE_TYPES.POLYGON:
+                shape = new PIXI.Polygon(this.document.shape.points);
+                break;
+        }
+        return shape;
+    }
+
+    contains(x, y) {
+        let shape = this._pixishape;
+        if (shape)
+            return shape.contains(x, y);
+        return false;
+    }
+
     /* -------------------------------------------- */
 
     /**

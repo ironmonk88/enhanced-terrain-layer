@@ -1,3 +1,7 @@
+# Version 10.2
+
+Fixed issues with checking if the terrain contains a point.
+
 # Version 10.1
 
 Fixed issue with migrating to v10.

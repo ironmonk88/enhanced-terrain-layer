@@ -58,7 +58,7 @@ export class PolygonTerrainInfo extends TerrainInfo {
     }
 
     get shape() {
-        return this.terrain.shape;
+        return this.terrain._pixishape;
     }
 }
 
