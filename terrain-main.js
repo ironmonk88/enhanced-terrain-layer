@@ -6,6 +6,8 @@ import { TerrainDocument } from './classes/terraindocument.js';
 import { TerrainShape } from './classes/terrainshape.js';
 import { registerSettings } from "./js/settings.js";
 
+window.TerrainLayer = TerrainLayer;
+
 let debugEnabled = 2;
 export let debug = (...args) => {
 	if (debugEnabled > 1) console.log("DEBUG: Enhanced Terrain Layer | ", ...args);
