@@ -305,7 +305,7 @@ export class Terrain extends PlaceableObject {
         //this.shape.position.set(shape.width / 2, shape.height / 2);
 
         const bounds = new PIXI.Rectangle(0, 0, shape.width, shape.height).normalize();
-        this.hitArea = this.controlled ? bounds.clone().pad(50) : bounds; // Pad to include resize handle
+        this.hitArea = this.controlled ? bounds.clone().pad(50) : this.shape._pixishape; // Pad to include resize handle
         this.buttonMode = true;
         if (this.id && this.controlled) this.#refreshFrame(bounds);
         else this.frame.visible = false;
@@ -492,7 +492,7 @@ export class Terrain extends PlaceableObject {
 
 
 
-    
+
 
     /**
      * Create the components of the terrain element, the terrain container, the drawn shape, and the overlay text
@@ -582,7 +582,7 @@ export class Terrain extends PlaceableObject {
                 this.drawDashedPolygon.call(this.drawing, points, 0, 0, 0, 1, 5, 0);
                 lStyle.width = 0;
                 this.drawing.lineStyle(lStyle);
-            } 
+            }
             this.drawing.drawShape(this.shape);
         }
 
