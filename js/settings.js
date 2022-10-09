@@ -16,6 +16,13 @@ export const registerSettings = function () {
 		'clear': 'Clear'
 	};
 
+	let tokenoptions = {
+		'false': 'None',
+		'friendly': 'Friendly',
+		'hostile': 'Hostile',
+		'true': 'Any'
+	};
+
 	game.settings.registerMenu(modulename, 'edit-colors', {
 		name: 'Edit Colors',
 		label: 'Edit Colors',
@@ -100,16 +107,18 @@ export const registerSettings = function () {
 		hint: "EnhancedTerrainLayer.tokens-cause-difficult.hint",
 		scope: "world",
 		config: true,
-		default: false,
-		type: Boolean
+		choices: tokenoptions,
+		default: "false",
+		type: String
 	});
 	game.settings.register(modulename, 'dead-cause-difficult', {
 		name: "EnhancedTerrainLayer.dead-cause-difficult.name",
 		hint: "EnhancedTerrainLayer.dead-cause-difficult.hint",
 		scope: "world",
 		config: true,
-		default: false,
-		type: Boolean
+		choices: tokenoptions,
+		default: "false",
+		type: String
 	});
 	game.settings.register(modulename, 'use-obstacles', {
 		name: "EnhancedTerrainLayer.use-obstacles.name",

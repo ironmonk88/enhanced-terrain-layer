@@ -1,3 +1,17 @@
+# Version 10.4
+
+Fixed issue when restoring a Terrain after it's been deleted when using Ctrl-Z.
+
+Fixed issue finding data when the Measured Template has no flags set.
+
+Addeed the option to set if you only want hostile creatures to cause difficult terrain.
+
+Updated the API for calculating terrain cost.
+
+Fixed issue with drawing shapes towards the upper left.
+
+Fixed issue getting the correct shape data.
+
 # Version 10.3
 
 Fixed a spelling mistake in one of my fixes.

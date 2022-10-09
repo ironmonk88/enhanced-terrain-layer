@@ -6,7 +6,7 @@ import { PolygonTerrainInfo, TemplateTerrainInfo, TokenTerrainInfo } from './ter
 import { makeid, log, debug, warn, error, i18n, setting, getflag } from '../terrain-main.js';
 import EmbeddedCollection from "../../../common/abstract/embedded-collection.mjs";
 
-export let environments = key => {
+export let environments = (key) => {
     return canvas.terrain.getEnvironments();
 };
 
@@ -174,7 +174,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 continue;
             if (options.ignore?.includes(terrain.document.environment))
                 continue;
-            let reducers = options.reduce?.filter(e => e.id == terrain.document.environment || (useObstacles && e.id == terrain.document.obstacle));
+            let reducers = options.reduce?.filter((e) => e.id == terrain.document.environment || (useObstacles && e.id == terrain.document.obstacle));
             terrainInfos.push(new PolygonTerrainInfo(terrain, reducers));
         }
         return terrainInfos;
@@ -186,7 +186,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
         const terrainInfos = options.list || [];
         for (const template of canvas.templates.placeables) {
-            const terrainFlag = template.flags['enhanced-terrain-layer'];
+            const terrainFlag = getProperty(template, "flags.enhanced-terrain-layer");
             if (!terrainFlag)
                 continue;
             const terraincost = terrainFlag.multiple ?? 1;
@@ -200,7 +200,7 @@ export class TerrainLayer extends PlaceablesLayer {
                 continue;
             if (options.ignore?.includes(environment))
                 continue;
-            let reducers = options.reduce?.filter(e => e.id == environment || (useObstacles && e.id == obstacle));
+            let reducers = options.reduce?.filter((e) => e.id == environment || (useObstacles && e.id == obstacle));
             terrainInfos.push(new TemplateTerrainInfo(template, reducers));
         }
         return terrainInfos;
@@ -212,11 +212,14 @@ export class TerrainLayer extends PlaceablesLayer {
         let isDead = options.isDead || function (token) {
             return !!token.actor?.effects?.find(e => {
                 const core = e.flags["core"];
-                return core && core["statusId"] === CONFIG.specialStatusEffects.DEFEATED;
+                return (core && core["statusId"] === CONFIG.specialStatusEffects.DEFEATED);
             });
         }
 
-        if ((setting("tokens-cause-difficult") || setting("dead-cause-difficult")) && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
+        let tokenDifficult = setting("tokens-cause-difficult");
+        let tokenDead = setting("dead-cause-difficult");
+
+        if ((tokenDifficult != "false" || tokenDead != "false") && canvas.grid.type != CONST.GRID_TYPES.GRIDLESS && !options.ignore?.includes("tokens")) {
             const elevation = this.calcElevationFromOptions(options);
             const tokenId = options.tokenId || options?.token?.id;
             for (const token of canvas.tokens.placeables) {
@@ -224,10 +227,13 @@ export class TerrainLayer extends PlaceablesLayer {
                     continue;
                 if (token.hidden)
                     continue;
-                if (elevation != undefined && token.elevation != elevation)
+                if (elevation != undefined && token.elevation != undefined && token.elevation != elevation)
                     continue;
                 let dead = isDead(token);
-                if ((setting("dead-cause-difficult") && dead) || (setting("tokens-cause-difficult") && !dead)) {
+                let checkValue = dead ? tokenDead : tokenDifficult;
+                if (checkValue == 'true' ||
+                    (token.document.disposition == CONST.TOKEN_DISPOSITIONS.FRIENDLY && checkValue == "friendly") ||
+                    (token.document.disposition != CONST.TOKEN_DISPOSITIONS.FRIENDLY && checkValue == "hostile")) {
                     let reducers = options.reduce?.filter(e => e.id == 'token')
                     terrainInfos.push(new TokenTerrainInfo(token, reducers));
                 }
@@ -241,12 +247,7 @@ export class TerrainLayer extends PlaceablesLayer {
         return this.listTokenTerrain({ list: this.listMeasuredTerrain({ list: this.listTerrain(options), ...options }), ...options })
     }
 
-    costWithTerrain(pts, terrain, options = {}) {
-        pts = pts instanceof Array ? pts : [pts];
-
-        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.dimensions.size / 2);
-        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.dimensions.size / 2);
-
+    calculateCombinedCost(terrain, options = {}) {
         let calculate = options.calculate || 'maximum';
         let calculateFn;
         if (typeof calculate == 'function')
@@ -262,42 +263,37 @@ export class TerrainLayer extends PlaceablesLayer {
             }
         }
 
-        const details = [];
-        let total = 0;
+        let total = null;
+        for (const terrainInfo of terrain) {
+            if (typeof calculateFn == 'function')
+                total = calculateFn(terrainInfo.cost, total, terrainInfo.object);
+        }
+        return total ?? 1;
+    }
+
+    costWithTerrain(pts, terrain, options = {}) {
+        const multipleResults = pts instanceof Array;
+        pts = multipleResults ? pts : [pts];
+
+        const hx = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.dimensions.size / 2);
+        const hy = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? 0 : canvas.dimensions.size / 2);
+
+        const costs = [];
         for (const pt of pts) {
-            let cost = null;
-            const [gx, gy] = (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x));
+            const [gx, gy] = canvas.grid.type == CONST.GRID_TYPES.GRIDLESS || options.ignoreGrid === true ? [pt.x, pt.y] : canvas.grid.grid.getPixelsFromGridPosition(pt.y, pt.x);
 
-            const tx = (gx + hx);
-            const ty = (gy + hy);
+            const tx = gx + hx;
+            const ty = gy + hy;
 
-            for (const terrainInfo of terrain) {
-                const testX = tx - terrainInfo.object.document.x;
-                const testY = ty - terrainInfo.object.document.y;
-
-                if (!terrainInfo.shape.contains(testX, testY))
-                    continue;
-
-                const terraincost = terrainInfo.cost;
-                if (typeof calculateFn == 'function')
-                    cost = calculateFn(terraincost, cost, terrainInfo.object);
-                
-                const detail = {
-                    cost: terrainInfo.rawCost,
-                    object: terrainInfo.object,
-                    reduce: terrainInfo.reducers,
-                    total: cost,
-                };
-                details.push(detail);
-            }
-
-            total += (cost != undefined ? cost : 1);
+            terrain = terrain.filter((t) =>
+                t.shape.contains(tx - t.object.x, ty - t.object.y)
+            );
+            const cost = this.calculateCombinedCost(terrain, options);
+            costs.push(cost);
         }
 
-        if (options.verbose === true)
-            return { cost: total, details: details, calculate: calculate };
-        else
-            return total;
+        if (multipleResults) return costs;
+        else return costs[0];
     }
 
     cost(pts, options = {}) {
@@ -319,6 +315,13 @@ export class TerrainLayer extends PlaceablesLayer {
             const testY = hy - t.y;
             return t.shape.contains(testX, testY);
         });
+
+        const elevation = this.calcElevationFromOptions(options);
+        if (elevation !== null) {
+            terrains = terrains.filter(
+                (t) => (elevation) => t.bottom && elevation <= t.top
+            );
+        }
 
         return terrains;
     }
@@ -571,7 +574,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
         // Successful drawing completion
         if (createState === 2) {
-            const distance = Math.hypot(destination.x - preview.x, destination.y - preview.y);
+            const distance = Math.hypot(preview.shape.width, preview.shape.height);
             const minDistance = distance >= (canvas.dimensions.size / this.gridPrecision);
             const completePolygon = preview.isPolygon && (preview.document.shape.points.length > 4);
 

@@ -21,12 +21,12 @@ Hooks.on('getSceneControlButtons', (controls) => {
 			{
 				name: "rect",
 				title: "CONTROLS.DrawingRect",
-				icon: "fa-solid fa-square"
+				icon: "fa-regular fa-square"
 			},
 			{
 				name: "ellipse",
 				title: "CONTROLS.DrawingEllipse",
-				icon: "fa-solid fa-circle"
+				icon: "fa-regular fa-circle"
 			},
 			{
 				name: "polygon",

@@ -208,6 +208,8 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         let originals = [];
         let created = [];
         for (let terrain of data) {
+            if (terrain instanceof TerrainDocument)
+                terrain = terrain.toObject();
             //update this object
            // mergeObject(terrainDoc.data, data);
             terrain._id = terrain._id || makeid();
