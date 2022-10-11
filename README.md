@@ -10,17 +10,17 @@ Please note, this module by itself only records the difficult terrain.  You'll n
 
 ### Terrain Layer
 
-![enhanced-terrain-layer](Documentation/TerrainTool.webp)
+<img align="left" src="Documentation/TerrainTool.webp" alt="TerrainTool">
 
-![enhanced-terrain-layer](Documentation/TerrainLayerTools.webp)
+<img align="left" src="Documentation/TerrainLayerTools.webp" alt="TerrainLayerTools">
 
-Currently you can draw a polygon onto the map to represent the terrain at that location.  This tool functions the same way you would use the polygon tool to draw polygons shapes to the scene.  Left drag to start the shape, left click to add a point, right click to remove a point, and double-click to close the shape when you're done.  You can also add a grid square by double-clicking on the canvas.
+The various drawing tools work identically to the core Drawings tools. Left drag to start the shape, left-click to add a point, right-click to remove a point, and double-click to close the shape when you're done.  You can also add a grid square by double-clicking on the canvas.
 
 You can then set how difficult that terrain is to move through, and what type of terrain it is, and if it affects ground based tokens or air based tokens.
 
-Switching to the select tool you can resize an area or reposition the area as you would with most object in Foundry.  You can also delete an area by pressing the delete key while the the area is selected.
+Switching to the select tool you can resize an area or reposition the area as you would with most object in Foundry. You can also delete an area by pressing the delete key while the the area is selected.
 
-The Terrain Layer will also let you assign difficulty to a measured templates.  You can use this for spells that set difficult terrain.
+The Terrain Layer will also let you assign difficulty to measured templates. You can use this for spells that set difficult terrain.
 
 And it will also calculate other tokens so that when you're moving through another creatures square it will count as difficult terrain.
 
