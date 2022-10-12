@@ -30,6 +30,7 @@ You can set the color of the terrain, on an individual basis, a default colour f
 Enhanced Terrain Layer only records difficult terrain, it doesn't do any measuring based on that information.  To get drag distances for Tokens I'd recommend using both Terrain Ruler and Drag Ruler.  Terrain Ruler will calculate the correct distance based on difficult terrain, and Drag Ruler provides a more visual representation of drag distances.
 
 ## Coding
+### Requesting terrain cost for coordinates on the map
 For those who are developing Rulers based on the Enhanced Terrain Layer, to get access to the difficulty cost of terrain grid you call the cost function.
 `canvas.terrain.cost(pts, options);`
 pts can be a single object {x: 0, y:0}, or an array of point objects.
@@ -45,6 +46,15 @@ options {elevation: 0, reduce:[], tokenId: token.id, token:token} lets the terra
 A list of Terrain Environments can be found by calling `canvas.terrain.getEnvironments();` and can be overridden if the environments in your game differ.
 
 if you need to find the terrain at a certain grid co-ordinate you can call `canvas.terrain.terrainFromGrid(x, y);` or `canvas.terrain.terrainFromPixels(x, y);`.  This is useful if you want to determine if the terrain in question is water, and use the swim speed instead of walking speed to calculate speed.
+
+### Integrating game system rules
+Other modules or game systems systems can indicate to Enhanced Terrain Layer how a given token should interact with the terrain present in a scene and how to handle stacked terrain. That way it's possible to integrate the rules of a given game system into Enhanced Terrain Layer. To do this, the function `canvas.terrain.__proto__.calculateCombinedCost` should be overridden using libwrapper. The function receives two parameters: The first parameter is a list of `TerrainInfo` objects (more on those in the next paragraph) for which the function should calculate the cost. The second parameter is an `options` object that contains all the options that were specified by the caller of `canvas.terrain.cost`. The function shall return a number that indicates a multiplier indicating how much more expensive it is to move through a square of indicated terrain than moving through a square that has no terrain at all. For example if moving thorugh a given terrain should be twice as expensive as moving through no terrain, the function should return 2. If moving through the given terrain should be equally expensive as moving through no terrain, the function should return 1.
+
+The `TerrainInfo` objects received by this function are wrappers around objects that create terrain and allow unified access to the terrain specific properties. The following properties are offered by `TerrainInfo` objects:
+- `cost`: The cost multiplicator that has been specified for this type of terrain
+- `environment`: The environment speficied for this terrain
+- `obstacle`: The obstacle value specified for this terrain
+- `object`: The object that is causing this terrain
 
 ## Credit
 The orginal idea came from the Terrain Layer module.  But in the process of re-developing it I realised that none of the original code remained.  This is why I branched out into a new module.  But I want to give credit to the original author Will Saunders.
