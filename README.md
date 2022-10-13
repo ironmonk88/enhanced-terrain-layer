@@ -7,13 +7,20 @@ Simply use the install module screen within the FoundryVTT setup
 Please note, this module by itself only records the difficult terrain.  You'll need to use a ruler that accesses this module to see the changes when dragging a token.
 
 ## Usage & Current Features
-Currently you can draw a polygon onto the map to represent the terrain at that location.  This tool functions the same way you would use the polygon tool to draw polygons shapes to the scene.  Left drag to start the shape, left click to add a point, right click to remove a point, and double-click to close the shape when you're done.  You can also add a grid square by double-clicking on the canvas.
+
+### Terrain Layer
+
+<img align="left" src="Documentation/TerrainTool.webp" alt="TerrainTool">
+
+<img align="left" src="Documentation/TerrainLayerTools.webp" alt="TerrainLayerTools">
+
+The various drawing tools work identically to the core Drawings tools. Left drag to start the shape, left-click to add a point, right-click to remove a point, and double-click to close the shape when you're done.  You can also add a grid square by double-clicking on the canvas.
 
 You can then set how difficult that terrain is to move through, and what type of terrain it is, and if it affects ground based tokens or air based tokens.
 
-Switching to the select tool you can resize an area or reposition the area as you would with most object in Foundry.  You can also delete an area by pressing the delete key while the the area is selected.
+Switching to the select tool you can resize an area or reposition the area as you would with most object in Foundry. You can also delete an area by pressing the delete key while the the area is selected.
 
-The Terrain Layer will also let you assign difficulty to a measured templates.  You can use this for spells that set difficult terrain.
+The Terrain Layer will also let you assign difficulty to measured templates. You can use this for spells that set difficult terrain.
 
 And it will also calculate other tokens so that when you're moving through another creatures square it will count as difficult terrain.
 
@@ -24,6 +31,10 @@ You can also set blocks of Terrain to be active or not active, so if the difficu
 You can also set the environment that the difficult terrain represents.  So if you have water, or rocks, or arctic tundra you can record this information.  If you have a system that allows characters to ignore difficult terrain of a certain type, and a ruler that supports checking on this, then it can be added to the calculations.
 
 You can set the color of the terrain, on an individual basis, a default colour for that environment, a default for the scene, or a general color.
+
+### Token Integration
+
+In the module settings, you can set whether to include live or dead tokens of either friendly tokens, hostile tokens, or both as difficult terrain.
 
 ## Rulers and measuring distance
 
