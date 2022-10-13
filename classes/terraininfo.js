@@ -41,6 +41,14 @@ class TerrainInfo {
     get shape() {
         throw new Error("The getter 'shape' must be implemented by subclasses of TerrainInfo");
     }
+
+    get environment() {
+        throw new Error("The getter 'environment' must be implemented by subclasses of TerrainInfo");
+    }
+
+    get obstacle() {
+        throw new Error("The getter 'obstracle' must be implemented by subclasses of TerrainInfo");
+    }
 }
 
 export class PolygonTerrainInfo extends TerrainInfo {
@@ -60,6 +68,14 @@ export class PolygonTerrainInfo extends TerrainInfo {
     get shape() {
         return this.terrain.shape._pixishape;
     }
+
+    get environment() {
+        return this.terrain.document.environment;
+    }
+
+    get obstacle() {
+        return this.terrain.document.obstacle;
+    }
 }
 
 export class TemplateTerrainInfo extends TerrainInfo {
@@ -78,6 +94,14 @@ export class TemplateTerrainInfo extends TerrainInfo {
 
     get shape() {
         return this.template.shape;
+    }
+
+    get environment() {
+        return this.template.flags["enhanced-terrain-layer"]?.environment;
+    }
+
+    get obstacle() {
+        return this.template.flags["enhanced-terrain-layer"]?.obstacle;
     }
 }
 
@@ -101,5 +125,13 @@ export class TokenTerrainInfo extends TerrainInfo {
         const right = left + this.token.width * canvas.dimensions.size;
         const bottom = top + this.token.height * canvas.dimensions.size;
         return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
+    }
+
+    get environment() {
+        return undefined;
+    }
+
+    get obstacle() {
+        return undefined;
     }
 }
