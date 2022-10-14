@@ -1,3 +1,7 @@
+# Version 10.5
+
+Fixed an issue with determining when a token causes difficult terrain.
+
 # Version 10.4
 
 Fixed issue when restoring a Terrain after it's been deleted when using Ctrl-Z.

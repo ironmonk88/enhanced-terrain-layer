@@ -120,11 +120,19 @@ export class TokenTerrainInfo extends TerrainInfo {
     }
 
     get shape() {
-        const left = 0;
-        const top = 0;
-        const right = left + this.token.width * canvas.dimensions.size;
-        const bottom = top + this.token.height * canvas.dimensions.size;
-        return new PIXI.Polygon(left, top, right, top, right, bottom, left, bottom);
+        if (canvas.grid.type == CONST.GRID_TYPES.GRIDLESS) {
+            const hw = (this.token.document.width * canvas.dimensions.size) / 2;
+            const hh = (this.token.document.height * canvas.dimensions.size) / 2;
+            
+            return new PIXI.Circle(hw, hh, Math.max(hw, hh));
+        } else {
+            const left = 0;
+            const top = 0;
+            const width = this.token.document.width * canvas.dimensions.size;
+            const height = this.token.document.height * canvas.dimensions.size;
+
+            return new PIXI.Rectangle(left, top, width, height);
+        }
     }
 
     get environment() {

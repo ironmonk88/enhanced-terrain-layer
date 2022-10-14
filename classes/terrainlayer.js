@@ -19,6 +19,21 @@ export class TerrainLayer extends PlaceablesLayer {
         this._setting = {};
     }
 
+    testTerrain() {
+        let gr = new PIXI.Graphics();
+        if (this.debugGr)
+            canvas.tokens.removeChild(this.debugGr);
+        this.debugGr = gr;
+        canvas.tokens.addChild(gr);
+        
+        for (let x = canvas.dimensions.sceneX; x < canvas.dimensions.sceneWidth + canvas.dimensions.sceneX; x += 10) {
+            for (let y = canvas.dimensions.sceneY; y < canvas.dimensions.sceneHeight + canvas.dimensions.sceneY; y += 10) {
+                let cost = this.cost({ x: x, y: y }, { ignoreGrid: true });
+                gr.beginFill(cost == 1 ? 0x0000ff : 0xff0000).drawCircle(x, y, 4).endFill();
+            }
+        }
+    }
+
     static documentName = "Terrain";
 
     /** @override */
