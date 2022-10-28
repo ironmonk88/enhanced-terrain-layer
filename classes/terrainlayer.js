@@ -5,6 +5,7 @@ import { TerrainDocument } from './terraindocument.js';
 import { PolygonTerrainInfo, TemplateTerrainInfo, TokenTerrainInfo } from './terraininfo.js';
 import { makeid, log, debug, warn, error, i18n, setting, getflag } from '../terrain-main.js';
 import EmbeddedCollection from "../../../common/abstract/embedded-collection.mjs";
+import { calculateCombinedCost } from '../js/api.js';
 
 export let environments = (key) => {
     return canvas.terrain.getEnvironments();
@@ -262,30 +263,6 @@ export class TerrainLayer extends PlaceablesLayer {
         return this.listTokenTerrain({ list: this.listMeasuredTerrain({ list: this.listTerrain(options), ...options }), ...options })
     }
 
-    calculateCombinedCost(terrain, options = {}) {
-        let calculate = options.calculate || 'maximum';
-        let calculateFn;
-        if (typeof calculate == 'function')
-            calculateFn = calculate;
-        else {
-            switch (calculate) {
-                case 'maximum':
-                    calculateFn = function (cost, total) { return Math.max(cost, total); }; break;
-                case 'additive':
-                    calculateFn = function (cost, total) { return cost + total; }; break;
-                default:
-                    throw new Error(i18n("EnhancedTerrainLayer.ErrorCalculate"));
-            }
-        }
-
-        let total = null;
-        for (const terrainInfo of terrain) {
-            if (typeof calculateFn == 'function')
-                total = calculateFn(terrainInfo.cost, total, terrainInfo.object);
-        }
-        return total ?? 1;
-    }
-
     costWithTerrain(pts, terrain, options = {}) {
         const multipleResults = pts instanceof Array;
         pts = multipleResults ? pts : [pts];
@@ -303,7 +280,7 @@ export class TerrainLayer extends PlaceablesLayer {
             terrain = terrain.filter((t) =>
                 t.shape.contains(tx - t.object.x, ty - t.object.y)
             );
-            const cost = this.calculateCombinedCost(terrain, options);
+            const cost = calculateCombinedCost(terrain, options);
             costs.push(cost);
         }
 
