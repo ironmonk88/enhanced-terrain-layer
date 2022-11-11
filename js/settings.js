@@ -1,4 +1,5 @@
 import { TerrainColor } from "../classes/terraincolor.js";
+import { updateRuleProviderVariable } from "./api.js";
 
 export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
@@ -144,6 +145,18 @@ export const registerSettings = function () {
 		default: 4,
 		type: Number
 	});
+
+    game.settings.register(modulename, "rule-provider", {
+        name: "EnhancedTerrainLayer.rule-provider.name",
+        hint: "EnhancedTerrainLayer.rule-provider.hint",
+        scope: "world",
+        config: false,
+        default: "bulitin",
+        type: String,
+		choices: {},
+		onChange: updateRuleProviderVariable,
+    });
+
 	game.settings.register(modulename, 'showterrain', {
 		scope: "world",
 		config: false,

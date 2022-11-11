@@ -55,6 +55,11 @@
   "EnhancedTerrainLayer.draw-border.hint": "Set if the border is drawn or not",
   "EnhancedTerrainLayer.terrain-image.name": "Terrain Image",
   "EnhancedTerrainLayer.terrain-image.hint": "Change the background texture for terrain",
+  "EnhancedTerrainLayer.rule-provider.name": "Rule provider",
+  "EnhancedTerrainLayer.rule-provider.hint": "Which rule provider should Enhanced Terrain Layer pull it's terrain rules from",
+  "EnhancedTerrainLayer.rule-provider.choices.builtin": "Built-in",
+  "EnhancedTerrainLayer.rule-provider.choices.module": "Module {name}",
+  "EnhancedTerrainLayer.rule-provider.choices.system": "System {name}",
 
   "EnhancedTerrainLayer.environment.arctic": "Arctic",
   "EnhancedTerrainLayer.environment.coast": "Coast",

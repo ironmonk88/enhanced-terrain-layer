@@ -5,6 +5,8 @@ import { Terrain } from './classes/terrain.js';
 import { TerrainDocument } from './classes/terraindocument.js';
 import { TerrainShape } from './classes/terrainshape.js';
 import { registerSettings } from "./js/settings.js";
+import { initApi, registerModule, registerSystem } from './js/api.js';
+import { RuleProvider } from './classes/ruleprovider.js';
 
 let debugEnabled = 2;
 export let debug = (...args) => {
@@ -478,6 +480,10 @@ Hooks.on('init', async () => {
 			}
 		}
 	}
+
+    initApi();
+
+    window.enhancedTerrainLayer = {registerModule, registerSystem};
 });
 
 Hooks.on("ready", () => {
@@ -495,6 +501,8 @@ Hooks.on("ready", () => {
 		canvas.terrain._setting["minimum-cost"] = setting("minimum-cost");
 		canvas.terrain._setting["maximum-cost"] = setting("maximum-cost");
 	}
+
+    Hooks.callAll("enhancedTerrainLayer.ready", RuleProvider);
 });
 
 Hooks.on('renderMeasuredTemplateConfig', (app, html, data) => {

@@ -59,7 +59,22 @@ A list of Terrain Environments can be found by calling `canvas.terrain.getEnviro
 if you need to find the terrain at a certain grid co-ordinate you can call `canvas.terrain.terrainFromGrid(x, y);` or `canvas.terrain.terrainFromPixels(x, y);`.  This is useful if you want to determine if the terrain in question is water, and use the swim speed instead of walking speed to calculate speed.
 
 ### Integrating game system rules
-Other modules or game systems systems can indicate to Enhanced Terrain Layer how a given token should interact with the terrain present in a scene and how to handle stacked terrain. That way it's possible to integrate the rules of a given game system into Enhanced Terrain Layer. To do this, the function `canvas.terrain.__proto__.calculateCombinedCost` should be overridden using libwrapper. The function receives two parameters: The first parameter is a list of `TerrainInfo` objects (more on those in the next paragraph) for which the function should calculate the cost. The second parameter is an `options` object that contains all the options that were specified by the caller of `canvas.terrain.cost`. The function shall return a number that indicates a multiplier indicating how much more expensive it is to move through a square of indicated terrain than moving through a square that has no terrain at all. For example if moving thorugh a given terrain should be twice as expensive as moving through no terrain, the function should return 2. If moving through the given terrain should be equally expensive as moving through no terrain, the function should return 1.
+Other modules or game systems systems can indicate to Enhanced Terrain Layer how a given token should interact with the terrain present in a scene and how to handle stacked terrain. That way it's possible to integrate the rules of a given game system into Enhanced Terrain Layer. Enhanced Terrain Layer offers an API to which modules and game systems can register to provide the implementation of the respective rules to Enhanced Terrain Layer. Registering with the API works as follows:
+
+```javascript
+Hooks.once("enhancedTerrainLayer.ready", (RuleProvider) => {
+  class ExampleGameSystemRuleProvider extends RuleProvider {
+    calculateCombinedCost(terrain, options) {
+      let cost;
+      // Calculate the cost for this terrain
+      return cost;
+    }
+  }
+  enhancedTerrainLayer.registerModule("my-module-id", ExampleGameSystemRuleProvider);
+});
+```
+
+If you're accessing the Enahanced Terrain Layer API from a game system, use `registerSystem` instead of `registerModule`. The `calculateCombinedCost` needs to implemented in a way that reflects the rules of your system. The function receives two parameters: The first parameter is a list of `TerrainInfo` objects (more on those in the next paragraph) for which the function should calculate the cost. The second parameter is an `options` object that contains all the options that were specified by the caller of `canvas.terrain.cost`. The function shall return a number that indicates a multiplier indicating how much more expensive it is to move through a square of indicated terrain than moving through a square that has no terrain at all. For example if moving thorugh a given terrain should be twice as expensive as moving through no terrain, the function should return 2. If moving through the given terrain should be equally expensive as moving through no terrain, the function should return 1.
 
 The `TerrainInfo` objects received by this function are wrappers around objects that create terrain and allow unified access to the terrain specific properties. The following properties are offered by `TerrainInfo` objects:
 - `cost`: The cost multiplicator that has been specified for this type of terrain
