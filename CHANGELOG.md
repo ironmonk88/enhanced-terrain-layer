@@ -1,3 +1,27 @@
+# Version 10.6
+
+Fixed issue refreshing the terrain shape if the shape doesn't exist
+
+Added opacity as a default value when creating terrain.
+
+Fixed issue when treying to use the get function on the terrain layer to get terrain information
+
+Fixed issue with getting terrain info from measured templates
+
+Fixed issues with getting terrain from grid and pixels, with the missing options property
+
+Fixed issues with double-clicking to create a hex terrain.
+
+Added the option to have the measured template created from a spell template, get the colour from the default environment colour.
+
+Fixed the terrain config interface so that the default values are used as placeholders
+
+Fixed issue with Midi Qol settings being inserted between the terrain header and settings.
+
+Fixed issues with the terrain tab not shrinking to fit the contents when Token Magic FX is enabled.
+
+Add a Rules Provider API, so systems and modules can register how they want difficult terrain to be calculated. Thank you Stäbchenfisch!!
+
 # Version 10.5
 
 Fixed an issue with determining when a token causes difficult terrain.

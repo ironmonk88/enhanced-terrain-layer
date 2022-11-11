@@ -301,7 +301,8 @@ export class Terrain extends PlaceableObject {
         const { x, y, hidden, shape } = this.document;
 
         // Refresh the primary drawing container
-        this.shape.refresh();
+        if (this.shape)
+            this.shape.refresh();
         //this.shape.position.set(shape.width / 2, shape.height / 2);
 
         const bounds = new PIXI.Rectangle(0, 0, shape.width, shape.height).normalize();
@@ -381,12 +382,13 @@ export class Terrain extends PlaceableObject {
         let sceneElev = sceneFlags?.elevation;
         let sceneDepth = sceneFlags?.depth;
         let sceneEnv = sceneFlags?.environment;
+        let sceneOpacity = sceneFlags?.opacity;
         return {
             //rotation:0,
             locked: false,
             hidden: false,
             //drawcolor: setting('environment-color')[sceneEnv] || getflag(canvas.scene, 'defaultcolor') || setting('environment-color')['_default'] || "#FFFFFF",
-            //opacity: getflag(canvas.scene, 'opacity') ?? setting('opacity') ?? 1,
+            opacity: (sceneOpacity == undefined || sceneOpacity == "" ? setting('opacity') ?? 1 : sceneOpacity),
             multiple: (sceneMult == undefined || sceneMult == "" ? this.layer.defaultmultiple : Math.clamped(parseInt(sceneMult), setting('minimum-cost'), setting('maximum-cost'))),
             elevation: (sceneElev == undefined || sceneElev == "" ? 0 : sceneElev),
             depth: (sceneDepth == undefined || sceneDepth == "" ? 0 : sceneDepth),

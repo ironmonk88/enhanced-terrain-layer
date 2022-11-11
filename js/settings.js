@@ -129,6 +129,14 @@ export const registerSettings = function () {
 		default: false,
 		type: Boolean
 	});
+	game.settings.register(modulename, 'transfer-color', {
+		name: "EnhancedTerrainLayer.transfer-color.name",
+		hint: "EnhancedTerrainLayer.transfer-color.hint",
+		scope: "world",
+		config: game.system.id == 'dnd5e',
+		default: false,
+		type: Boolean
+	});
 	game.settings.register(modulename, 'minimum-cost', {
 		name: "EnhancedTerrainLayer.minimum-cost.name",
 		hint: "EnhancedTerrainLayer.minimum-cost.hint",

@@ -66,6 +66,10 @@ export class TerrainLayer extends PlaceablesLayer {
         return canvas["#scene"].terrain || null;
     }
 
+    get(objectId) {
+        return canvas["#scene"].terrain?.get(objectId)?.object || undefined;
+    }
+
     get gridPrecision() {
         let size = canvas.dimensions.size;
         if (size >= 128) return 16;
@@ -202,7 +206,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
         const terrainInfos = options.list || [];
         for (const template of canvas.templates.placeables) {
-            const terrainFlag = getProperty(template, "flags.enhanced-terrain-layer");
+            const terrainFlag = getProperty(template.document, "flags.enhanced-terrain-layer");
             if (!terrainFlag)
                 continue;
             const terraincost = terrainFlag.multiple ?? 1;
@@ -293,12 +297,12 @@ export class TerrainLayer extends PlaceablesLayer {
         return this.costWithTerrain(pts, terrain, options);
     }
 
-    terrainFromGrid(x, y) {
+    terrainFromGrid(x, y, options = {}) {
         let [gx, gy] = canvas.grid.grid.getPixelsFromGridPosition(y, x);
-        return this.terrainFromPixels(gx, gy);
+        return this.terrainFromPixels(gx, gy, options);
     }
 
-    terrainFromPixels(x, y) {
+    terrainFromPixels(x, y, options = {}) {
         const hx = (x + (canvas.dimensions.size / 2));
         const hy = (y + (canvas.dimensions.size / 2));
 
@@ -492,8 +496,8 @@ export class TerrainLayer extends PlaceablesLayer {
             return this._onDragLeftDrop(event);
         } else if (createState == 0 || createState == undefined) {
             //add a default square
-            let gW = canvas.dimensions.size;
-            let gH = canvas.dimensions.size;
+            let gW = canvas.grid.grid.w;
+            let gH = canvas.grid.grid.h;
 
             //let pos = canvas.grid.getSnappedPosition(event.data.origin.x, event.data.origin.y, 1);
             let [tX, tY] = canvas.grid.grid.getGridPositionFromPixels(event.data.origin.x, event.data.origin.y);

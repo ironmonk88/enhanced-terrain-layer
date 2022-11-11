@@ -57,6 +57,9 @@
   "EnhancedTerrainLayer.terrain-image.hint": "Change the background texture for terrain",
   "EnhancedTerrainLayer.rule-provider.name": "Rule provider",
   "EnhancedTerrainLayer.rule-provider.hint": "Which rule provider should Enhanced Terrain Layer pull it's terrain rules from",
+  "EnhancedTerrainLayer.transfer-color.name": "Transfer spell colour",
+  "EnhancedTerrainLayer.transfer-color.hint": "When casting a spell that causes difficult terrain, transfer the default environment colour to the measured template.",
+
   "EnhancedTerrainLayer.rule-provider.choices.builtin": "Built-in",
   "EnhancedTerrainLayer.rule-provider.choices.module": "Module {name}",
   "EnhancedTerrainLayer.rule-provider.choices.system": "System {name}",

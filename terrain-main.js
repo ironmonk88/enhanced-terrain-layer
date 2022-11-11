@@ -276,7 +276,7 @@ function addControls(app, html, addheader) {
 	}
 }
 
-async function addControlsv9(app, dest, full) {
+async function addControlsv9(app, dest, { full = false, insert = false } = {}) {
 	//add the environment
 	var obs = {};
 	var env = canvas.terrain.getEnvironments().reduce(function (map, obj) {
@@ -285,8 +285,22 @@ async function addControlsv9(app, dest, full) {
 	}, {});
 
 	let template = "modules/enhanced-terrain-layer/templates/terrain-form.html";
+	let flags = duplicate(app.object.flags['enhanced-terrain-layer'] || {});
+	let defaults = {};
+	if (full) {
+		defaults = {
+			opacity: setting("opacity") ?? 1,
+			multiple: canvas.terrain.defaultmultiple,
+			elevation: 0,
+			depth: 0,
+			drawcolor: setting('environment-color')[flags?.environment] || setting('environment-color')['_default'] || "#FFFFFF"
+		}
+	}
+	
 	let data = {
-		data: duplicate(app.object.flags['enhanced-terrain-layer'] || {}),
+		data: flags,
+		defaults: defaults,
+		rangeOpacity: flags.opacity == "" ? defaults.opacity : flags.opacity ?? defaults.opacity,
 		environments: env,
 		obstacles: obs,
 		full: full
@@ -294,7 +308,17 @@ async function addControlsv9(app, dest, full) {
 	data.data.multiple = (data.data.multiple == "" || data.data.multiple == undefined ? "" : Math.clamped(parseInt(data.data.multiple), setting('minimum-cost'), setting('maximum-cost')));
 
 	let html = await renderTemplate(template, data);
-	dest.append(html);
+	if (insert)
+		dest.after(html);
+	else
+		dest.append(html);
+	$('input[name="flags.enhanced-terrain-layer.opacity"] + .range-value', dest).on("change", () => {
+		let newval = $('[name="flags.enhanced-terrain-layer.opacity"] + .range-value', dest).val();
+		if (newval == '')
+			newval = -1;
+		$('[name="flags.enhanced-terrain-layer.opacity"]', dest).val(newval);
+	});
+	$('input[name="flags.enhanced-terrain-layer.drawcolor"]', dest).attr("placeholder", defaults.drawcolor);
 }
 
 Hooks.on('canvasInit', () => {
@@ -465,8 +489,19 @@ Hooks.on('init', async () => {
 			}
 			let etldata = item.data?.flags["enhanced-terrain-layer"]; //get all the enhanced terrain flags
 			if (etldata) {
-				let data = { flags: { 'enhanced-terrain-layer': etldata } };
-				template.data.update(data);
+				//let data = { _id: template.data.id, flags: { 'enhanced-terrain-layer': etldata } };
+				if (setting("transfer-color")) {
+					let colour = setting('environment-color')[etldata.environment];
+					if (colour) {
+						//data.fillColor = colour;
+						template.data.fillColor = colour;
+						template.data._source.fillColor = colour;
+					}
+				}
+				setProperty(template.data, "flags.enhanced-terrain-layer", etldata);
+				setProperty(template.data, "_source.flags.enhanced-terrain-layer", etldata);
+				//template.data.update(data);
+				
 			}
 			return template;
 		}
@@ -529,13 +564,17 @@ Hooks.on('renderMeasuredTemplateConfig', (app, html, data) => {
 			);
 		}
 
-		addControlsv9(app, tab, false);
+		addControlsv9(app, tab);
 
 		app.options.tabs = [{ navSelector: ".tabs", contentSelector: "form", initial: "basic" }];
 		app.options.height = "auto";
 		app._tabs = app._createTabHandlers();
 		const el = html[0];
 		app._tabs.forEach(t => t.bind(el));
+
+		window.setTimeout(() => { 
+			$(app.element).css({ "min-height": "" });
+		}, 500);
 
 		app.setPosition();
 	} else {
@@ -551,7 +590,7 @@ Hooks.on("renderSceneConfig", async (app, html, data) => {
 		$('.sheet-tabs', html).append($('<a>').addClass('item').attr('data-tab', "terrain").html('<i class="fas fa-mountain"></i> Terrain'));
 		let tab = $('<div>').addClass('tab').attr('data-tab', "terrain").insertAfter($('div[data-tab="ambience"]', html));
 
-		addControlsv9(app, tab, true);
+		addControlsv9(app, tab, { full: true });
 	} else {
 		let backgroundRow = $('input[name="backgroundColor"]', html).parent().parent();
 
@@ -592,8 +631,8 @@ Hooks.on("renderItemSheet", (app, html) => {
 	if (app.object.hasAreaTarget) {
 		if (isNewerVersion(game.version, "9")) {
 			let details = $('.tab[data-tab="details"]', html);
-			details.append($('<h3>').addClass('form-header').html('Terrain Effects'));
-			addControlsv9(app, details).then(() => {
+			let title = $('<h3>').addClass('form-header').html('Terrain Effects').appendTo(details);
+			addControlsv9(app, title, { insert: true }).then(() => {
 				const selectors = app.options.scrollY || [];
 				const positions = app._scrollPositions || {};
 				app.setPosition({ height: 'auto' });
