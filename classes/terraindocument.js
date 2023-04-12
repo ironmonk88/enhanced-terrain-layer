@@ -185,11 +185,11 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
     }
 
     get top() {
-        return this.elevation + this.depth;
+        return (this.depth < 0 ? this.elevation : this.elevation + this.depth);
     }
 
     get bottom() {
-        return this.elevation;
+        return (this.depth < 0 ? this.elevation + this.depth: this.elevation);
     }
 
     /* -------------------------------------------- */
@@ -239,7 +239,7 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
             }
 
             //add it to the terrain set
-            canvas["#scene"].terrain.set(document._id, document);
+            canvas.scene.terrain.set(document._id, document);
 
             //if the multiple has changed then update the image
             if (document._object != undefined)
@@ -272,7 +272,7 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         let originals = [];
         let updated = [];
         for (let update of updates) {
-            let document = canvas["#scene"].terrain.get(update._id);
+            let document = canvas.scene.terrain.get(update._id);
 
             if (game.user.isGM) {
                 originals.push(document.toObject(false));
@@ -328,15 +328,15 @@ export class TerrainDocument extends CanvasDocumentMixin(BaseTerrain) {
         let updates = [];
         let originals = [];
         let deleted = [];
-        const deleteIds = options.deleteAll ? canvas["#scene"].terrain.keys() : ids;
+        const deleteIds = options.deleteAll ? canvas.scene.terrain.keys() : ids;
         for (let id of deleteIds) {
-            let terrain = canvas["#scene"].terrain.find(t => t.id == id);
+            let terrain = canvas.scene.terrain.find(t => t.id == id);
 
             if (terrain == undefined)
                 continue;
 
             //remove this object from the terrain list
-            canvas["#scene"].terrain.delete(id);
+            canvas.scene.terrain.delete(id);
 
             if (game.user.isGM) {
                 let key = `flags.enhanced-terrain-layer.-=terrain${id}`;

@@ -762,7 +762,7 @@ export class Terrain extends PlaceableObject {
                     const now = Date.now();
                     temporary = (now - this._drawTime) < this.constructor.FREEHAND_SAMPLE_RATE;
                 }
-                const snap = !(isShift || isFreehand);
+                const snap = isShift && !isFreehand;
                 this._addPoint(position, { snap, temporary });
                 break;
 
@@ -770,6 +770,7 @@ export class Terrain extends PlaceableObject {
             default:
                 const shape = this.shape;
                 const minSize = canvas.dimensions.size * 0.5;
+                if (isShift) position = canvas.grid.getSnappedPosition(position.x, position.y, this.layer.gridPrecision);
                 let dx = position.x - origin.x;
                 let dy = position.y - origin.y;
                 if (Math.abs(dx) < minSize) dx = minSize * Math.sign(shape.width);

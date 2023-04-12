@@ -63,11 +63,11 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     getDocuments() {
-        return canvas["#scene"].terrain || null;
+        return canvas.scene.terrain || null;
     }
 
     get(objectId) {
-        return canvas["#scene"].terrain?.get(objectId)?.object || undefined;
+        return canvas.scene.terrain?.get(objectId)?.object || undefined;
     }
 
     get gridPrecision() {
@@ -101,7 +101,8 @@ export class TerrainLayer extends PlaceablesLayer {
             { id: 'furniture', text: 'EnhancedTerrainLayer.obstacle.furniture', icon: 'modules/enhanced-terrain-layer/img/environment/furniture.png', obstacle: true },
             { id: 'magic', text: 'EnhancedTerrainLayer.obstacle.magic', icon: 'modules/enhanced-terrain-layer/img/environment/magic.png', obstacle: true },
             { id: 'plants', text: 'EnhancedTerrainLayer.obstacle.plants', icon: 'modules/enhanced-terrain-layer/img/environment/plants.png', obstacle: true },
-            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png', obstacle: true }
+            { id: 'rubble', text: 'EnhancedTerrainLayer.obstacle.rubble', icon: 'modules/enhanced-terrain-layer/img/environment/rubble.png', obstacle: true },
+            { id: 'webbing', text: 'EnhancedTerrainLayer.obstacle.webbing', icon: 'modules/enhanced-terrain-layer/img/environment/spiderweb.png', obstacle: true }
         ];
 
         Hooks.call(`getTerrainEnvironments`, this, environments);
@@ -210,8 +211,14 @@ export class TerrainLayer extends PlaceablesLayer {
             if (!terrainFlag)
                 continue;
             const terraincost = terrainFlag.multiple ?? 1;
-            const terrainbottom = terrainFlag.elevation ?? Terrain.defaults.elevation;
-            const terraintop = terrainbottom + (terrainFlag.depth ?? Terrain.defaults.depth);
+            let terrainbottom = terrainFlag.elevation ?? Terrain.defaults.elevation;
+            let terraintop = terrainbottom + (terrainFlag.depth ?? Terrain.defaults.depth);
+            if (terraintop < terrainbottom) {
+                let temp = terrainbottom;
+                terrainbottom = terraintop;
+                terraintop = temp;
+            }
+
             const environment = terrainFlag.environment || '';
             const obstacle = terrainFlag.obstacle || '';
             if (elevation < terrainbottom || elevation > terraintop)
@@ -247,7 +254,7 @@ export class TerrainLayer extends PlaceablesLayer {
                     continue;
                 if (token.hidden)
                     continue;
-                if (elevation != undefined && token.elevation != undefined && token.elevation != elevation)
+                if (elevation != undefined && token.document.elevation != undefined && token.document.elevation != elevation)
                     continue;
                 let dead = isDead(token);
                 let checkValue = dead ? tokenDead : tokenDifficult;
@@ -339,43 +346,6 @@ export class TerrainLayer extends PlaceablesLayer {
     }
 
     async draw() {
-        canvas["#scene"].terrain = new foundry.abstract.EmbeddedCollection(canvas.scene, [], Terrain);
-        let etl = canvas.scene.flags['enhanced-terrain-layer'];
-        if (etl) {
-            for (let [k, v] of Object.entries(etl)) {
-                if (k.startsWith('terrain')) {
-                    if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined && v._id != undefined) {
-                        //lets correct any changes
-                        let change = false;
-                        if (v.environment == '' && v.obstacle != '') {
-                            v.environment = v.obstacle;
-                            v.obstacle = '';
-                            change = true;
-                        }
-                        if (v.elevation == undefined || v.depth == undefined) {
-                            if (v.terrainheight != undefined && typeof v.terrainheight === 'string')
-                                v.terrainheight = JSON.parse(v.terrainheight);
-                            v.elevation = v.min || (v.terrainheight != undefined ? v.terrainheight.min : (v.terraintype == 'air' ? 5 : 0)) || 0;
-                            let max = v.max || (v.terrainheight != undefined ? v.terrainheight.max : (v.terraintype == 'air' || v.terraintype == 'both' ? 100 : 0)) || 0;
-                            v.depth = max - v.elevation;
-                            change = true;
-                        }
-
-                        change = !!TerrainDocument.migrateData(v);
-
-                        if (change)
-                            await canvas.scene.setFlag('enhanced-terrain-layer', k, v);
-
-                        //add this the the terrain collection
-                        let document = new TerrainDocument(v, { parent: canvas.scene });
-                        canvas["#scene"].terrain.set(v._id, document);
-                    }
-                    else
-                        await canvas.scene.unsetFlag('enhanced-terrain-layer', k);
-                }
-            };
-        }
-
         const d = canvas.dimensions;
         this.width = d.width;
         this.height = d.height;

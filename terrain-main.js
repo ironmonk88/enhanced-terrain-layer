@@ -55,7 +55,7 @@ function registerLayer() {
 		objectClass: Terrain
 	};
 
-	canvas["#scene"] = {};
+	//canvas["#scene"] = {};
 
 	let createEmbeddedDocuments = async function (wrapped, ...args) {
 		let [embeddedName, updates = [], context = {}] = args;
@@ -147,11 +147,13 @@ function registerLayer() {
 			return oldDeleteEmbeddedDocuments.call(this, embeddedName, ids, context);
 	}*/
 
+	/*
 	Object.defineProperty(Scene.prototype, "terrain", {
 		get: function terrain() {
 			return this.data.terrain;
 		}
 	});
+	*/
 }
 
 /*
@@ -321,6 +323,55 @@ async function addControlsv9(app, dest, { full = false, insert = false } = {}) {
 	$('input[name="flags.enhanced-terrain-layer.drawcolor"]', dest).attr("placeholder", defaults.drawcolor);
 }
 
+function setupScene(scene) {
+	scene.terrain = new foundry.abstract.EmbeddedCollection(scene, [], Terrain);
+	let etl = scene.flags['enhanced-terrain-layer'];
+	if (etl) {
+		for (let [k, v] of Object.entries(etl)) {
+			if (k.startsWith('terrain')) {
+				if (k != 'terrainundefined' && v != undefined && v.x != undefined && v.y != undefined && v._id != undefined) {
+					//lets correct any changes
+					let change = false;
+					if (v.environment == '' && v.obstacle != '') {
+						v.environment = v.obstacle;
+						v.obstacle = '';
+						change = true;
+					}
+					if (v.elevation == undefined || v.depth == undefined) {
+						if (v.terrainheight != undefined && typeof v.terrainheight === 'string')
+							v.terrainheight = JSON.parse(v.terrainheight);
+						v.elevation = v.min || (v.terrainheight != undefined ? v.terrainheight.min : (v.terraintype == 'air' ? 5 : 0)) || 0;
+						let max = v.max || (v.terrainheight != undefined ? v.terrainheight.max : (v.terraintype == 'air' || v.terraintype == 'both' ? 100 : 0)) || 0;
+						v.depth = max - v.elevation;
+						change = true;
+					}
+
+					change = !!TerrainDocument.migrateData(v);
+
+					if (change) {
+						if (game.user.isGM)
+							scene.setFlag('enhanced-terrain-layer', k, v);
+						setProperty(scene, `flags.enhanced-terrain-layer.${k}`, v);
+					}
+
+					//add this the the terrain collection
+					try {
+						let document = new TerrainDocument(v, { parent: scene });
+						scene.terrain.set(v._id, document);
+					} catch (err) {
+						error(err);
+                    }
+				}
+				else {
+					if (game.user.isGM)
+						scene.unsetFlag('enhanced-terrain-layer', k);
+					delete scene.flags["enhanced-terrain-layer"][k]
+				}
+			}
+		};
+	}
+}
+
 Hooks.on('canvasInit', () => {
 	canvas.hud.terrain = new TerrainHUD();
 	//Scene.constructor.config.embeddedEntities.Terrain = "terrain";
@@ -392,6 +443,22 @@ Hooks.on('init', async () => {
 	registerSettings();
 	registerLayer();
 	registerKeybindings();
+
+	let initializeDocuments = async function (wrapped, ...args) {
+		wrapped(...args);
+		for (let scene of game.scenes) {
+			setupScene(scene);
+		}
+	}
+
+	if (game.modules.get("lib-wrapper")?.active) {
+		libWrapper.register("enhanced-terrain-layer", "Game.prototype.initializeDocuments", initializeDocuments, "WRAPPER");
+	} else {
+		const oldInitializeDocuments = Game.prototype.initializeDocuments;
+		Game.prototype.initializeDocuments = function (event) {
+			return initializeDocuments.call(this, oldInitializeDocuments.bind(this), ...arguments);
+		}
+	}
 
 	//remove old layer's controls
 	let getControlButtons = function (wrapped, ...args) {
@@ -623,7 +690,7 @@ Hooks.on("updateScene", (scene, data) => {
 	if (getProperty(data, "flags.enhanced-terrain-layer.opacity") || getProperty(data, "flags.enhanced-terrain-layer.drawcolor")) {
 		canvas.terrain.refresh(true);	//refresh the terrain to respond to default terrain color
 	}
-	if (canvas.terrain.toolbar)
+	if (canvas.terrain?.toolbar)
 		canvas.terrain.toolbar.render(true);
 });
 

@@ -1,3 +1,17 @@
+# Version 10.7
+
+Fixed issue with holding shift to snap to grid
+
+Fixed issue with negative dpeth.
+
+Fixed issue getting access to the terrain from the canvas scene
+
+Added webbing as an obstacle
+
+Fixed issue with tokens causing difficult terrain.
+
+Swapped setting up terrain to initialization rather than on draw.
+
 # Version 10.6
 
 Fixed issue refreshing the terrain shape if the shape doesn't exist
