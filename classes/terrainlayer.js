@@ -362,6 +362,7 @@ export class TerrainLayer extends PlaceablesLayer {
 
         const documents = this.getDocuments();
         const promises = documents.map(doc => {
+            doc._destroyed = false;
             return doc.object?.draw();
         });
 

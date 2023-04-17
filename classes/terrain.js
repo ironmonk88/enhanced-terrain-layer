@@ -306,7 +306,7 @@ export class Terrain extends PlaceableObject {
         //this.shape.position.set(shape.width / 2, shape.height / 2);
 
         const bounds = new PIXI.Rectangle(0, 0, shape.width, shape.height).normalize();
-        this.hitArea = this.controlled ? bounds.clone().pad(50) : this.shape._pixishape; // Pad to include resize handle
+        this.hitArea = this.controlled ? bounds.clone().pad(50) : this.shape?._pixishape; // Pad to include resize handle
         this.buttonMode = true;
         if (this.id && this.controlled) this.#refreshFrame(bounds);
         else this.frame.visible = false;

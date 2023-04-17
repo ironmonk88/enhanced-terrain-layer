@@ -1,8 +1,14 @@
+# Version 10.8
+
+Fixed issue with trying to access pixishape when it doesn't exist
+
+Fixed issue when creating new terrain that it would only appear on a refresh.
+
 # Version 10.7
 
 Fixed issue with holding shift to snap to grid
 
-Fixed issue with negative dpeth.
+Fixed issue with negative depth.
 
 Fixed issue getting access to the terrain from the canvas scene
 
