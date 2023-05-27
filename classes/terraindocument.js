@@ -53,7 +53,7 @@ export class BaseTerrain extends foundry.abstract.Document {
             elevation: new foundry.data.fields.NumberField({ required: true, nullable: false, initial: 0, label: "EnhancedTerrainLayer.Elevation" }),
             depth: new foundry.data.fields.NumberField({ required: true, nullable: false, initial: 0,label: "EnhancedTerrainLayer.Depth" }),
             opacity: new foundry.data.fields.AlphaField({ required: true, nullable: false, initial: 1, label: "EnhancedTerrainLayer.Opacity" }),
-            drawcolor: new foundry.data.fields.ColorField({ label: "EnhancedTerrainLayer.DrawColor" }),
+            drawcolor: new foundry.data.fields.StringField({ label: "EnhancedTerrainLayer.DrawColor" }),
             environment: new foundry.data.fields.StringField({ label: "EnhancedTerrainLayer.Environment" }),
             obstacle: new foundry.data.fields.StringField({ label: "EnhancedTerrainLayer.Obstacle" }),
             flags: new foundry.data.fields.ObjectField()

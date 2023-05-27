@@ -1,3 +1,15 @@
+# Version 10.10
+
+Fixed issue with drawcolour not allowing transparent
+
+Fixed issue with canvas drawing issues if there's no terrain
+
+# Version 10.09
+
+Fixed issue with terrain not allowing "transparent" for a colour.
+
+Fixed issue with getting terrain if there's no terrain on the scene.
+
 # Version 10.8
 
 Fixed issue with trying to access pixishape when it doesn't exist

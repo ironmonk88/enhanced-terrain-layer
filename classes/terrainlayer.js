@@ -360,7 +360,7 @@ export class TerrainLayer extends PlaceablesLayer {
         // Create preview container which is always above objects
         this.preview = this.addChild(new PIXI.Container());
 
-        const documents = this.getDocuments();
+        const documents = this.getDocuments() || [];
         const promises = documents.map(doc => {
             doc._destroyed = false;
             return doc.object?.draw();
