@@ -1,9 +1,3 @@
-# Version 10.10
-
-Fixed issue with drawcolour not allowing transparent
-
-Fixed issue with canvas drawing issues if there's no terrain
-
 # Version 10.09
 
 Fixed issue with terrain not allowing "transparent" for a colour.
