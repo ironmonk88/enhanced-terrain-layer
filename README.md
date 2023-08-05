@@ -1,3 +1,11 @@
+# Important Notice
+It is with a heavy heart that I have reached the difficult decision to part ways with Enhanced Terrain Layer.  At least for the time being.  Despite dedicating a substantial amount of time to make it compatible with v11, all my efforts encountered challenges presented by Foundry. Even when attempting to pivot the module's direction to replicate the Drawings layer, luck was not on my side. Unfortunately, v11 has restricted too many essential resources that this module relies upon, leaving me with limited options for making it work. I truly did my utmost to revive it, but it seems that my endeavors have been in vain.
+
+Enhanced Terrain Layer holds a special place among my favorite modules, and it pains me to bid it farewell. However, given the incompatibility with what I aim to achieve, v11 leaves me with no other choice. While I hold a glimmer of hope that v12 might bring some positive changes, I cannot say I'm overly optimistic about it.
+
+Should Terrain Layer emerge victorious in a future poll, I will gladly return and update the module for that release. Until then, I must bid goodnight to a beloved creation, knowing that I gave it my all.
+
+
 # Enhanced Terrain Layer
 Adds a Terrain Layer to Foundry that can be used by other modules to calculate difficult terrain.
 
