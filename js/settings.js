@@ -4,7 +4,6 @@ import { updateRuleProviderVariable } from "./api.js";
 export const registerSettings = function () {
 	let modulename = "enhanced-terrain-layer";
 
-	const debouncedReload = foundry.utils.debounce(function () { window.location.reload(); }, 100);
 	const debouncedRefresh = foundry.utils.debounce(function () { canvas.terrain.refresh(); }, 100);
 
 	let imageoptions = {
@@ -66,7 +65,7 @@ export const registerSettings = function () {
 		default: 'diagonal',
 		type: String,
 		choices: imageoptions,
-		onChange: debouncedReload
+		requiresReload: true
 	});
 	game.settings.register(modulename, 'show-text', {
 		name: "EnhancedTerrainLayer.show-text.name",
